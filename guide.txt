@@ -1,9 +1,258 @@
-1 - Chạy chương trình hello world
-	Để chạy được một chương trình website trong java spring cần có thêm thư viện web org.springboot.boot (spring-boot-starter-web)
+1 - Chạy chương trình hello world ( Phần 4 chapter 3 video 25 )
+	a) Để chạy được một chương trình website trong java spring cần có thêm thư viện web org.springboot.boot (spring-boot-starter-web) khi thêm vào thì vscode sẽ tự động kéo những thư viện này về
 	Setup Spring for web = Update file pom.xml:
 	Thêm phần này vào thẻ <dependencies/>
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-						web</artifactId>
+		<artifactId>spring-boot-starter-web</artifactId>
 	</dependency>
+	b) tạo một file java cùng cấp với file java mặc định trong main 
+	import những thư viện liên quan đến web cần thiết
+	org.springframework.web.bind.annotation.GetMapping
+	org.springframework.web.bind.annotation.RestController
+
+2 - Phần 5 chapter 4 Maven & cấu trúc dự án spring boot
+	video 30: cấu trúc folder và file
+	src: chứa tất cả code ứng dụng 
+	target: thư mục chứa mã code .class đã được dịch sang mã máy từ src để JVM nó hiểu 
+		-> ứng dụng web khi chạy thì chạy trên thư mục target này 
+	.vscode: thư mục giúp debug ứng dụng java trên vscode (có nhờ cài các extension như spring boot bashboard)
+	.mvn: cách chúng ta chạy ứng dụng maven	
+	.gitignore: chứa các loại file ko đẩy lên github 
+		như chứa thư mục target vì cái này chứa mã dịch các file .class của chính máy mình hợp với máy mình chạy 
+		nếu chạy trên MacOs hoặc thiết bị khác thì mã dịch trong các file .class sẽ khác 
+		-> không nên đưa lên github
+	file mvnw (để chạy trên MacOS) , file mvnw.cmd (để chạy trên window): là nơi chứa cách cấu hình, chạy dự án nhờ có 2 file này cấu hình mới dịch được từ các file code (src/) sang file mã máy (target/)
+		đây là 2 file maven có thể build được dự án = câu lệnh: ./mvnw spring-boot:run 
+		(thêm variable enviroment: JAVA_HOME value: C:\Program Files\Java\jdk-17)
+	file pom.xml: chứa các cấu hình (dự án) thư viện, cách build dự án ~ packet.json (nếu code NodeJS) 	
+	Readme.MD: nơi ghi thông tin về dự án 
+
+	Ngoài ra: 
+	JRE system library[JavaSE-17]: chứa all library mà java cài đặt sẵn khi cài đặt java version 17
+	Maven dependencies: chứa những thư viện mà file pom.xml cài đặt vào (tức là khi cấu hình 1 library vào file pom.xml thì library này sẽ được tự động down về folder này)
+
+	** những thư mục chứa dấu chấm phía tước chỉ là môi trường giúp chạy code (hạn chế chỉnh sửa)
+
+	video 30: maven ~ gradle-groovy ~ gradle-kotlin
+	maven là 1 dự án của apache mục đích sử dụng maven: 
+		+ làm cho quá trình build nhanh hơn 
+		(ví dụ: để tạo ra target ta chỉ cần viết file code và cấu hình còn lại maven sẽ giúp quá trình tạo)
+		+ thống nhất 1 tiêu chuẩn khi build 
+		(ví dụ: dùng pom.xml để thêm các dependecies 
+
+	
+	video 33: File POM (Project Object Model) ~ packet.json(NodeJs)
+	với dự án spring khi khởi tạo sẽ có sẵn file POM
+	tiền tố .xml là cú pháp gõ code ~ html
+	dùng để quản lý dự án: (compile&build&run)
+		+ <groupId/>: tên miền web ghi ngược 
+		+ <artifactId/>: tên ứng dụng
+		+ <version/>: version phát triển phần mềm
+		...
+		Những cái này được quản lý thông qua Maven để đảm bảo mỗi thư viện cài đặt vào nó phải có tên của nó 
+		ví dụ: cùng 1 <groupId>org.springframework.boot</> nhưng có 2 <artifactId/> chính là 2 service
+
+Phần 6 - chapter 5 spring and inversion of control 
+	Làm được 3 phần: 
+		**Trong 1 ứng dụng thì có nhiều component được quản lý bởi Core Container 
+		web: học về web
+		data access: học về ORM 
+		Core container: spring boot đã hỗ trợ
+		- Beans: là một thực thể được tạo ra từ class của chúng t hoặc những class mặc định và những Beans này được quản lý bởi Core Container (mỗi class chúng t tạo ra đó là 1 Beans có kí hiệu giống hạt cafe bên trái code) -> tối ưu hóa
+		
+		Component: là cách chúng ta hiểu cách quản lý code như là 1 dự án thì bao gồm nhiều component trong mỗi component nó sẽ chứa các Beans mà Beans là đại diện cho các class của chúng ta viết 
+		@Bean
+		@Component: là cách hiểu làm sao chúng ta code và giao tiếp với Java Spring
+		**Cách thức để spring có thể quét từ các file class thành các Beans để Container quản lý 
+			Thường nó sẽ quét từ file class tạo mặc định khi khởi tạo dự án như LaptopsShopApplication.java trong này nó sẽ có @componentScan (đây là định dạng quét) và nó chỉ quét được những class cùng cấp hoặc những class trong folder cùng cấp với nó các class khác sẽ có @componet cái này giúp class đó đăng ký được quản lý bởi Container 
+		@componentScan: giúp nhận dạng Beans và quản lý dự án 
+		Quản lý dự án (inversion of control IOC and dependency injection) đây là 1 design pattern
+			IOC là cách viết code sao cho hiệu quả và dependency injection là công cụ để thực hiện hóa nó 
+			một dự án cần nhiều component -> nhiều class được quản lý bởi Container và những class này có mối quan hệ với nhau ví dụ class A phụ thuộc vào B, C phụ thuộc vào B thì lúc này chúng t chỉ cần làm việc với A và C khi nào dùng B thì IoC này sẽ inject B vào -> tăng tính hiệu quả của design pattern này
+			chứ nếu A ban đầu luôn có B và C cũng như vậy khi B thay đổi thì A và C cũng thay đổi theo -> ko hiệu quả 
+			Viết code theo 2 keywords tightly coupled (ràng buộc chặt chẽ vào nhau) và loosely coupled(nơi lõng nhau ra) nên làm loosely coupled để các class hạn chế phụ thuộc vào nhau 
+Ví dụ về tightly coupled ở đây trong constructor của Car khởi tạo mặc định 1 engine -> car phụ thuộc chặt chẽ vào engine nếu muốn thay đổi engine ở car phải thay đổi cả class engine
+// Class Engine
+class Engine {
+    public void start() {
+        System.out.println("Engine started.");
+    }
+}
+
+// Class Car
+class Car {
+    private Engine engine;
+
+    public Car() {
+        engine = new Engine(); // Car trực tiếp khởi tạo Engine
+    }
+
+    public void drive() {
+        engine.start();
+        System.out.println("Car is moving.");
+    }
+}
+
+// Main Class
+public class Main {
+    public static void main(String[] args) {
+        Car car = new Car();
+        car.drive();
+    }
+}
+
+
+Ví dụ về loosely coupled: ở đây car ko phụ thuộc trực tiếp vào engine nữa và có thể linh hoạt thay đổi engine theo cách ta muốn dependency injection cũng được thể hiện ở đây chúng t chỉ khởi tạo ra engine mà ko gán giá trị cho nó khi nào cần chúng ta mới inject nó vào (gán giá trị) 
+// Interface Engine
+interface Engine {
+    void start();
+}
+
+// Class PetrolEngine
+class PetrolEngine implements Engine {
+    public void start() {
+        System.out.println("Petrol engine started.");
+    }
+}
+
+// Class DieselEngine
+class DieselEngine implements Engine {
+    public void start() {
+        System.out.println("Diesel engine started.");
+    }
+}
+
+// Class Car
+class Car {
+    private Engine engine;
+
+    // Dependency Injection qua constructor
+    public Car(Engine engine) {
+        this.engine = engine;
+    }
+
+    public void drive() {
+        engine.start();
+        System.out.println("Car is moving.");
+    }
+}
+
+// Main Class
+public class Main {
+    public static void main(String[] args) {
+        Engine petrolEngine = new PetrolEngine();
+        Car petrolCar = new Car(petrolEngine);
+        petrolCar.drive();
+
+        Engine dieselEngine = new DieselEngine();
+        Car dieselCar = new Car(dieselEngine);
+        dieselCar.drive();
+    }
+}
+***xem thêm ví dụ về tạo thêm phương thức riêng cho từng class cha để lấy ra giá trị cần để tránh sử dụng trực tiếp giá trị của các element trong class cha -> sự phụ thuộc chặt chẽ 
+		Chung quy ở đây muốn injection thì cần phải có injector là chính framework này đã cung cấp hỗ trợ chúng t chỉ có việc code theo format của nó 	
+
+Phần 7 chapter 6 Spring Security
+
+1 - spring boot devtool: hỗ trợ việc chạy restart lại ứng dụng khi sửa code nhanh hơn 
+	bình thường chúng ta cần làm 2 bước sửa code lưu code và restart lại ứng dụng 
+	tool này sẽ giúp bỏ qua bước restart
+	cần cài thêm thư viện này: 
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <optional>true</optional>
+    </dependency>
+	để kiểm tra thư viện đã được kéo về chưa thì chúng ta vào maven -> source -> chọn dependencies 
+
+2 - @GetMapping: dùng để thiết lập route tạo được link url trong website của chúng ta 
+	Dùng để phần quyền người dùng trong security
+
+3 - database nên dùng SQL vì Java là 1 ngôn ngữ hướng đối tượng ràng buộc chặt chẽ thì SQL là sự lựa chọn hoàn hảo hơn NoSQL
+	javascript - noSQL
+	NodeJS - noSQL
+	
+4 - setup MySQL Nên dùng docker hơn là cài đặt 1 MySQL về máy cần cài:
+	MySQL Server: nơi lưu trữ
+	MySQL WorkBench: nơi view xem thông tin trong database
+	MySQL Shell: nơi gõ lệnh
+	...
+
+5 - setup MySQL cho spring boot
+	Thêm 2 dependencies
+	<dependeny>
+		<groupId>org.springframework.boot</>
+		<actifactId>spring-boot-starter-data-jpa</>
+	</>
+	<dependeny>
+		<groupId>mysql</>
+		<actifactId>mysql-connector-java</>
+	</>
+
+	Trong file pom.xml có <parent></> là org.springframework.boot đây là 1 package lớn những dependency con dependency có <groupId></> là org.springframework.boot sẽ được định nghĩa Version thông qua <parent></> này -> ko cần định nghĩa <version></>
+	nhưng ở đây <groupId>Mysql</> ko có parent để cấu hình version này nên phải thêm trực tiếp nó vào
+	search maven mysql-connector-java để lấy version mới nhất thêm <version>8.0.33</> vào trong <dependency></> có <groupId>mysql</>
+	
+	Connect database: 
+	Truyền thống thì kết nối thông qua Java Database Connectivity (JDBC)
+	hiện tại thì kết nối thông qua file resources/application.properties tất cả các thuộc tính cần làm thì cấu hình ở đây thêm vào 
+		spring.jpa.hibernate.ddl-auto=update	
+		spring.datasource.url=jdbc://${MYSQL_HOST:localhosts}:3306/laptopshop
+			(MYSQL_HOST ở đây là một tham số môi trường lấy tham số mặc định là localhost)
+		spring.datasource.username=root
+		spring.datasource.password=Thanhtrong@0510
+		spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+			(nếu dùng postgresSql thì thể mysql -> postgressql)
+		spring.jpa.show-sql: true 
+			(cho phép show câu lệnh sql)
+
+6 - Security
+a) authentication (bạn là ai 'first') & authorization(bạn có thể làm gì 'second'): đọc tài liệu
+	ví dụ: 
+		authentication: là đăng nhập vào face = tài khoản mật khẩu -> đn vào được xác nhận đc bạn là ai
+		authorization: khi đn thành công tức là đã xác thực bạn là ai rồi -> bạn có thể like ảnh người khác, chỉnh sửa comment của chính mình, ko thể xóa bài của người khác .... 
+b) nguyên tắc khi làm security: 
+	- Trust nothing
+	validate every request: luôn xác thực all requests
+	luôn xác thực data gửi vào hệ thống 
+	- Xác định quyền hạn cho hệ thống: xác định được các actor là ai và quyền hạn của họ 
+	- nhiều lớp security: firewall, middleware, ...
+	- kiến trúc của security nên đơn giản -> dễ maintain
+
+7 - setup string security
+	Thêm dependency
+	<dependency>
+		<groupId>org.springframework.boot</>
+		<actifactId>spring-boot-starter.security</>
+	</>
+	khi thêm vào có thể chương trình chưa đồng bộ với security này thì khi bấm lưu hãy bấm yes ở dưới 
+	mặc định khi cài xong: khi vào localhost:8080 || localhost:8080/user || localhost:8080/admin đều redirect chúng ta về localhost:8080/login 
+	tự động có 2 trang localhost:8080/login và localhost:8080/logout - username=user, password sẽ hiển thị dưới phần terminal khi chạy lưu ý là password này chỉ có tác dụng trong 1 phiên làm việc (session) khi chạy lại chương trình sẽ có password khác 
+	-> mặc định khi cài đặt thành công nó đã tạo ra chức năng bảo vệ ứng dụng của chúng ta
+	spring security: 
+	một số khái niệm:
+		filter chain
+		authentication managers
+		authentication providers
+	Ưu điểm: dễ sửa đổi, mặc định mọi resources của hệ thống đều được bảo về 
+
+8 - mô hình spring mvc
+	Bình thường ứng dụng của chúng là là mô hình: 
+	Request(thao tác của người dùng) -> server(java, xử lý ) -> response
+	thường request sẽ chạy vào controller(HelloWorldController.java) ở đây sẽ xử lý và gửi response lại cho người dùng -> nếu theo mô hình này sẽ không bảo về được ứng dụng 
+	-> spring security ra đời thì request nó phải đi qua spring security này trước rồi mới đến controller đấy chính là lý do chưa vào đường link nào của ứng dụng cũng phải login 
+
+	Cách thức hoạt động của spring security: 
+		
+		
+
+
+
+
+		
+			
+	
+
+	
 	

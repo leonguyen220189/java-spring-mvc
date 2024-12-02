@@ -8,7 +8,17 @@ public class HelloWorldController {
 
     @GetMapping("/")
     public String index() {
-        return "Hello world from spring boot";
+        return "Hello world from thanh trong";
+    }
+
+    @GetMapping("/user")
+    public String userPage() {
+        return "Hello world from user";
+    }
+
+    @GetMapping("/admin")
+    public String adminPage() {
+        return "Hello world from admin";
     }
 
 }

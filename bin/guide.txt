@@ -1,0 +1,9 @@
+1 - Chạy chương trình hello world
+	Để chạy được một chương trình website trong java spring cần có thêm thư viện web org.springboot.boot (spring-boot-starter-web)
+	Setup Spring for web = Update file pom.xml:
+	Thêm phần này vào thẻ <dependencies/>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-						web</artifactId>
+	</dependency>
+	
