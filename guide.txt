@@ -332,6 +332,68 @@ File Tĩnh là các file ít thay đổi thường sẽ public như file html, c
 	-> cần sử dụng View Engine 
 	**@RequestMapping(đường link url / chính là localhost:8080)
 	**cần trả về String vì java ko hiểu đâu là file của chúng ta -> ta phải đưa tên file cho nó -> cần return về String
+
+(5) dùng view engine cách truyền data từ models - controller - điều hướng dữ liệu đó đến view để hiển thị 
+	view engine là công cụ giúp code html ít đi - giải quyết được bài toán tạo ra nội dung động cho chúng ta = cách viết code java trực tiếp vào file html = Spring View Technologies trong nhóm này chúng ta dùng JSP (Java Server Pages) là một View Engine ~ EJS(NodeJs), Blade(Lavarle) sau này nên tìm hiểu về Thymeleaf
+
+(6) Setup JSP 
+	thêm các thư viện
+	<dependency>
+	    <groupId>org.apache.tomcat.embed</groupId>
+	    <artifactId>tomcat-embed-jasper</artifactId>
+	</dependency>
+
+	<dependency>
+	    <groupId>jakarta.servlet.jsp.jstl</groupId>
+	    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.glassfish.web</groupId>
+	    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+	</dependency>
+
+	**Thường những cache được lưu vào thư mục ../.m2/
+(7) Cấu hình JSP có 2 cách:
+cách 1: cấu hình trực tiếp vào .properties
+	spring.mvc.view.prefix=/WEB-INF/view/ 
+	spring.mvc.view.suffix=.jsp
+	**mvc.view là chúng ta dùng theo mô hình mvc
+	**prefix là nơi cấu hình thư mục mà chúng ta muốn quét để tìm các file hiển thị ra view 
+	**suffix là nơi cấu hình extension của các file cần tìm trong prefix -> khi return ở controller chỉ cần return tên file ko cần return extension
+	Tạo thêm 1 folder webapp ở trong main cùng cấp với folder resources để chứa /WEB-INF/view/:
+		- Trong resources/static: sẽ chứa các file tỉnh 
+		- các file render động sẽ lưu trong webapp/WEB-INF/view/ là những file động ko cho public 
+
+cách 2: cấu hình thông qua code đặt trong config/WebMvcConfig.java theo format 
+@Configuration
+@EnableWebMvc
+public class WebMvcConfig implements WebMvcConfigurer {
+
+  @Bean
+  public ViewResolver viewResolver() {
+    final InternalResourceViewResolver bean = new InternalResourceViewResolver();
+    bean.setViewClass(JstlView.class);
+    bean.setPrefix("/WEB-INF/view/");
+    bean.setSuffix(".jsp");
+    return bean;
+  }
+
+  @Override
+  public void configureViewResolvers(ViewResolverRegistry registry) {
+    registry.viewResolver(viewResolver());
+  }
+}
+
+**Nhờ có @EnableWebMvc -> Spring nhận biết được chúng ta muốn cấu hình MVC
+	 @Configuration: config này dùng để viết @Bean này giúp class này tối ưu để container quản lý 
+**Đặt trong thư mục config theo mô hình của project trong github
+**Nên dùng code vì đối với Spring Security sẽ ko có .properties cho chúng ta cấu hình 	
+
+(8) Truyền render data vào view 
+
+	
+
 	
 		
 	

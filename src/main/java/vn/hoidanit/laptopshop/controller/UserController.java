@@ -18,7 +18,7 @@ public class UserController {
 
     @RequestMapping("")
     public String getHomaPage() {
-        return "hello.html";
+        return "hellofromjsp";
     }
 }
 
