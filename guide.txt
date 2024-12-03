@@ -281,7 +281,7 @@ a) mục đích giúp Decorate 1 class giúp tăng sử hiệu quả của class
 		@EnableAutoConfiguration: enable phần tự động cấu hình Java
 		@ComponentScan: định nghĩa cách thức Scan 
 		...
-	Một số Annotation sẽ dùng: 
+	Khi 1 class chạy thì nó sẽ đọc Annotation -> nó sẽ truyền thêm 1 meta-data để nhận biết loại class theo annotation đó
 
 b) cấu hình lại username, password cho trang login
 	cấu hình vào file .properties
@@ -297,6 +297,31 @@ c) Cấu hình cấu trúc dự án theo chuẩn
 	https://github.com/hoidanit-be-java-spring-mvc/02-java-react-with-jhipster
 	cấu hình theo link này 
 	thêm các folder: config, service, controller (web nếu dự án lớn trong này sẽ chứa các controller), domain(models/entity), repository, security
+	
+	xóa HelloWorldController.class
+
+d) Bắt đầu code
+	Trái tim của mô hình MVC là controller
+-Controller: chỉ để điều hướng 
+	(1)Tạo class UserController để biến class này thành controller thì dùng annotation @controller trong class này cần định nghĩa mô hình MVC thêm những Function ứng với từng View 
+	public String getHomePage() -> làm sao để truy cập được Phương thức này -> dùng annotaion @RequestMapping giống @Route ở Flask ở đây là gửi 1 yêu cầu lên server(java) gửi từ trình duyệt web 
+		Nếu chỉ viết tới đây chạy chương trình truy cập localhost:8080 sẽ lỗi 404 vì đây chưa đủ mô hình MVC 
+		-> thêm vào folder Service
+	(2) Viết code dùng Pattern dependency Injection trong class UserController tạo 1 element	
+		private UserService; 
+		dùng hàm tạo để khởi tạo giá trị cho UserService	
+		và ở hàm getHomePage() return userService.HandleGetHomePage() 
+		Từ đây đã ra được mô hình MC: từ models -> controller nhưng chưa có View -> vẫn chưa hiển thị được
+	(3) chuyển @Controller -> @RestController để có thể hiển thị ra màn hình dùng mô hình Restful API, chuyển @RequestMapping -> @GetMapping
+		
+
+-Service: 
+	(1)Tạo class UserService thêm Annotation cho class này @Service tạo 1 function HandleGetHomePage()
+		
+
+		
+
+		
 	
 	
 
