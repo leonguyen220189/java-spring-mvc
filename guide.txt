@@ -390,7 +390,37 @@ public class WebMvcConfig implements WebMvcConfigurer {
 **Đặt trong thư mục config theo mô hình của project trong github
 **Nên dùng code vì đối với Spring Security sẽ ko có .properties cho chúng ta cấu hình 	
 
-(8) Truyền render data vào view 
+(8) Truyền từ Controller vào view = JSP có 3 cách khi dùng framework
+	Model(đơn giản nhất)
+	ModelMap(tương tác với connection, array, ...)
+	ModelAndView(return cả view cả data trong 1 lời gọi)
+Dùng model:
+	trong controller/UserController/getHomePage truyền vào tham số (Model model)
+	**Model ở đây là Spring framework đã có sẵn và mình dùng mô hình MVC nên nó mới hiểu được
+	Nội dung hàm mình sẽ thêm thuộc tính cho model
+	model.addAttribute() 
+	**đây là thêm 1 object trong javascript gồm key là tên dùng để truy cập và value 
+	@RequestMapping("")
+    	public String getHomaPage(Model model) {
+        String test = this.userService.handleGetHomePage();// lấy dữ liệu từ database
+        model.addAttribute("test", test);
+        String SinhVien = "Thanh Trong";
+        model.addAttribute("TenSinhVien", SinhVien);
+	**sau khi controller xử lý xong dữ liệu
+        return "hellofromjsp";//trả về cho view 
+    }
+
+**ở đây xem như this.userService.handleGetHomePage() là database chúng ta lấy dữ liệu về controller qua biết test
+khi chúng ta sử dụng MVC spring sẽ nhận biết được Model chúng t sẽ dùng nó sẽ controller xử lý dữ liệu để gửi cho view = cách model.addAttribute(name, value). name, value ở đây là 1 object theo javascript
+khi return hellofromjsp thì trong file JSP này đã có những dữ liệu từ controller gửi lên là được truy cập thông qua ${name} được truyền lên 
+a) cú pháp của JSP
+b) JSPL (JSP Standard Tag Library) là phần mở rộng của JSP 
+	nên dùng cái này khi dùng loop, ... giúp tăng hiệu năng 
+	<%@page contentType="text/html" pageEncoding="UTF-8"%> 
+	<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+	**<%@page/> set file của chúng ta là dạng text/html
+	<%@ taglib> là để chúng ta cấu hình chúng ta dùng thư viện nào ở đây là http://java.sun.com/jsp/jstl/ và prefix="c" là tiền tố 'c' thể hiện chúng ta dùng /core 
+	
 
 	
 
