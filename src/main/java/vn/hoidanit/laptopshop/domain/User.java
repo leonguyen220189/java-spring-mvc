@@ -6,15 +6,18 @@ public class User {
     private String fullName;
     private String password;
     private String address;
-    private String phone;
+    private String phoneNumber;
 
-    public User(long id, String email, String fullName, String password, String address, String phone) {
+    public User(long id, String email, String fullName, String password, String address, String phoneNumber) {
         this.id = id;
         this.email = email;
         this.fullName = fullName;
         this.password = password;
         this.address = address;
-        this.phone = phone;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public User() {
     }
 
     public long getId() {
@@ -57,17 +60,17 @@ public class User {
         this.address = address;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override
     public String toString() {
         return "User [id=" + id + ", email=" + email + ", fullName=" + fullName + ", password=" + password
-                + ", address=" + address + ", phone=" + phone + "]";
+                + ", address=" + address + ", phoneNumber=" + phoneNumber + "]";
     }
 }
