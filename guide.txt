@@ -1,4 +1,5 @@
-1 - Chạy chương trình hello world ( Phần 4 chapter 3 video 25 )
+Phần 4 chapter 3 video 25
+1 - Chạy chương trình hello world
 	a) Để chạy được một chương trình website trong java spring cần có thêm thư viện web org.springboot.boot (spring-boot-starter-web) khi thêm vào thì vscode sẽ tự động kéo những thư viện này về
 	Setup Spring for web = Update file pom.xml:
 	Thêm phần này vào thẻ <dependencies/>
@@ -71,6 +72,7 @@ Phần 6 - chapter 5 spring and inversion of control
 			IOC là cách viết code sao cho hiệu quả và dependency injection là công cụ để thực hiện hóa nó 
 			một dự án cần nhiều component -> nhiều class được quản lý bởi Container và những class này có mối quan hệ với nhau ví dụ class A phụ thuộc vào B, C phụ thuộc vào B thì lúc này chúng t chỉ cần làm việc với A và C khi nào dùng B thì IoC này sẽ inject B vào -> tăng tính hiệu quả của design pattern này
 			chứ nếu A ban đầu luôn có B và C cũng như vậy khi B thay đổi thì A và C cũng thay đổi theo -> ko hiệu quả 
+			Và quan hệ của những class này là Dependency ( tức là class này có sử dụng thuộc tính là class kia chứ ko phải là quan hệ cha con)
 			Viết code theo 2 keywords tightly coupled (ràng buộc chặt chẽ vào nhau) và loosely coupled(nơi lõng nhau ra) nên làm loosely coupled để các class hạn chế phụ thuộc vào nhau 
 Ví dụ về tightly coupled ở đây trong constructor của Car khởi tạo mặc định 1 engine -> car phụ thuộc chặt chẽ vào engine nếu muốn thay đổi engine ở car phải thay đổi cả class engine
 // Class Engine
@@ -230,6 +232,8 @@ b) nguyên tắc khi làm security:
 	mặc định khi cài xong: khi vào localhost:8080 || localhost:8080/user || localhost:8080/admin đều redirect chúng ta về localhost:8080/login 
 	tự động có 2 trang localhost:8080/login và localhost:8080/logout - username=user, password sẽ hiển thị dưới phần terminal khi chạy lưu ý là password này chỉ có tác dụng trong 1 phiên làm việc (session) khi chạy lại chương trình sẽ có password khác 
 	-> mặc định khi cài đặt thành công nó đã tạo ra chức năng bảo vệ ứng dụng của chúng ta
+	-> khi chạy thì terminal sẽ hiện lệnh xem logs: 
+	mặc định app được bảo vệ bởi DefaultSecurityFilterChain bao gồm nhiều lớp chain/filter xem những filter này ở Tài Liệu
 	spring security: 
 	một số khái niệm:
 		filter chain
@@ -237,16 +241,61 @@ b) nguyên tắc khi làm security:
 		authentication providers
 	Ưu điểm: dễ sửa đổi, mặc định mọi resources của hệ thống đều được bảo về 
 
-8 - mô hình spring mvc
+8 - Sơ lược về mô hình spring mvc
 	Bình thường ứng dụng của chúng là là mô hình: 
 	Request(thao tác của người dùng) -> server(java, xử lý ) -> response
 	thường request sẽ chạy vào controller(HelloWorldController.java) ở đây sẽ xử lý và gửi response lại cho người dùng -> nếu theo mô hình này sẽ không bảo về được ứng dụng 
 	-> spring security ra đời thì request nó phải đi qua spring security này trước rồi mới đến controller đấy chính là lý do chưa vào đường link nào của ứng dụng cũng phải login 
 
 	Cách thức hoạt động của spring security: 
-		
-		
+	spring security chính là middleware của hệ thống như NodeJs 
+	trong mô hình sẽ có các Filter Chain gồm chiều security filter thực hiện từng filter một cách tuyến tính (cái trên chạy xong cái dưới mới chạy) "các lớp phòng thủ" 
+	spring security đã viết cho chúng ta sẵn những lớp phòng thủ này -> muốn customize thì chỉnh sửa code vào những lớp đã có sẵn đấy 
+	thường 1 request muốn gửi đến server cần thông qua DefaultSecurityFilterChain mặc định của spring security gồm nhiều lớp chain/filter sẽ lọc những request này -> request hợp lệ/ko hợp lệ
+	một số filter/chain trong DefaultSecurityFilterChain cần dùng: 
+	org.springframework.web.filter.CorsFilter@4c1d59cd: dùng để kết nối frontend và backend
+	org.springframework.security.web.csrf.CsrfFilter@318c68d	org.springframework.security.web.authentication.logout.LogoutFilter@4733f6f5
+	security.web.authentication.UsernamePasswordAuthenticationFilter@56cc9f29	security.web.authentication.ui.DefaultLoginPageGeneratingFilter@41ccb3b9
+	security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@76cf841
+	security.web.savedrequest.RequestCacheAwareFilter@f1266c6
+	org.springframework.security.web.access.intercept.AuthorizationFilter@415ef4d8: cái này luôn cuối cùng vì đây là bước phân quyền người dùng sau khi đã đăng nhập thành công đã xác thực người dùng đó là ai rồi
 
+Phần 8 chapter 7 Spring MVC
+	**sửa lỗi tồn đọng
+	Format code cho xml trong vscode cài thêm extension xml tools 		
+	sửa dependency của mysql <groupId>com.mysql</> <artifactId>spring-boot-starter-j</> (org.springframework.boot version từ 3. trở đi dùng cái này ko cần điền version mà giao cho springboot parent cấp còn dưới 3. dùng <groupId>mysql</> <actifactId>spring-boot-starter-java</>
+1 - Mô hình MVC	
+	Viết code theo mô hình MVC: Model - View - Controller:
+	View: chịu trách nhiệm render(hiển thị) giao diện website
+	Model: các đối tượng sử dụng hệ thống được mô hình hóa qua OOP. Với Spring models bao gồm các tables trong database 
+	Controller: chịu trách nhiệm xử lý dữ liệu - giúp tương tác giữa View và Controller (là nơi xử lý logic code)
+	Spring FrameWork đã có hỗ trợ mô hình MVC -> ko cần cấu hình thêm 
+2 - Java Annotation ~ Decorator trong NodeJs
+a) mục đích giúp Decorate 1 class giúp tăng sử hiệu quả của class 
+	ví dụ: 
+	Annotation @override trước 1 function -> java có thể hiểu đây là 1 function từ child override của parent
+	Java Spring các Annotation có thể dùng cho class, function, element kí hiệu '@'
+	
+	Annotation @SpringBootApplication giúp class chạy đầu tiên khi run ứng dụng có
+		@SpringBootConfiguration: config Spring Boot
+		@EnableAutoConfiguration: enable phần tự động cấu hình Java
+		@ComponentScan: định nghĩa cách thức Scan 
+		...
+	Một số Annotation sẽ dùng: 
+
+b) cấu hình lại username, password cho trang login
+	cấu hình vào file .properties
+	spring.security.user.name=Thanhtrong
+	spring.security.user.password=Thanhtrong@0510
+	
+	**disable tạm thời spring security = cách chỉnh sửa lại Annotation @SpringBootApplication bỏ đi phần security đó
+	@SpringBootApplication(exclude = org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class)
+	mình dùng exclude để loại bỏ đi 1 phần cái tự động config khi cài đặt Security Spring 
+	include <> exclude
+	
+	
+	
+	
 
 
 
