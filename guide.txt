@@ -293,7 +293,10 @@ b) cấu hình lại username, password cho trang login
 	mình dùng exclude để loại bỏ đi 1 phần cái tự động config khi cài đặt Security Spring 
 	include <> exclude
 	
-	
+c) Cấu hình cấu trúc dự án theo chuẩn 
+	https://github.com/hoidanit-be-java-spring-mvc/02-java-react-with-jhipster
+	cấu hình theo link này 
+	thêm các folder: config, service, controller (web nếu dự án lớn trong này sẽ chứa các controller), domain(models/entity), repository, security
 	
 	
 
