@@ -305,22 +305,34 @@ d) Bắt đầu code
 -Controller: chỉ để điều hướng 
 	(1)Tạo class UserController để biến class này thành controller thì dùng annotation @controller trong class này cần định nghĩa mô hình MVC thêm những Function ứng với từng View 
 	public String getHomePage() -> làm sao để truy cập được Phương thức này -> dùng annotaion @RequestMapping giống @Route ở Flask ở đây là gửi 1 yêu cầu lên server(java) gửi từ trình duyệt web 
-		Nếu chỉ viết tới đây chạy chương trình truy cập localhost:8080 sẽ lỗi 404 vì đây chưa đủ mô hình MVC 
+		Nếu chỉ viết tới đây chạy chương trình truy cập localhost:8080 sẽ lỗi 404 vì đây chưa đủ mô hình MVC chưa tìm thấy các file tĩnh như html, css, js, images  
 		-> thêm vào folder Service
 	(2) Viết code dùng Pattern dependency Injection trong class UserController tạo 1 element	
 		private UserService; 
 		dùng hàm tạo để khởi tạo giá trị cho UserService	
 		và ở hàm getHomePage() return userService.HandleGetHomePage() 
-		Từ đây đã ra được mô hình MC: từ models -> controller nhưng chưa có View -> vẫn chưa hiển thị được
+		Từ đây đã ra được mô hình MC: từ models -> controller nhưng chưa có View -> vẫn chưa hiển thị được 
+			** tất nhiên models ở đây sau này sẽ là domain nhưng hiện tại chỉ test 
 	(3) chuyển @Controller -> @RestController để có thể hiển thị ra màn hình dùng mô hình Restful API, chuyển @RequestMapping -> @GetMapping
 		
 
 -Service: 
 	(1)Tạo class UserService thêm Annotation cho class này @Service tạo 1 function HandleGetHomePage()
 		
-
-		
-
+Render view HTML 
+File Tĩnh là các file ít thay đổi thường sẽ public như file html, css, javascript, images
+(4)Quay lại mô hình MVC bỏ đi Rest API
+	- sử dụng lại @Controller 
+	- Tạo View (view là file static html để hiển thị ra màn hình)
+		tạo thư mục src/main/resources/static/hello.html
+	- quay lại UserController.GetHomePage cho nó return về tên của file html hello.html
+	-> Controller điều hướng tới file tĩnh -> đã có view hiển thị được ra màn hình
+	** đối với spring tất cả các file đặt trong static nó sẽ hiểu là những file được public ra ngoài internet thông thường là View 
+	-> vẫn còn thiếu models những nếu dùng các file tĩnh như ngày thì rất khó để generate ra được data động tức là khó lấy dữ liệu từ models rồi dùng controller điều hướng đến view được 
+	-> cần sử dụng View Engine 
+	**@RequestMapping(đường link url / chính là localhost:8080)
+	**cần trả về String vì java ko hiểu đâu là file của chúng ta -> ta phải đưa tên file cho nó -> cần return về String
+	
 		
 	
 	
