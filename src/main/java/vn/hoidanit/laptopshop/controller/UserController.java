@@ -25,4 +25,10 @@ public class UserController {
         model.addAttribute("TenSinhVien", SinhVien);
         return "hellofromjsp";
     }
+
+    @RequestMapping("/admin/user")
+    public String getPageAdmin() {
+        return "/admin/user/Create";
+    }
+
 }

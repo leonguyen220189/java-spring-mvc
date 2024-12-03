@@ -440,6 +440,23 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 đầu tiền /resources/css sẽ luôn được link tới nếu t điền bất kì url nào = /css/....
 /css/**: 2 dấu ** ở đây thể hiện nó sẽ truy cập tất cả folder/file trong thư mục /css/
 
+(10) Tạo trang http://localhost:8080/admin/user là trang tạo user Create.jsp
+	Trong /webapp/WEB-INF/view tạo /admin/user trong này tạo 1 file Create.jsp tạo ra giao diện = bootstrap
+	<div class="container mt-5"> 				
+		<div class="row"> 
+			<div class="col-md-6 col-12 mx-auto" >
+				<hr>
+				<form></form>
+			</div>
+		</div>
+	</div>
+	
+	** class=container mt-5 thì container sẽ giúp tạo khoảng cách 2 bên (margin left, right để form ko sát với ngoài biên) mt-5 là margin top 5 đơn vị = 3em theo quy định của bootstrap (1-5 đơn vị)
+	   class=row sẽ đi kèm với container bù trừ với nó 
+	   Trong bootstrap (dùng grid) chia màn hình máy tính thành 12 phần (12 columns)
+	   -> class="col-md-6 col-12 mx-auto" đối col-6 tức là lấy 1/2 màn hình thêm -md là để hiển thị trên laptop, col-12 hiển thị trên điện thoại sẽ là full màn hình, mx-auto thì x ở đây chính là left và right mx là margin left, right auto thì nó sẽ tự động căn giữa màn hình 
+	
+	Trong controller tạo 1 class có @RequestMapping("/admin/user") và return về "/admin/user/Create.jsp" ở đây chúng ta đã cấu hình mặc định sẽ tìm trong folder /WEB-INF/view nên chỉ cần điền url đối với view
 
 
 	
