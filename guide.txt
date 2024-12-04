@@ -272,6 +272,7 @@ Phần 8 chapter 7 Spring MVC
 	Spring FrameWork đã có hỗ trợ mô hình MVC -> ko cần cấu hình thêm 
 2 - Java Annotation ~ Decorator trong NodeJs
 a) mục đích giúp Decorate 1 class giúp tăng sử hiệu quả của class 
+	Mỗi Annotation chỉ có tác dụng đối với A(class, function, element) ngay sau nó
 	ví dụ: 
 	Annotation @override trước 1 function -> java có thể hiểu đây là 1 function từ child override của parent
 	Java Spring các Annotation có thể dùng cho class, function, element kí hiệu '@'
@@ -486,14 +487,49 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 Phần 9 chapter 8: Spring Data với JPA và hibernate
 1 - Spring cung cấp Spring data là công cụ giúp chúng ta tương tác với database một cách đơn giản 
 	- Trong này nó sẽ cung cấp 1 đối tượng Repository nhờ đối tượng này chúng ta ko cần viết câu lệnh SQL nhưng vẫn truy vấn vào database được 
-	- chúng ta sẽ sử dụng JPA trong Spring Data 
+	- chúng ta sẽ sử dụng 1 model JPA trong Spring Data 
 
-2 - Cài đặt thư viện JPA
+2 - Cài đặt thư viện JPA 
 	<dependency>
 		<groupId>org.springframework.boot</>
 		<actifactId>spring-boot-starter-data-jpa</>
 	</>
 	**khi cài công cụ có chữ start mô hình chung nó đã cài đủ những công cụ cần thiết //ở đây nó đã cài sẵn hibernate
+
+3 - tương tác với SQL có 2 cách:
+	- Sử dụng JDBC: Java Database Connectivity 
+	đây là cách chúng ta kiểm soát database thông qua các câu lệnh truy vấn như select, update, insert, ...
+	hoạt động: Tạo 1 kết nối tới database -> thông qa đó dùng câu lệnh truy vấn 
+	- Sử dụng ORM(SQL) / ODM (NoSQL):
+	ORM = Object Relational Mapping
+	ODM = Object data/document Mapping
+	đây là cách chúng ta sử dụng database thông qua 1 object/đối tượng -> ko cần viết câu lệnh SQL 
+	Ưu điểm: là cú pháp dùng chung cho nhiều loại SQL chứ nếu dùng JDBC thì mỗi loại lại có mỗi loại truy vấn khác nhau
+	Nhược điểm: Hiệu năng giảm hơn so với viết câu lệnh truy vấn thông qua dùng JDBC
+
+4 - Sử dụng Hibernate để dùng ORM thao tác với database 
+Mô hình: 
+	Spring <->Spring data JPA <-> JPA <-> Hibernate <-> database 
+	chúng ta đang dùng spring để làm ứng dụng và muốn connect tới database thì cần Spring data và ở đây chúng ta dùng Spring data JPA cái này nó lại dựa trên JPA (Java Persistence API: là 1 API mà Java cung cấp) -> ở đây chúng ta đã có thể connect tới database nhưng đôi khi sử dụng API của Java để tương tác với database khá dài dòng, ... -> công cụ/framework Hibernate (chứa JDBC) ra đời được kế thừa và phát triển thêm từ JPA 
+	hibernate giúp chúng ta viết ORM và nó sử dụng JPA để thao tác với data
+
+5 - Debug java với VScode là debug phía backend 
+	không cần cài thêm công cụ gì khác 
+	đối với vscode có 1 thư mục .vscode là nơi lưu cấu hình của việc debug để chạy được chế độ debug chúng ta có file launch.json đây là vscode tự động sinh khi sử dụng extension bashboard nếu ko có file này sẽ ko chạy được chế độ debug 
+	hoạt động: bấm vào bashboard chọn dự án chọn debug - terminal sẽ xuất hiện chữ debug thay vì chữ run 
+		   dùng breakpoint để dừng tại dòng để kiểm tra giá trị 
+	
+6 - Entity (trong ứng dụng đặt là domain)
+	entity là thực thể ~ actor là những tác nhân tham gia vào hệ thống 
+	bản chất entity là 1 class của Java đại diện cho 1 table trong database
+	-> entity là models trong mô hình MVC
+	Để tạo 1 đối tượng xoay quanh Object và ko cần dùng câu lệnh truy vấn -> chúng ta sẽ viết hoạt động của 1 đối tượng để tạo 1 database chứ ko viết câu lệnh truy vấn thông thường mà chúng ta sẽ mô hình hóa nó lên 	
+	
+	Để 1 cái trở thành 1 entity -> dùng annotation @Entity phải import nó phải liên quan đến JPA (Java/javax/jakarta persistence API)  entity là 1 trong những API của JPA 	
+	khi dùng @Entity vào 1 class -> trong class này phải sử dụng thêm Annotation @Id để xác nhận 1 entity(table) đã có 1 ID (primary key) (@GeneratedValue(strategy = GenerationType.IDENTITY số tự tăng)
+	-> sau khi cấu hình xong chạy chương trình chỉ = thêm 2 annotation && đã kết nối với database cấu hình ở .properties thì nó đã tự động tạo table theo định dạng của entity đó 
+	**tên biến trong java fullName -> table: full_name vì trong database ko phân biệt chữ hoa chữ thường 
+	
 	
 
 	
