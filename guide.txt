@@ -529,6 +529,68 @@ Mô hình:
 	khi dùng @Entity vào 1 class -> trong class này phải sử dụng thêm Annotation @Id để xác nhận 1 entity(table) đã có 1 ID (primary key) (@GeneratedValue(strategy = GenerationType.IDENTITY số tự tăng)
 	-> sau khi cấu hình xong chạy chương trình chỉ = thêm 2 annotation && đã kết nối với database cấu hình ở .properties thì nó đã tự động tạo table theo định dạng của entity đó 
 	**tên biến trong java fullName -> table: full_name vì trong database ko phân biệt chữ hoa chữ thường 
+
+7 - Mô hình MVC kết hợp với Spring Data 
+
+** đặt tên models là domain chứ ko phải entity/model vì dựa theo base của jhipster ở đây nó đặt là domain là dựa trên 1 design pattern gọi là domain-driven design (domain ở đây sẽ quyết định hướng thiết kế của dự án vì trước khi viết view hoặc controller trc hết t phải tạo ra 1 domain cho cái đó như xác định dự án có bao nhiêu thực thể/actor và nó có thuộc tính gì -> mọi thứ phải xuất phát từ domain)
+
+**Repository Pattern (là công cụ kết nối tới database)
+Mô hình này gồm 3 lớp để kết nối đến database 
+	Lớp 1: Domain Model Layer (lớp model/domain) @Entity
+	Lớp 2: Infrastructure-Persistence Layer(Repository) @Repository 
+	Lớp 3: Data tier(lớp data cho phép kết nối tới các bảng trong database)
+
+	**tới đây ta đang hoàn thành Lớp 1 và Lớp 3 (đã có model trong domain và có các Annotation kết nối với db) đã có thể kết nối và sử dụng được database nhưng khả năng mở rộng và bảo trì kém -> tạo ra mô hình Repository Pattern -> chia nhỏ bớt các chức năng ra (giống microservices) để dễ nâng cấp bảo trì 
+ -> muốn theo mô hình này phải viết thêm 1 lớp repository lớp này chỉ làm 1 việc kết nối xuống database còn models sẽ chỉ dùng để định danh repository sẽ dùng những định danh này 
+
+Thực hiện tạo 1 user cho database thông qua form dùng Repository Pattern (domain, repository,sql) && Sử dụng Service && Viết code theo dependency injection 
+- tạo repository/UserRepository.java để biến nó thành repository -> dùng annotation @Repository ở đây chúng ta sẽ ko định nghĩa ra 1 class mà là 1 Interface (java spring muốn giấu đi quá trình xử lý chỉ show ra muốn làm gì và làm ntn thì java spring nó đã làm sẵn) với nội dung 	
+	
+@Repository
+public interface UserRepository extends CrudRepository<User, Long> {
+    User save(User user);
+}
+
+- cấu hình lại controller viết code theo dependency injection
+// final theo chuẩn dependency injection (ko thay đổi giá trị sau khi khởi tạo)
+    private final UserService userService;
+    private final UserRepository userRepository;
+
+    public UserController(UserService userService, UserRepository userRepository) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+    }
+
+//chỉnh lại chỗ method POST khi nhận dữ liệu từ view submit 
+@RequestMapping(value = "/admin/user/createuser", method = RequestMethod.POST)
+    public String CreateUser(Model model, @ModelAttribute("newUser") User newUser) {
+        this.userRepository.save(newUser);
+} 
+ở đây chưa hiểu=)) là interface UserRepository sao tạo được đối tượng ??? và abstract function save() ko có nội dung nhưng vẫn hoạt động=)) lưu 1 user truyền vào xuống database hàm save tự biết được nếu id=0/null thì nó sẽ hiểu là tạo đối tượng mới và dùng identity để tăng giá trị cho Id 
+
+=== đoạn code sửa trong method POST là chưa phải mô hình hoàn chỉnh vì chúng ta đang sử dụng trực tiếp method của repository để chạy -> phải dùng service tạo 1 mô hình hoàn chỉnh tạo 1 class trong service tạo method xử lý add người dùng và dùng repository trong này -> trong controller t chỉ cần gọi method tường minh từ service ===
+
+Sửa trong Service 
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User handleSaveUser(User user) {
+        return this.userRepository.save(user);
+    }
+
+Sửa lại method POST trong controller
+@RequestMapping(value = "/admin/user/createuser", method = RequestMethod.POST)
+    public String CreateUser(Model model, @ModelAttribute("newUser") User user) {
+        this.userService.handleSaveUser(user);
+}
+
+
+
 	
 	
 

@@ -8,13 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.ui.Model;
 import vn.hoidanit.laptopshop.service.UserService;
 import vn.hoidanit.laptopshop.domain.User;
+import vn.hoidanit.laptopshop.repository.UserRepository;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class UserController {
 
-    private UserService userService;
+    // final theo chuẩn dependency injection (ko thay đổi giá trị sau khi khởi tạo)
+    private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -37,8 +40,8 @@ public class UserController {
     }
 
     @RequestMapping(value = "/admin/user/createuser", method = RequestMethod.POST)
-    public String CreateUser(Model model, @ModelAttribute("newUser") User trongNguyen) {
-        System.out.println("run here" + trongNguyen.toString());
+    public String CreateUser(Model model, @ModelAttribute("newUser") User user) {
+        this.userService.handleSaveUser(user);
         return "hellofromjsp";
     }
 
