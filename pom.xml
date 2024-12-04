@@ -71,6 +71,12 @@
 			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
 		</dependency>
 
+		<!-- thư viện cho JPA -->
+		<dependecy>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependecy>
+
 
 		<!-- end added dependecy -->
 	</dependencies>

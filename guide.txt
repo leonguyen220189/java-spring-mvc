@@ -467,8 +467,8 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 	để có thể cho controller biết thuộc tính đã có path là của form nào thì chúng ta dùng annotation modelAttribute="name" name này sẽ đại diện là 1 object gửi đi những cái path đặt trước đó là element của name này 
 	modelAttribute dùng ở 2 nơi 1 là @modelAttribute annotation ở controller để xử lý dữ liệu 
 				    2 là truyền trực tiếp vào form để chỉ định những modelAttribute phải có tên khác nhau
-	khi chúng ta dùng trực tiếp trong form thì cần phải có 1 biến là chính cái name ở controller ở class có method GET link cái JSP chứa cái form đó nếu ko khi chạy sẽ hiện lỗi 500 Việc thêm thuộc tính ở đây đơn giản là chỉ cho code không lỗi 
-		model.addAttribute("newUser", new User()); // đặt trong function của class GET 
+	khi chúng ta dùng trực tiếp trong form thì cần phải có 1 biến là chính cái name ở controller ở class có method GET link cái JSP chứa cái form đó nếu ko khi chạy sẽ hiện lỗi 500 Việc thêm thuộc tính  
+		model.addAttribute("newUser", new User()); //đặt trong function của class GET biến này sẽ gửi lên view file JSP làm value của modelAttribute value này sẽ là 1 object ở view sẽ lấy dữ liệu nhập vào từ form rồi gửi về controller nhận ở function FOST để xử lý 
 		**Lưu ý những thuộc tính trong newUser phải có trong class User và ko được sai tên nếu ko sẽ bị lỗi mặc dù là hàm khởi tạo không tham số (path của newUser phải trùng với những element trong class User)	
 		
 	
@@ -482,6 +482,19 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 	    User là kiểu dữ liệu 
 	    trongNguyen tên biến 
 	từ đây chúng ta đã nhận được dữ liệu từ view gửi về controller 
+
+Phần 9 chapter 8: Spring Data với JPA và hibernate
+1 - Spring cung cấp Spring data là công cụ giúp chúng ta tương tác với database một cách đơn giản 
+	- Trong này nó sẽ cung cấp 1 đối tượng Repository nhờ đối tượng này chúng ta ko cần viết câu lệnh SQL nhưng vẫn truy vấn vào database được 
+	- chúng ta sẽ sử dụng JPA trong Spring Data 
+
+2 - Cài đặt thư viện JPA
+	<dependency>
+		<groupId>org.springframework.boot</>
+		<actifactId>spring-boot-starter-data-jpa</>
+	</>
+	**khi cài công cụ có chữ start mô hình chung nó đã cài đủ những công cụ cần thiết //ở đây nó đã cài sẵn hibernate
+	
 
 	
 		

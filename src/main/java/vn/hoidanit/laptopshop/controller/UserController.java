@@ -32,6 +32,7 @@ public class UserController {
     @RequestMapping(value = "/admin/user")
     public String getPageCreateUser(Model model) {
         model.addAttribute("newUser", new User());
+        // chỉ để tránh lỗi phải có newUSer ở đây khi có modelAttribute newUser ở JSP
         return "/admin/user/Create";
     }
 
