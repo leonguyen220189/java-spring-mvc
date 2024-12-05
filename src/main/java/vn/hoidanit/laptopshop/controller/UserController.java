@@ -1,5 +1,7 @@
 package vn.hoidanit.laptopshop.controller;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,6 +44,8 @@ public class UserController {
     @RequestMapping(value = "/admin/user/createuser", method = RequestMethod.POST)
     public String CreateUser(Model model, @ModelAttribute("newUser") User user) {
         this.userService.handleSaveUser(user);
+        List<User> users = this.userService.getAllUserByEmailAndAddress("1@gmail.com", "b");
+        System.out.println(users.toString());
         return "hellofromjsp";
     }
 

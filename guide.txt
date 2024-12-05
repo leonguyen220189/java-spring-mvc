@@ -589,6 +589,30 @@ Sửa lại method POST trong controller
         this.userService.handleSaveUser(user);
 }
 
+8 - Định nghĩa Repository Query 
+Java Spring có cung cấp công cụ để tối ưu việc xây dựng nên các câu lệnh Query Gồm 3 bước: 
+Bước 1: Tự định nghĩa tên của Method theo quy tắc 
+Bước 2: Spring sẽ tự động chuyển "tên method" thành câu lệnh truy vấn database
+Bước 3: nhận kết quả ra từ Repository
+
+**tìm hiểu về keywords, mệnh đề quan hệ/điều kiện (And, Or, Before, After, Exist...) và method
+https://docs.spring.io/spring-data/jpa/reference/repositories/query-keywords-reference.html
+https://docs.spring.io/spring-data/jpa/reference/repositories/query-methods-details.html
+Nhờ Bước 2 mà chúng ta có thể trả lời câu hỏi tại sao chỉ định nghĩa 1 abstract method nhưng khi chạy chương trình ứng dụng vẫn có thể kết nối xuống database (từ tên method được đặt theo quy tắc của Java Spring - Java Sping convert nó thành câu lệnh truy vấn xuống SQL) 
+
+Để xem cách chuyển từ tên method -> câu lệnh truy vấn SQL thì cấu hình thêm trong file .properties 
+
+Tạo Repository Query:
+	khi ta dùng biến UserRepository có rất nhiều method được cung cấp mà chúng ta chưa định nghĩa là nhớ kế thừa CrudRepository trong lớp này Spring đã viết sẵn cho chúng ta. Nhưng nên chúng ta muốn viết method riêng -> tự định nghĩa câu lệnh Query 
+	-> chung quy lại có thể tự định nghĩa ra Repository bất cứ ở đâu miễn là dùng class của @Repository
+	**Tạo 1 abstract List<User> FindAll() trong Repository -> dùng ở Service -> lỗi 
+	**Dùng trực tiếp FindAll() ở Service ko cần tạo trước List<User> FindAll() trong Repository -> ko lỗi
+	** Những cái như FindByEmail, FindByEmailAndAddress -> thì có thể dùng ở Repository sau đó mới dùng qua service những cái này nó đã gởi ý sẵn cho ta bởi vì khi kế thừa JpaRepository<User, Long> ta có truyền User vào Spring sẽ vào đó và đọc những thuộc tính của ta đễ gợi ý 
+	**Lưu ý: ta có Find...By ở đây ko có sự khác biệt bởi FindOneBy, FindBy, FindAllBy khi viết trong Spring còn để Spring phân biệt chúng thì nó sẽ dựa vào kiểu dữ liệu trả về là 1 object hay 1 List. nếu chúng ta chỉ muốn lấy về 1 object mà khi nó find trong database nhiều object có điều kiện giống vậy -> phải kết hợp thêm điều kiện (như tìm cái đầu tiên) nếu ko sẽ bị lỗi - việc tìm 1 object thì nên tìm với điều kiện object đó có thuộc tính hoặc cái gì đó là duy nhất 
+	Để chính quy bài bảng thì những Repository nên đặt ở Repository (abstract method) và sử dụng nó tường minh ở Service
+	Nên đổi từ CrudRepository -> JpaRepository bởi vì đa số method cần thiết trong CrudRepository lại return ra Iterable khá khó sử dụng còn JpaRepository sẽ trả về List 
+	
+
 
 
 	
