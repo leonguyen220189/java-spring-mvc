@@ -612,8 +612,29 @@ Tạo Repository Query:
 Để chính quy bài bảng thì những Repository nên đặt ở Repository (abstract method) và sử dụng nó tường minh ở Service
 	Nên đổi từ CrudRepository -> JpaRepository bởi vì đa số method cần thiết trong CrudRepository lại return ra Iterable khá khó sử dụng còn JpaRepository sẽ trả về List 
 	
+9 - Tổng kết về mô hình MVC 
+a) các thành phần tham gia 
+	M: code trong thư mục Domain(theo domain-driven design nên ko đặt tên là entity hay models) models chịu trách nhiệm quản lý các "đối tượng/tác nhân" tham gia vào hệ thống, chính là các tables lưu trữ trong database (nhờ Annotation hỗ trợ của Spring mà có thể biến class thành các entity/tables) 
+	V: code trong thư mục /webapp/WEB-INF/viewlà các file .jsp (html), tạo ra giao diện cho người dùng nhìn thấy
+	C: code trong thư mục controller giúp điều hướng các yêu cầu của người dùng và cung cấp lại kết quả cho người dùng 
+b) mối quan hệ giữa các thành phần 
 
+url:../Users -> Controller <-> Services <-> Repository <-> database 
+		    |
+		   JSP (view)	
+- khi người dùng gõ 1 đường link vào URL -> gửi 1 request lên server (java) "server sẽ quét qua tất cả controller để xem controller nào phụ trách nhận và xử lý request đó (1 function của controller)"
+	+ nếu không cần lấy data -> controller trả về view - view render ra giao diện cho khách hàng thấy kết quả 
+	+ nếu cần lấy data:
+		controller sẽ gọi tới services (services là nơi chia nhỏ công việc từ controller) ở services sẽ ko kết nối trực tiếp tới database mà ở đây chúng ta dùng Repository pattern 
+		services sẽ thông qua Repository để kết nối tới database (tách ra như này để chỉ có 1 lớp duy nhất kết nối trực tiếp tới database là repository -> dễ điều chỉnh và bảo trì)
+		....
+		sau khi lấy được data:
+			repo trả về services
+			services trả về controller
+			controller ném data cho view 
+			view sẽ render ra giao diện để người dùng thấy kết quả 
 
+	
 
 	
 	

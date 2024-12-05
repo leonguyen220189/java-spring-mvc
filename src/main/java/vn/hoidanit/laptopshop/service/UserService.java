@@ -31,6 +31,10 @@ public class UserService {
         return this.userRepository.findByEmailAndAddress(email, Address);
     }
 
+    public List<User> getUserById(long id) {
+        return this.userRepository.findById(id);
+    }
+
     public String handleGetHomePage() {
         return "Hello From Service";
     }

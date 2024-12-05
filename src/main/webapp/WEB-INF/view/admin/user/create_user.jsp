@@ -6,7 +6,7 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Document</title>
+                <title>Create User</title>
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -18,7 +18,7 @@
                         <div class="col-md-6 col-12 mx-auto">
                             <h3>Create A User</h3>
                             <hr>
-                            <form:form action="/admin/user/createuser" method="post" modelAttribute="newUser">
+                            <form:form action="/admin/user/create" method="post" modelAttribute="newUser">
                                 <div class="mb-3">
                                     <label class="form-label">Email address</label>
                                     <form:input type="email" class="form-control" path="email" />
