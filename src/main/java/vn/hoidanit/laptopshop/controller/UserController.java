@@ -34,7 +34,7 @@ public class UserController {
         return "hellofromjsp";
     }
 
-    @RequestMapping(value = "/admin/user")
+    @RequestMapping(value = "/admin/user/create")
     public String getPageCreateUser(Model model) {
         model.addAttribute("newUser", new User());
         // chỉ để tránh lỗi phải có newUSer ở đây khi có modelAttribute newUser ở JSP
@@ -47,6 +47,11 @@ public class UserController {
         List<User> users = this.userService.getAllUserByEmailAndAddress("1@gmail.com", "b");
         System.out.println(users.toString());
         return "hellofromjsp";
+    }
+
+    @RequestMapping(value = "/admin/user")
+    public String getPageUser(Model model) {
+        return "/admin/user/info";
     }
 
 }
