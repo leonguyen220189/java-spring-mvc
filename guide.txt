@@ -608,8 +608,8 @@ Tạo Repository Query:
 	**Tạo 1 abstract List<User> FindAll() trong Repository -> dùng ở Service -> lỗi 
 	**Dùng trực tiếp FindAll() ở Service ko cần tạo trước List<User> FindAll() trong Repository -> ko lỗi
 	** Những cái như FindByEmail, FindByEmailAndAddress -> thì có thể dùng ở Repository sau đó mới dùng qua service những cái này nó đã gởi ý sẵn cho ta bởi vì khi kế thừa JpaRepository<User, Long> ta có truyền User vào Spring sẽ vào đó và đọc những thuộc tính của ta đễ gợi ý 
-	**Lưu ý: ta có Find...By ở đây ko có sự khác biệt bởi FindOneBy, FindBy, FindAllBy khi viết trong Spring còn để Spring phân biệt chúng thì nó sẽ dựa vào kiểu dữ liệu trả về là 1 object hay 1 List. nếu chúng ta chỉ muốn lấy về 1 object mà khi nó find trong database nhiều object có điều kiện giống vậy -> phải kết hợp thêm điều kiện (như tìm cái đầu tiên) nếu ko sẽ bị lỗi - việc tìm 1 object thì nên tìm với điều kiện object đó có thuộc tính hoặc cái gì đó là duy nhất 
-	Để chính quy bài bảng thì những Repository nên đặt ở Repository (abstract method) và sử dụng nó tường minh ở Service
+	**Lưu ý: ta có Find...By ở đây ko có sự khác biệt bởi FindOneBy, FindBy, FindAllBy khi viết trong Spring còn để Spring phân biệt chúng thì nó sẽ dựa vào kiểu dữ liệu trả về là 1 object hay 1 List. mặc định những hàm này sẽ trả về List -> chung ta phải giới hạn phần tử trả về + phải kết hợp thêm điều kiện (như tìm cái đầu tiên) như dùng FindFirst lấy phần tử đầu tiên || FindTop1 (Top + number ở đây là số phần tử bị giới hạn)
+Để chính quy bài bảng thì những Repository nên đặt ở Repository (abstract method) và sử dụng nó tường minh ở Service
 	Nên đổi từ CrudRepository -> JpaRepository bởi vì đa số method cần thiết trong CrudRepository lại return ra Iterable khá khó sử dụng còn JpaRepository sẽ trả về List 
 	
 
