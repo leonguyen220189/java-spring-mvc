@@ -30,6 +30,7 @@
                                     <li class="list-group-item">Password: ${user.password}</li>
                                 </ul>
                             </div>
+                            <a href="/admin/user" class="btn btn-success mt-2">Back</a>
                             <hr>
                         </div>
                     </div>

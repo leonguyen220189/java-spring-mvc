@@ -467,7 +467,7 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 	khi thêm thư viện thì thêm form: vào trong các thẻ trong <form:form></form> có hỗ trợ thêm thuộc tính path để thay thế cho id 
 	để có thể cho controller biết thuộc tính đã có path là của form nào thì chúng ta dùng annotation modelAttribute="name" name này sẽ đại diện là 1 object gửi đi những cái path đặt trước đó là element của name này 
 	modelAttribute dùng ở 2 nơi 1 là @modelAttribute annotation ở controller để xử lý dữ liệu 
-				    2 là truyền trực tiếp vào form để chỉ định những modelAttribute phải có tên khác nhau
+				    2 là truyền trực tiếp vào form để chỉ định những modelAttribute phải có tên khác nhau và chỉ dùng được khi sử dụng <form:form> của thư viện <%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %> đã được import vào
 	khi chúng ta dùng trực tiếp trong form thì cần phải có 1 biến là chính cái name ở controller ở class có method GET link cái JSP chứa cái form đó nếu ko khi chạy sẽ hiện lỗi 500 Việc thêm thuộc tính  
 		model.addAttribute("newUser", new User()); //đặt trong function của class GET biến này sẽ gửi lên view file JSP làm value của modelAttribute value này sẽ là 1 object ở view sẽ lấy dữ liệu nhập vào từ form rồi gửi về controller nhận ở function FOST để xử lý 
 		**Lưu ý những thuộc tính trong newUser phải có trong class User và ko được sai tên nếu ko sẽ bị lỗi mặc dù là hàm khởi tạo không tham số (path của newUser phải trùng với những element trong class User)	
@@ -611,8 +611,21 @@ Tạo Repository Query:
 	**Lưu ý: ta có Find...By ở đây ko có sự khác biệt bởi FindOneBy, FindBy, FindAllBy khi viết trong Spring còn để Spring phân biệt chúng thì nó sẽ dựa vào kiểu dữ liệu trả về là 1 object hay 1 List. mặc định những hàm này sẽ trả về List -> chung ta phải giới hạn phần tử trả về + phải kết hợp thêm điều kiện (như tìm cái đầu tiên) như dùng FindFirst lấy phần tử đầu tiên || FindTop1 (Top + number ở đây là số phần tử bị giới hạn)
 Để chính quy bài bảng thì những Repository nên đặt ở Repository (abstract method) và sử dụng nó tường minh ở Service
 	Nên đổi từ CrudRepository -> JpaRepository bởi vì đa số method cần thiết trong CrudRepository lại return ra Iterable khá khó sử dụng còn JpaRepository sẽ trả về List 
+
+9 - hoàn thành page /admin/user
+a) Load được tất cả dữ liệu của các user hiển thị lên page 
+	- lấy dữ liệu -> gửi lên view -> dùng foreach để render ra dữ liệu
+b) Sửa lại trang /admin/user/create khi bấm submit thì quay lại trang /admin/user
+	theo tư duy thông thường thì chỗ return của function khi bấm submit sẽ redirect tới đơn giản ta chỉ cần chỉnh lại file .jsp của /admin/user -> nhưng đây chỉ hiển thị ra view và sẽ ko có data vì thực chất url nó sai và ko thể chạy được các câu lệnh load data lên như ban đầu 
+	-> dùng redirect:url cần redirect tới lúc này khi return nó sẽ redirect tới cái function của cái url đó -> hoạt động của ứng dụng sẽ đúng
+
+c) Tạo ra trang view detail khi bấm vào view của từng user sẽ hiện thông tin đầy đủ của họ 
+	- phải lấy được Id của user được bấm vào nút view của từng người dùng 
+		c1: dùng 1 form bao quanh những button đó sau khi submit sẽ xử lý - tuy nhiên ở đây dùng form tức là chúng ta gửi dữ liệu lên server - nhưng mà ở đây ta đơn giản chỉ truy vấn và xem dữ liệu của người dùng ko gửi bất cứ dữ liệu gì -> ko nên sử dụng cách này
+		c2: dùng thẻ a và href và lúc render ra dữ liệu của từng user chỗ href ta sẽ chèn luôn user.id vào href="/admin/user/${user.id}" đây cũng sẽ là url ta xử lý dưới controller và ta sẽ lấy id đó ở controller = Annotation @pathVariable 
 	
-9 - Tổng kết về mô hình MVC 
+	
+10 - Tổng kết về mô hình MVC 
 a) các thành phần tham gia 
 	M: code trong thư mục Domain(theo domain-driven design nên ko đặt tên là entity hay models) models chịu trách nhiệm quản lý các "đối tượng/tác nhân" tham gia vào hệ thống, chính là các tables lưu trữ trong database (nhờ Annotation hỗ trợ của Spring mà có thể biến class thành các entity/tables) 
 	V: code trong thư mục /webapp/WEB-INF/viewlà các file .jsp (html), tạo ra giao diện cho người dùng nhìn thấy
@@ -635,8 +648,9 @@ url:../Users -> Controller <-> Services <-> Repository <-> database
 			view sẽ render ra giao diện để người dùng thấy kết quả 
 
 	
-
-	
+11 - hoàn thành chức năng update
+	Hàm save() -> java spring đã làm cho chúng ta nếu đã có user được save vào nếu đã có thông tin -> update 
+										      chưa có -> create
 	
 
 	

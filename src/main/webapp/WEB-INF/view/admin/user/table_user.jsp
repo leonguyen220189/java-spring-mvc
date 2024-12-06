@@ -18,7 +18,7 @@
                         <div class="col-md-10 col-12 mx-auto">
                             <div class="d-flex justify-content-between">
                                 <h3>Table User</h3>
-                                <a href="/admin/user/create" class="btn btn-primary">Create User</a>
+                                <a href="/admin/user/create_user" class="btn btn-primary">Create User</a>
                             </div>
                             <hr>
                             <table class="table table-bordered table-hover">
@@ -38,7 +38,8 @@
                                             <td>${user.fullName}</td>
                                             <td>
                                                 <a href="/admin/user/${user.id}" class="btn btn-success">View</a>
-                                                <a class="btn btn-warning mx-2">Update</a>
+                                                <a href="/admin/user/update/${user.id}"
+                                                    class="btn btn-warning mx-2">Update</a>
                                                 <a class="btn btn-danger">Delete</a>
                                             </td>
                                         </tr>
