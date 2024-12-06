@@ -648,7 +648,7 @@ url:../Users -> Controller <-> Services <-> Repository <-> database
 			view sẽ render ra giao diện để người dùng thấy kết quả 
 
 	
-11 - hoàn thành chức năng update
+11 - hoàn thành chức năng update, delete
 	Hàm save() -> java spring đã làm cho chúng ta nếu đã có user được save vào nếu đã có thông tin -> update 
 										      chưa có -> create
 	
