@@ -653,9 +653,73 @@ url:../Users -> Controller <-> Services <-> Repository <-> database
 										      chưa có -> create
 	
 
+Phần 10 chapter 9 Project Thực Hành
+1 - Nhìn lại kiến thức đã học: 
+a) công nghệ đã dùng: 
+	- sử dụng Spring boot để chạy dự án: 
+		chính là @Annotation @SpringBootApplication trong class LaptopShopApplication.java 
+		Nhờ Annotation này mà giúp chạy dự án - khởi tạo spring context, container - nạp và quản lý tất cả Beans 
+
+		file .properties trong /resources giúp cấu hình dự án 
+
+	- Sử dụng Spring MVC để thực hiện mô hình MVC: bên tron spring framework đã chứa sẵn Spring MVC 
+		+ Model(entity)
+		+ View(jsp)
+		+ controller 
+		**Hầu hết các Annotation để cấu hình MVC đã có trong springframework -> import vào sử dụng 
+
+	- Spring Data(Hibernate/JPA) để mô hình hóa Model và kết nối với database: 
+		+ Domain-driven design 	
+		+ Repository pattern
+
+b) Để phát triển dự án
+	- Định nghĩa thêm Model(Spring data)
+	- Viết logic theo mô hình MVC(Spring MVC)
 	
-		
+2 - Phân tích Yêu cầu thực hành 
+
+Ý tưởng: có một trang web để hiển thị sản phẩm cho người dùng lựa chọn, các chức năng chính như sau: 
+	- Hiển thị danh sách sản phẩm (home page)
+	- xem chi tiết từng sản phẩm khi bấm vào 
+	- Tìm kiếm sản phẩm theo tiêu chí nào đó 
+	- Giỏ hàng
+	- Mua hàng
+	- ...
+	Link tham khảo: https://fptshop.com.vn/may-tinh-xach-tay
+
+3- Phân tích Models của bài toán 
+
+Phân tích hệ thống cáo bao nhiêu người dùng - bao nhiêu actor 
+
+Có 2 loại chính: 
+- Người dùng chưa đăng nhập (guest) 
+	Có thể: 
+		Xem danh sách sản phẩm, xem chi tiết sản phẩm
+		Tìm kiếm sản phẩm theo tiêu chí 
+	Không thể: 
+		Đặt hàng (vì cần thông tin người dùng)
+		Thêm/sửa/xóa sản phẩm hoặc thông tin trên website 
+
+- Người dùng đã đăng nhập (user)
+Phân chia theo vai trò của người dùng 
+	Vai trò của người dùng thông thường (user)
+		Kế thừa lại tính năng của guest
+		Có thể đặt hàng 
+		Không có quyền Thêm/sửa/xóa sản phẩm hoặc thông tin trên website 
 	
+	Vai trò người dùng quản trị (admin)
+		Kế thừa lại tính năng của user
+		Full quyền trong hệ thống 
+
+4 - Phân tích thiết kế database 
+Bước 1: Xác định các đối tượng tham gia vào hệ thống 
+	Users		Roles(Vai trò của người dùng)		Products		Orders
+"Chuẩn hóa dữ liệu: 1NF, 2NF, 3NF"
+Bước 2: Xác định quan hệ giữa 
+	Roles - User: 1 - N
+	Order - Product: N - N
+	Order - User: N - 1
+	**Ở đây người dùng ko liên quan đến sản phẩm mà chỉ liên quan đến đơn đặt hàng 
 	
 
 

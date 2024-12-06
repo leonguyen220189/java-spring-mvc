@@ -16,14 +16,18 @@ public class User {
     private String password;
     private String address;
     private String phoneNumber;
+    private String avatar;
+    // roleID
 
-    public User(long id, String email, String fullName, String password, String address, String phoneNumber) {
+    public User(long id, String email, String fullName, String password, String address, String phoneNumber,
+            String avatar) {
         this.id = id;
         this.email = email;
         this.fullName = fullName;
         this.password = password;
         this.address = address;
         this.phoneNumber = phoneNumber;
+        this.avatar = avatar;
     }
 
     public User() {
@@ -77,9 +81,17 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     @Override
     public String toString() {
         return "User [id=" + id + ", email=" + email + ", fullName=" + fullName + ", password=" + password
-                + ", address=" + address + ", phoneNumber=" + phoneNumber + "]";
+                + ", address=" + address + ", phoneNumber=" + phoneNumber + ", avatar=" + avatar + "]";
     }
 }
