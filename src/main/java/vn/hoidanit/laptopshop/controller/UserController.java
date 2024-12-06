@@ -76,8 +76,8 @@ public class UserController {
         return "/admin/user/update_user";
     }
 
-    @PostMapping("/admin/user/update_user") // tương đương với @RequestMapping - method = Post
-    public String updateUser(Model model, @ModelAttribute("updatedUser") User updated_user) {
+    @PostMapping("/admin/user/update_user") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
+    public String postUserUpdate(Model model, @ModelAttribute("updatedUser") User updated_user) {
         User currentUser = this.userService.getUserById(updated_user.getId());
         // nếu id của người dùng != null -> nó sẽ hiểu là update, ở đây email và pw =
         // null thì ko qtr vì ko update chúng
@@ -88,6 +88,19 @@ public class UserController {
         this.userService.handleSaveUser(currentUser);
         // java spring tự làm cho chúng ta hàm save() nếu đã có user -> update ko thì
         // create
+        return "redirect:/admin/user";
+    }
+
+    @GetMapping("/admin/user/delete/{id}") // @GetMapping = @RequestMapping
+    public String getUserDeletePage(Model model, @PathVariable long id) {
+        User deletedUser = this.userService.getUserById(id);
+        model.addAttribute("deletedUser", deletedUser);
+        return "/admin/user/delete_user";
+    }
+
+    @PostMapping("/admin/user/delete_user")
+    public String postUserDelete(Model model, @ModelAttribute("deletedUser") User deleted_user) {
+        this.userService.handleDeleteUserById(1);
         return "redirect:/admin/user";
     }
 

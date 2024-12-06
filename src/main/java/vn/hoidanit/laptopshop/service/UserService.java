@@ -42,4 +42,8 @@ public class UserService {
     public String handleGetHomePage() {
         return "Hello From Service";
     }
+
+    public void handleDeleteUserById(long id) {
+        this.userRepository.deleteById(id);
+    }
 }
