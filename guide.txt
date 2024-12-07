@@ -845,6 +845,53 @@ Thiết lập mối quan hệ:
 	@JoinColumn(name="product_id")
 	private Product product;
 -> đây là quan hệ UniDirectional: quan hệ 1 chiều giữa OrderDetail và Product vì chúng ta chỉ cần xác định trong OrderDetail có Product nào điều ngược lại chúng ta ko cần thiết là 1 Product thuộc những OrderDetail nào 
+
+6 - Mối quan hệ One to One (1-1)
+ví dụ: post <----<> postDetail 
+Một bài đăng chỉ có 1 bài đăng chi tiết ( một bài đăng chi tiết chỉ thuộc 1 bài đăng )
+**Annotation @OneToOne và phải xác định Owner side (nơi sở hữu Foreign Key @JoinColumn(name="") 
+
+Nếu làm bình thường 
+post(id, title)
+postDetail(id, createdOn, CreatedBy, pots_id)
+
+@Entity(name = "Post")
+@Table(name = "post")
+public class Post {
+ 
+    @Id
+    @GeneratedValue
+    private Long id;
+ 
+    @OneToOne(mappedBy = "post", fetch = FetchType.LAZY)
+    private PostDetails details;
+}
+
+@Entity
+@Table(name = "post_details")
+public class PostDetails {
+ 
+    @Id
+    @GeneratedValue
+    private Long id;
+ 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+}
+
+Cách tối ưu: chuyển khóa ngoại post_id -> khóa chính
+post(id, title)
+postDetail(pots_id, createdOn, CreatedBy)
+class PostDetails {
+	@Id
+	private long id; 
+	
+	@OneToOne
+	@MapsId
+	private Post post;
+}
+ở đây chúng ta sẽ ko dùng cơ chế GenerateId nữa mà dùng @MapId để có thể biến khóa ngoại -> khóa chính (id của PostDetails -> Post_id)
 	
 	
 	
