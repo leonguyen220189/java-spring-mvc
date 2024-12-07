@@ -1,5 +1,6 @@
-Phần 4 chapter 3 video 25
-1 - Chạy chương trình hello world
+=====Phần 4 chapter 3 video 25====
+
+##1 - Chạy chương trình hello world##
 	a) Để chạy được một chương trình website trong java spring cần có thêm thư viện web org.springboot.boot (spring-boot-starter-web) khi thêm vào thì vscode sẽ tự động kéo những thư viện này về
 	Setup Spring for web = Update file pom.xml:
 	Thêm phần này vào thẻ <dependencies/>
@@ -12,7 +13,8 @@ Phần 4 chapter 3 video 25
 	org.springframework.web.bind.annotation.GetMapping
 	org.springframework.web.bind.annotation.RestController
 
-2 - Phần 5 chapter 4 Maven & cấu trúc dự án spring boot
+====Phần 5 chapter 4 Maven & cấu trúc dự án spring boot====
+
 	video 30: cấu trúc folder và file
 	src: chứa tất cả code ứng dụng 
 	target: thư mục chứa mã code .class đã được dịch sang mã máy từ src để JVM nó hiểu 
@@ -54,7 +56,7 @@ Phần 4 chapter 3 video 25
 		Những cái này được quản lý thông qua Maven để đảm bảo mỗi thư viện cài đặt vào nó phải có tên của nó 
 		ví dụ: cùng 1 <groupId>org.springframework.boot</> nhưng có 2 <artifactId/> chính là 2 service
 
-Phần 6 - chapter 5 spring and inversion of control 
+====Phần 6 - chapter 5 spring and inversion of control====
 	Làm được 3 phần: 
 		**Trong 1 ứng dụng thì có nhiều component được quản lý bởi Core Container 
 		web: học về web
@@ -155,9 +157,10 @@ public class Main {
 ***xem thêm ví dụ về tạo thêm phương thức riêng cho từng class cha để lấy ra giá trị cần để tránh sử dụng trực tiếp giá trị của các element trong class cha -> sự phụ thuộc chặt chẽ 
 		Chung quy ở đây muốn injection thì cần phải có injector là chính framework này đã cung cấp hỗ trợ chúng t chỉ có việc code theo format của nó 	
 
-Phần 7 chapter 6 Spring Security
+====Phần 7 chapter 6 Spring Security====
 
-1 - spring boot devtool: hỗ trợ việc chạy restart lại ứng dụng khi sửa code nhanh hơn 
+##1 - spring boot devtool: hỗ trợ việc chạy restart lại ứng dụng khi sửa code nhanh hơn##
+
 	bình thường chúng ta cần làm 2 bước sửa code lưu code và restart lại ứng dụng 
 	tool này sẽ giúp bỏ qua bước restart
 	cần cài thêm thư viện này: 
@@ -168,20 +171,24 @@ Phần 7 chapter 6 Spring Security
     </dependency>
 	để kiểm tra thư viện đã được kéo về chưa thì chúng ta vào maven -> source -> chọn dependencies 
 
-2 - @GetMapping: dùng để thiết lập route tạo được link url trong website của chúng ta 
+##2 - @GetMapping: dùng để thiết lập route tạo được link url trong website của chúng ta##
+
 	Dùng để phần quyền người dùng trong security
 
-3 - database nên dùng SQL vì Java là 1 ngôn ngữ hướng đối tượng ràng buộc chặt chẽ thì SQL là sự lựa chọn hoàn hảo hơn NoSQL
+##3 - database nên dùng SQL vì Java là 1 ngôn ngữ hướng đối tượng ràng buộc chặt chẽ thì SQL là sự lựa chọn hoàn hảo hơn NoSQL##
+
 	javascript - noSQL
 	NodeJS - noSQL
 	
-4 - setup MySQL Nên dùng docker hơn là cài đặt 1 MySQL về máy cần cài:
+##4 - setup MySQL Nên dùng docker hơn là cài đặt 1 MySQL về máy cần cài:##
+
 	MySQL Server: nơi lưu trữ
 	MySQL WorkBench: nơi view xem thông tin trong database
 	MySQL Shell: nơi gõ lệnh
 	...
 
-5 - setup MySQL cho spring boot
+##5 - setup MySQL cho spring boot##
+
 	Thêm 2 dependencies
 	<dependeny>
 		<groupId>org.springframework.boot</>
@@ -209,7 +216,8 @@ Phần 7 chapter 6 Spring Security
 		spring.jpa.show-sql: true 
 			(cho phép show câu lệnh sql)
 
-6 - Security
+##6 - Security##
+
 a) authentication (bạn là ai 'first') & authorization(bạn có thể làm gì 'second'): đọc tài liệu
 	ví dụ: 
 		authentication: là đăng nhập vào face = tài khoản mật khẩu -> đn vào được xác nhận đc bạn là ai
@@ -222,7 +230,8 @@ b) nguyên tắc khi làm security:
 	- nhiều lớp security: firewall, middleware, ...
 	- kiến trúc của security nên đơn giản -> dễ maintain
 
-7 - setup string security
+##7 - setup string security##
+
 	Thêm dependency
 	<dependency>
 		<groupId>org.springframework.boot</>
@@ -241,7 +250,8 @@ b) nguyên tắc khi làm security:
 		authentication providers
 	Ưu điểm: dễ sửa đổi, mặc định mọi resources của hệ thống đều được bảo về 
 
-8 - Sơ lược về mô hình spring mvc
+##8 - Sơ lược về mô hình spring mvc##
+
 	Bình thường ứng dụng của chúng là là mô hình: 
 	Request(thao tác của người dùng) -> server(java, xử lý ) -> response
 	thường request sẽ chạy vào controller(HelloWorldController.java) ở đây sẽ xử lý và gửi response lại cho người dùng -> nếu theo mô hình này sẽ không bảo về được ứng dụng 
@@ -260,17 +270,22 @@ b) nguyên tắc khi làm security:
 	security.web.savedrequest.RequestCacheAwareFilter@f1266c6
 	org.springframework.security.web.access.intercept.AuthorizationFilter@415ef4d8: cái này luôn cuối cùng vì đây là bước phân quyền người dùng sau khi đã đăng nhập thành công đã xác thực người dùng đó là ai rồi
 
-Phần 8 chapter 7 Spring MVC
+====Phần 8 chapter 7 Spring MVC====
+
 	**sửa lỗi tồn đọng
 	Format code cho xml trong vscode cài thêm extension xml tools 		
 	sửa dependency của mysql <groupId>com.mysql</> <artifactId>spring-boot-starter-j</> (org.springframework.boot version từ 3. trở đi dùng cái này ko cần điền version mà giao cho springboot parent cấp còn dưới 3. dùng <groupId>mysql</> <actifactId>spring-boot-starter-java</>
-1 - Mô hình MVC	
+
+##1 - Mô hình MVC##
+
 	Viết code theo mô hình MVC: Model - View - Controller:
 	View: chịu trách nhiệm render(hiển thị) giao diện website
 	Model: các đối tượng sử dụng hệ thống được mô hình hóa qua OOP. Với Spring models bao gồm các tables trong database 
 	Controller: chịu trách nhiệm xử lý dữ liệu - giúp tương tác giữa View và Controller (là nơi xử lý logic code)
-	Spring FrameWork đã có hỗ trợ mô hình MVC -> ko cần cấu hình thêm 
-2 - Java Annotation ~ Decorator trong NodeJs
+	Spring FrameWork đã có hỗ trợ mô hình MVC -> ko cần cấu hình thêm
+ 
+##2 - Java Annotation ~ Decorator trong NodeJs##
+
 a) mục đích giúp Decorate 1 class giúp tăng sử hiệu quả của class 
 	Mỗi Annotation chỉ có tác dụng đối với A(class, function, element) ngay sau nó
 	ví dụ: 
@@ -322,7 +337,9 @@ d) Bắt đầu code
 		
 Render view HTML 
 File Tĩnh là các file ít thay đổi thường sẽ public như file html, css, javascript, images
-(4)Quay lại mô hình MVC bỏ đi Rest API
+
+##4 - Quay lại mô hình MVC bỏ đi Rest API##
+
 	- sử dụng lại @Controller 
 	- Tạo View (view là file static html để hiển thị ra màn hình)
 		tạo thư mục src/main/resources/static/hello.html
@@ -334,10 +351,12 @@ File Tĩnh là các file ít thay đổi thường sẽ public như file html, c
 	**@RequestMapping(đường link url / chính là localhost:8080)
 	**cần trả về String vì java ko hiểu đâu là file của chúng ta -> ta phải đưa tên file cho nó -> cần return về String
 
-(5) dùng view engine cách truyền data từ models - controller - điều hướng dữ liệu đó đến view để hiển thị 
+##5 - dùng view engine cách truyền data từ models - controller - điều hướng dữ liệu đó đến view để hiển thị##
+
 	view engine là công cụ giúp code html ít đi - giải quyết được bài toán tạo ra nội dung động cho chúng ta = cách viết code java trực tiếp vào file html = Spring View Technologies trong nhóm này chúng ta dùng JSP (Java Server Pages) là một View Engine ~ EJS(NodeJs), Blade(Lavarle) sau này nên tìm hiểu về Thymeleaf
 
-(6) Setup JSP 
+##6 - Setup JSP##
+
 	thêm các thư viện
 	<dependency>
 	    <groupId>org.apache.tomcat.embed</groupId>
@@ -355,7 +374,8 @@ File Tĩnh là các file ít thay đổi thường sẽ public như file html, c
 	</dependency>
 
 	**Thường những cache được lưu vào thư mục ../.m2/
-(7) Cấu hình JSP có 2 cách: khi cấu hình ở đây nó sẽ chỉ tự động load những file view được cấu hình sẽ ko load file tĩnh mặc định nữa 	
+##7 - Cấu hình JSP có 2 cách: khi cấu hình ở đây nó sẽ chỉ tự động load những file view được cấu hình sẽ ko load file tĩnh mặc định nữa##
+
 cách 1: cấu hình trực tiếp vào .properties
 	spring.mvc.view.prefix=/WEB-INF/view/ 
 	spring.mvc.view.suffix=.jsp
@@ -391,7 +411,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 **Đặt trong thư mục config theo mô hình của project trong github
 **Nên dùng code vì đối với Spring Security sẽ ko có .properties cho chúng ta cấu hình 	
 
-(8) Truyền từ Controller vào view = JSP có 3 cách khi dùng framework
+##8 - Truyền từ Controller vào view = JSP có 3 cách khi dùng framework##
+
 	Model(đơn giản nhất)
 	ModelMap(tương tác với connection, array, ...)
 	ModelAndView(return cả view cả data trong 1 lời gọi)
@@ -425,7 +446,8 @@ b) JSPL (JSP Standard Tag Library) là phần mở rộng của JSP
 	<%@ taglib> là để chúng ta cấu hình chúng ta dùng thư viện nào ở đây là http://java.sun.com/jsp/jstl/ và prefix="c" là tiền tố 'c' thể hiện chúng ta dùng /core 
 
 
-(9) Tích hợp bootstrap và JQuery import vào chính file .jsp
+##9 Tích hợp bootstrap và JQuery import vào chính file .jsp##
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -441,7 +463,8 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 đầu tiền /resources/css sẽ luôn được link tới nếu t điền bất kì url nào = /css/....
 /css/**: 2 dấu ** ở đây thể hiện nó sẽ truy cập tất cả folder/file trong thư mục /css/
 
-(10) Tạo trang http://localhost:8080/admin/user là trang tạo user Create.jsp
+##10 Tạo trang http://localhost:8080/admin/user là trang tạo user Create.jsp##
+
 	Trong /webapp/WEB-INF/view tạo /admin/user trong này tạo 1 file Create.jsp tạo ra giao diện = bootstrap
 	<div class="container mt-5"> 				
 		<div class="row"> 
@@ -459,7 +482,8 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 	
 	Trong controller tạo 1 class có @RequestMapping("/admin/user") và return về "/admin/user/Create.jsp" ở đây chúng ta đã cấu hình mặc định sẽ tìm trong folder /WEB-INF/view nên chỉ cần điền url đối với view
 
-(11) gửi data với HTML Form
+##11 gửi data với HTML Form##
+
 	@RequestMapping() mặc định khi sử dụng ko điền method cho nó thì sẽ là GET lấy data nếu muốn truyền data từ client lên server thì ta dùng method POST
 	@RequestMapping(value="url", RequestMethod.POST) thêm 1 class như này làm controller nhận request khi submit từ form
 
@@ -484,19 +508,21 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 	    trongNguyen tên biến 
 	từ đây chúng ta đã nhận được dữ liệu từ view gửi về controller 
 
-Phần 9 chapter 8: Spring Data với JPA và hibernate
+====Phần 9 chapter 8: Spring Data với JPA và hibernate====
+
 1 - Spring cung cấp Spring data là công cụ giúp chúng ta tương tác với database một cách đơn giản 
 	- Trong này nó sẽ cung cấp 1 đối tượng Repository nhờ đối tượng này chúng ta ko cần viết câu lệnh SQL nhưng vẫn truy vấn vào database được 
 	- chúng ta sẽ sử dụng 1 model JPA trong Spring Data 
 
-2 - Cài đặt thư viện JPA 
+##2 - Cài đặt thư viện JPA##
 	<dependency>
 		<groupId>org.springframework.boot</>
 		<actifactId>spring-boot-starter-data-jpa</>
 	</>
 	**khi cài công cụ có chữ start mô hình chung nó đã cài đủ những công cụ cần thiết //ở đây nó đã cài sẵn hibernate
 
-3 - tương tác với SQL có 2 cách:
+##3 - tương tác với SQL có 2 cách:##
+
 	- Sử dụng JDBC: Java Database Connectivity 
 	đây là cách chúng ta kiểm soát database thông qua các câu lệnh truy vấn như select, update, insert, ...
 	hoạt động: Tạo 1 kết nối tới database -> thông qa đó dùng câu lệnh truy vấn 
@@ -507,19 +533,22 @@ Phần 9 chapter 8: Spring Data với JPA và hibernate
 	Ưu điểm: là cú pháp dùng chung cho nhiều loại SQL chứ nếu dùng JDBC thì mỗi loại lại có mỗi loại truy vấn khác nhau
 	Nhược điểm: Hiệu năng giảm hơn so với viết câu lệnh truy vấn thông qua dùng JDBC
 
-4 - Sử dụng Hibernate để dùng ORM thao tác với database 
+##4 - Sử dụng Hibernate để dùng ORM thao tác với database##
+
 Mô hình: 
 	Spring <->Spring data JPA <-> JPA <-> Hibernate <-> database 
 	chúng ta đang dùng spring để làm ứng dụng và muốn connect tới database thì cần Spring data và ở đây chúng ta dùng Spring data JPA cái này nó lại dựa trên JPA (Java Persistence API: là 1 API mà Java cung cấp) -> ở đây chúng ta đã có thể connect tới database nhưng đôi khi sử dụng API của Java để tương tác với database khá dài dòng, ... -> công cụ/framework Hibernate (chứa JDBC) ra đời được kế thừa và phát triển thêm từ JPA 
 	hibernate giúp chúng ta viết ORM và nó sử dụng JPA để thao tác với data
 
-5 - Debug java với VScode là debug phía backend 
+##5 - Debug java với VScode là debug phía backend##
+
 	không cần cài thêm công cụ gì khác 
 	đối với vscode có 1 thư mục .vscode là nơi lưu cấu hình của việc debug để chạy được chế độ debug chúng ta có file launch.json đây là vscode tự động sinh khi sử dụng extension bashboard nếu ko có file này sẽ ko chạy được chế độ debug 
 	hoạt động: bấm vào bashboard chọn dự án chọn debug - terminal sẽ xuất hiện chữ debug thay vì chữ run 
 		   dùng breakpoint để dừng tại dòng để kiểm tra giá trị 
 	
-6 - Entity (trong ứng dụng đặt là domain)
+##6 - Entity (trong ứng dụng đặt là domain)##
+
 	entity là thực thể ~ actor là những tác nhân tham gia vào hệ thống 
 	bản chất entity là 1 class của Java đại diện cho 1 table trong database
 	-> entity là models trong mô hình MVC
@@ -530,7 +559,7 @@ Mô hình:
 	-> sau khi cấu hình xong chạy chương trình chỉ = thêm 2 annotation && đã kết nối với database cấu hình ở .properties thì nó đã tự động tạo table theo định dạng của entity đó 
 	**tên biến trong java fullName -> table: full_name vì trong database ko phân biệt chữ hoa chữ thường 
 
-7 - Mô hình MVC kết hợp với Spring Data 
+##7 - Mô hình MVC kết hợp với Spring Data##
 
 ** đặt tên models là domain chứ ko phải entity/model vì dựa theo base của jhipster ở đây nó đặt là domain là dựa trên 1 design pattern gọi là domain-driven design (domain ở đây sẽ quyết định hướng thiết kế của dự án vì trước khi viết view hoặc controller trc hết t phải tạo ra 1 domain cho cái đó như xác định dự án có bao nhiêu thực thể/actor và nó có thuộc tính gì -> mọi thứ phải xuất phát từ domain)
 
@@ -589,7 +618,7 @@ Sửa lại method POST trong controller
         this.userService.handleSaveUser(user);
 }
 
-8 - Định nghĩa Repository Query 
+##8 - Định nghĩa Repository Query##
 Java Spring có cung cấp công cụ để tối ưu việc xây dựng nên các câu lệnh Query Gồm 3 bước: 
 Bước 1: Tự định nghĩa tên của Method theo quy tắc 
 Bước 2: Spring sẽ tự động chuyển "tên method" thành câu lệnh truy vấn database
@@ -612,7 +641,7 @@ Tạo Repository Query:
 Để chính quy bài bảng thì những Repository nên đặt ở Repository (abstract method) và sử dụng nó tường minh ở Service
 	Nên đổi từ CrudRepository -> JpaRepository bởi vì đa số method cần thiết trong CrudRepository lại return ra Iterable khá khó sử dụng còn JpaRepository sẽ trả về List 
 
-9 - hoàn thành page /admin/user
+##9 - hoàn thành page /admin/user##
 a) Load được tất cả dữ liệu của các user hiển thị lên page 
 	- lấy dữ liệu -> gửi lên view -> dùng foreach để render ra dữ liệu
 b) Sửa lại trang /admin/user/create khi bấm submit thì quay lại trang /admin/user
@@ -625,7 +654,7 @@ c) Tạo ra trang view detail khi bấm vào view của từng user sẽ hiện 
 		c2: dùng thẻ a và href và lúc render ra dữ liệu của từng user chỗ href ta sẽ chèn luôn user.id vào href="/admin/user/${user.id}" đây cũng sẽ là url ta xử lý dưới controller và ta sẽ lấy id đó ở controller = Annotation @pathVariable 
 	
 	
-10 - Tổng kết về mô hình MVC 
+##10 - Tổng kết về mô hình MVC##
 a) các thành phần tham gia 
 	M: code trong thư mục Domain(theo domain-driven design nên ko đặt tên là entity hay models) models chịu trách nhiệm quản lý các "đối tượng/tác nhân" tham gia vào hệ thống, chính là các tables lưu trữ trong database (nhờ Annotation hỗ trợ của Spring mà có thể biến class thành các entity/tables) 
 	V: code trong thư mục /webapp/WEB-INF/viewlà các file .jsp (html), tạo ra giao diện cho người dùng nhìn thấy
@@ -648,13 +677,14 @@ url:../Users -> Controller <-> Services <-> Repository <-> database
 			view sẽ render ra giao diện để người dùng thấy kết quả 
 
 	
-11 - hoàn thành chức năng update, delete
+##11 - hoàn thành chức năng update, delete##
 	Hàm save() -> java spring đã làm cho chúng ta nếu đã có user được save vào nếu đã có thông tin -> update 
 										      chưa có -> create
 	
 
-Phần 10 chapter 9 Project Thực Hành
-1 - Nhìn lại kiến thức đã học: 
+====Phần 10 chapter 9 Project Thực Hành===
+
+##1 - Nhìn lại kiến thức đã học:##
 a) công nghệ đã dùng: 
 	- sử dụng Spring boot để chạy dự án: 
 		chính là @Annotation @SpringBootApplication trong class LaptopShopApplication.java 
@@ -676,7 +706,7 @@ b) Để phát triển dự án
 	- Định nghĩa thêm Model(Spring data)
 	- Viết logic theo mô hình MVC(Spring MVC)
 	
-2 - Phân tích Yêu cầu thực hành 
+##2 - Phân tích Yêu cầu thực hành##
 
 Ý tưởng: có một trang web để hiển thị sản phẩm cho người dùng lựa chọn, các chức năng chính như sau: 
 	- Hiển thị danh sách sản phẩm (home page)
@@ -711,7 +741,7 @@ Phân chia theo vai trò của người dùng
 		Kế thừa lại tính năng của user
 		Full quyền trong hệ thống 
 
-4 - Phân tích thiết kế database 
+##4 - Phân tích thiết kế database##
 Bước 1: Xác định các đối tượng tham gia vào hệ thống 
 	Users		Roles(Vai trò của người dùng)		Products		Orders
 "Chuẩn hóa dữ liệu: 1NF, 2NF, 3NF"
@@ -735,7 +765,7 @@ Bước 2: Xác định quan hệ giữa
 	Khi đọc mối quan hệ (đưa tên của bảng vào phía trước 1 mối quan hệ và đọc từ trái sang publisher one to many -> một nhà xuất bản thì có nhiều sách, book many to one nhiều sách được sx bởi 1 nhà xuất bản 
 Tham khảo: https://docs.jboss.org/hibernate/orm/6.4/introduction/html_single/Hibernate_Introduction.html#associations
 
-5 - Các loại quan hệ vs code
+##5 - Các loại quan hệ vs code##
 a) quan hệ one to many - many to one
 Chúng ta có các Annotation:
 	@ManyToOne(para)
@@ -846,7 +876,7 @@ Thiết lập mối quan hệ:
 	private Product product;
 -> đây là quan hệ UniDirectional: quan hệ 1 chiều giữa OrderDetail và Product vì chúng ta chỉ cần xác định trong OrderDetail có Product nào điều ngược lại chúng ta ko cần thiết là 1 Product thuộc những OrderDetail nào 
 
-6 - Mối quan hệ One to One (1-1)
+##6 - Mối quan hệ One to One (1-1)##
 ví dụ: post <----<> postDetail 
 Một bài đăng chỉ có 1 bài đăng chi tiết ( một bài đăng chi tiết chỉ thuộc 1 bài đăng )
 **Annotation @OneToOne và phải xác định Owner side (nơi sở hữu Foreign Key @JoinColumn(name="") 
@@ -894,7 +924,15 @@ class PostDetails {
 ở đây chúng ta sẽ ko dùng cơ chế GenerateId nữa mà dùng @MapId để có thể biến khóa ngoại -> khóa chính (id của PostDetails -> Post_id)
 	
 	
-	
+=====Phần 12 Chapter 11: module upload file====
+1 - Design giao diện Admin:
+
+- clone https://github.com/hoidanit-be-java-spring-mvc/03-admin-template
+- vào project của chúng ta tạo 1 controller để xử lý cho admin -> trang /admin
+- vào tạo /view/admin/dashboard -> nơi lưu view của /admin tạo show_admin_page.jsp -> copy nội dung file index.html của template vào 
+
+***trong template này cần chú ý file index.html có những link liên kết tỉnh để các css/js -> cần tạo những folder và file này tạo trong /webapp/resources -> sau đó vào config/WebMvcConfig.java để cấu hình lại nơi để dữ án load file css/js khi load file index.html sẽ tìm tới đường dẫn được cấu hình tới để tìm các file css/js cần thiết
+***đổi các đường dẫn assets/demo/...js -> js/...js trong file show_admin_page.jsp và đưa tất cả file.js vào trong /js
 
 
 		
