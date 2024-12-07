@@ -936,6 +936,23 @@ class PostDetails {
 
 2 - Chia layout cho Admin Page(page giao diện cho các trang chức năng)
 
+3 - Dùng JQuery làm chức năng Image Preview (xem ảnh khi upload lên)
+copy paste đoạn nào vào <head/> của create.jsp
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		//đầu tiên import thư viện JQuery vào để code JQuery
+                <script>
+                    $(document).ready(() => {
+                        const avatarFile = $("#avatarFile"); //lấy ra cái avatarFile
+                        avatarFile.change(function (e) { //mỗi khi nó thay đổi
+                            const imgURL = URL.createObjectURL(e.target.files[0]);
+//lấy ra đường link URL, link này là 1 API browser đã làm sẵn -> nó sẽ cung cấp 1 url để hiển thị ảnh 
+                            $("#avatarPreview").attr("src", imgURL); //gán URL đã lấy vào thuộc tính src của avatarPreview 
+                            $("#avatarPreview").css({ "display": "block" });//thay đổi display của nó 
+                        });
+                    });
+                </script>
+-> những đoạn này chỉ xảy ra ở client front end, Java backend sẽ không làm được 
+
 
 		
 	

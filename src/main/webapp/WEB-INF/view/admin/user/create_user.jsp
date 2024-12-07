@@ -12,6 +12,18 @@
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
                 <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+                <script>
+                    $(document).ready(() => {
+                        const avatarFile = $("#avatarFile");
+                        avatarFile.change(function (e) {
+                            const imgURL = URL.createObjectURL(e.target.files[0]);
+                            $("#avatarPreview").attr("src", imgURL);
+                            $("#avatarPreview").css({ "display": "block" });
+                        });
+                    });
+                </script>
+
             </head>
 
             <body class="sb-nav-fixed">
@@ -75,9 +87,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 mb3">
+                                                <div class="col-12 mb3 mx-auto">
                                                     <img style="max-height: 250px; display: none;" alt="avatar preview"
-                                                        id="avatarPreview">
+                                                        id="avatarPreview" class="mx-auto">
                                                 </div>
                                                 <div class="col-12 mb3">
                                                     <button type="submit" class="btn btn-primary">Submit</button>
