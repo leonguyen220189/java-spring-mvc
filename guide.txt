@@ -736,7 +736,7 @@ Bước 2: Xác định quan hệ giữa
 Tham khảo: https://docs.jboss.org/hibernate/orm/6.4/introduction/html_single/Hibernate_Introduction.html#associations
 
 5 - Các loại quan hệ vs code
-a) quan hệ one to many
+a) quan hệ one to many - many to one
 Chúng ta có các Annotation:
 	@ManyToOne(para)
 	@OneToMany(para)
@@ -785,7 +785,71 @@ Users và Roles: N - 1
 	
 **Sử dụng mappedBy="" bên inverse side (bên @OneToMany)
 	  @JoinColumn(name="") bên owner side (bên @ManyToOne) lúc này bên table của owner side sẽ có thêm 1 column name="" được thiết lập bởi JoinColumn 
+
+b) quan hệ many to many 
+	N - N = N - 1 + 1 - N
+	Ví dụ: 
+	Tutorials 		- 		tutorial_tag 		- 		Tags
+	(tutorial_id)				(tutorial_id, tag_id)			(tag_id
+	
+	-> Nếu làm theo cách thông thường của Java Spring -> nó sẽ tự động sinh cho chúng ta 1 table đứng giữa gọi là Join Table (chứa 2 khóa ngoại mapping tới 2 khóa chính của 2 table còn lại - gọi là composite key: key dung hợp 2 khóa ngoại sẽ xác định thành 1 cặp key duy nhất) 
 		
+Nếu chúng ta làm thông thường mối quan hệ nhiều nhiều với java spring:
+	Lưu ý: cả 2 table của chúng ta đều là owner side -> sử dụng Annotation mới là @JoinTable để nói với Java Spring biết là chúng ta dùng table nào đứng giữa để Mapping 2 đối tượng của chúng ta 
+	class Tutorial {
+		@ManyToMany
+		@TableMapping(name = "tutorial_tag", 
+			      joinColumns = {name = "tutorial_id"}, 
+			      inverseJoinColumns = {"tag_id"})
+		private Set<Tag> tags;
+	}
+	class Tag {
+		@ManyToMany(mappedBy="tags")
+		private Set<Tutorials> tutorials;
+	}
+	**Ở đây chúng ta có thể đổi chiều lại là Tag làm @TableMapping, Tutorial làm mappedBy nhưng khi làm chúng ta nên chọn 1 cái làm owner side và 1 làm inverse side mặc dù đây là quan hệ ngang hàng 
+
+** Vấn đề phát sinh: 
+	khi nó tạo table giữa nó chỉ có 2 trường là tutotial_id và tag_id mà thực tế ta muốn thêm 1 số trường thông tin khác nếu muốn thêm thì phải dùng Annotation @Embeddable ( tìm hiểu thêm )
+	-> để giải quyết vấn đề theo các thủ công thì chúng ta sẽ tách mối quan hệ N - N ra làm 2 mối quan hệ: N - 1 và 1 - N 
+
+** Cách làm N - N => N - 1 + 1 - N
+Chúng ta sẽ tạo thêm 1 entity order_detail
+public class OrderDetail {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    private long quantity;
+    private long price;
+
+    //order_id
+    //product_id
+}
+
+Thiết lập mối quan hệ: 
+- Quan hệ giữa Order và OrderDetail: Order has many OrderDetail (1-N)
+	Order: one to many OrderDetail
+	@OneToMany(mappedBy = "order")
+	private List<OrderDetail> orderDetails;
+
+	OrderDetail: many to one Order
+	@ManyToOne
+	@JoinColumn(name="order_id")
+	private Order order
+-> đây là quan hệ BiDirectional: quan hệ 2 chiều
+
+- Quan hệ giữa OrderDetail và Product: OrderDetail has many Product (1-N)
+	OrderDetail: many to one Product (nhiều OrderDetail có cùng 1 Product)
+	@ManyToOne
+	@JoinColumn(name="product_id")
+	private Product product;
+-> đây là quan hệ UniDirectional: quan hệ 1 chiều giữa OrderDetail và Product vì chúng ta chỉ cần xác định trong OrderDetail có Product nào điều ngược lại chúng ta ko cần thiết là 1 Product thuộc những OrderDetail nào 
+	
+	
+	
+
+
 		
 	
 
