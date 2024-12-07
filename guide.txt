@@ -720,6 +720,73 @@ Bước 2: Xác định quan hệ giữa
 	Order - Product: N - N
 	Order - User: N - 1
 	**Ở đây người dùng ko liên quan đến sản phẩm mà chỉ liên quan đến đơn đặt hàng 
+
+**Associations: chia làm 2 hình thức
+	+ Unidirectional(unique): quan hệ một chiều -----> là quan hệ giữa 2 table chỉ có 1 phía
+	+ Bi-Directional: quan hệ 2 chiều ------ ràng buộc qua lại giữa 2 thực thể 
+	Khi nói về 2 loại quan hệ này có thêm 2 keywords:
+		The owning side: Bên sở hữu bên có foreign key
+		Inverse side: bên ngược lại ko nắm cái gì cả (nơi sử dụng mappedBy)
+
+	VD: Person =(1)<------ (0-1 onetoone)author
+ 	    Publisher(onetomany) (1)<------ (n manytoone)book	
+	-> quan hệ 1 chiều ghi loại quan hệ ở 1 phía
+	-> quan hệ nhiều 2 chiều ghi loại quan hệ 2 phía 
+	Khi đọc mối quan hệ (đưa tên của bảng vào phía trước 1 mối quan hệ và đọc từ trái sang publisher one to many -> một nhà xuất bản thì có nhiều sách, book many to one nhiều sách được sx bởi 1 nhà xuất bản 
+Tham khảo: https://docs.jboss.org/hibernate/orm/6.4/introduction/html_single/Hibernate_Introduction.html#associations
+
+5 - Các loại quan hệ vs code
+a) quan hệ one to many
+Chúng ta có các Annotation:
+	@ManyToOne(para)
+	@OneToMany(para)
+para: fetch=LAZY/EAGER(hăng hái) thiết lập khi chúng ta quan tâm đến hiệu năng 
+	LAZY loading: khi nào cần tài nguyên chúng ta mới load nó lên -> hiệu năng cao 
+	EAGER loading: ngay từ đầu đã load full tài nguyên -> hiệu năng ko cao
+
+Ví dụ: Publisher(onetomany) (1)<------ (n manytoone)book
+	Class Book {
+		@ManyToOne(fetch=LAZY)
+		Publisher publisher;
+		//ở đây chúng ta dùng đối tượng để biểu thị mối quan hệ 
+	}
+	chúng ta sẽ không khai báo Long publisherId; ở đây vì theo OOP việc Join giữa 2 table với nhau thì ORM/Hibernate đã giúp chúng ta làm òi 
+	
+	Class Publisher {
+		@OneToMany(mappedBy="publisher")
+		Set<Book> books;
+	}
+	Ở đây chúng ta có thể dùng List nhưng set hiệu quả hơn ở 2 trường hợp:
+		Không lưu trùng giữ liệu (List có thể trùng)
+		Không cần lưu theo thứ tự (List lưu theo thứ tự)
+	mappedBy sẽ định nghĩa @OneToMany(mappedBy="publisher") sẽ ứng với trường nào tại thực thể còn lại 
+				Set<Book> books;
+	mappedBy = "publisher" (phải đặt giống với tên đặt ở Book)
+
+Users và Roles: N - 1
+- Phân tích mối quan hệ
+	1 user có 1 role và table_user có role_Id (owner side)
+	
+	User many to one role: nhiều user có thuộc role 
+	@ManyToOne
+	private Role role;
+	//Nếu chỉ thiết lập đến đây khi chạy chương trình nó sẽ vừa tạo thêm 1 column role_id cho User vừa tạo ra một table mới role_user vì ở đây nó ko biết join 2 table như nào -> nó tự động tạo thêm table để join 2 table ở đó -> sẽ ko join trực tiếp 2 table với nhau 
+	-> chúng ta phải chỉ chính xác đâu chính là nơi nối cái foreign key nối giữa khóa ngoại và khóa chính 
+	-> Sử dụng mappedBy tại inverse side và @JoinColumn(name = "role_id") mục đích để ko tạo ra table role_user nữa mà giúp join trực tiếp giữa 2 table 
+
+	@OneToMany(mappedBy="role")
+	List<User> list;
+	
+	User many to one role: nhiều user có thuộc role 
+	@ManyToOne
+	@JoinColumn(name = "role_id") //nó sẽ giúp cho bảng User join trực tiếp với bảng role quan id của role 
+	private Role role;
+	**Bên nào xuất hiện @Many (là owner side ko cần mappedBy)
+	
+**Sử dụng mappedBy="" bên inverse side (bên @OneToMany)
+	  @JoinColumn(name="") bên owner side (bên @ManyToOne) lúc này bên table của owner side sẽ có thêm 1 column name="" được thiết lập bởi JoinColumn 
+		
+		
 	
 
 
