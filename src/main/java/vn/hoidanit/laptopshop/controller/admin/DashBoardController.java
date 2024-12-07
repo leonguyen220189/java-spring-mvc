@@ -11,6 +11,6 @@ public class DashBoardController {
 
     @GetMapping("/admin")
     public String getAdminPage(Model model) {
-        return "admin/dashboard/show_admin_page";
+        return "admin/dashboard/show";
     }
 }

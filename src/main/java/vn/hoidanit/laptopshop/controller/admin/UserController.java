@@ -1,4 +1,4 @@
-package vn.hoidanit.laptopshop.controller;
+package vn.hoidanit.laptopshop.controller.admin;
 
 import java.util.List;
 
@@ -13,7 +13,6 @@ import vn.hoidanit.laptopshop.domain.User;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class UserController {
@@ -57,7 +56,7 @@ public class UserController {
     public String getUserPage(Model model) {
         List<User> users = this.userService.getAllUser();
         model.addAttribute("users", users);
-        return "/admin/user/table_user";
+        return "/admin/user/show";
     }
 
     // page: /admin/user/user.id trang detail của 1 user khi nhấn vào view ở
@@ -66,7 +65,7 @@ public class UserController {
     public String getUserDetailPage(Model model, @PathVariable long id) {
         User users = this.userService.getUserById(id);
         model.addAttribute("user", users);
-        return "/admin/user/show_user_detail";
+        return "/admin/user/detail";
     }
 
     @RequestMapping(value = "/admin/user/update/{id}") // ở đây có tên tham số là cái gì cũng đc

@@ -6,7 +6,7 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Table User</title>
+                <title>Dashboard - Manage Users</title>
                 <link href="/css/styles.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -21,15 +21,16 @@
                     <div id="layoutSidenav_content">
                         <main>
                             <div class="container-fluid px-4">
-                                <h1 class="mt-4">Dashboard</h1>
+                                <h1 class="mt-4">Manage Users</h1>
                                 <ol class="breadcrumb mb-4">
-                                    <li class="breadcrumb-item active">Dashboard</li>
+                                    <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">Users</li>
                                 </ol>
-                                <div class="container mt-5">
+                                <div class="mt-5">
                                     <div class="row">
                                         <div class="col-md-10 col-12 mx-auto">
                                             <div class="d-flex justify-content-between">
-                                                <h3>Table User</h3>
+                                                <h3>Manage Users</h3>
                                                 <a href="/admin/user/create_user" class="btn btn-primary">Create
                                                     User</a>
                                             </div>

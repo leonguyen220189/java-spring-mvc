@@ -6,7 +6,7 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Dashboard - Delete Users</title>
+                <title>Dashboard - Detail Users</title>
                 <link href="/css/styles.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -29,18 +29,22 @@
                                 <div class="mt-5">
                                     <div class="row">
                                         <div class="col-12 mx-auto">
-                                            <h3>Delete A User (id = ${deletedUser.id})</h3>
+                                            <h3>User Details</h3>
                                             <hr>
-                                            <form:form action="/admin/user/delete_user" method="post"
-                                                modelAttribute="deletedUser">
-                                                <div class="alert alert-danger" role="alert">
-                                                    A simple danger alert—check it out!
+                                            <div class="card mx-auto" style="width: 80%">
+                                                <div class="card-header">
+                                                    User Information
                                                 </div>
-                                                <div class="d-flex justify-content-between">
-                                                    <a href="/admin/user" class="btn btn-success mt-2">Back</a>
-                                                    <button type="submit" class="btn btn-primary">Comfirm</button>
-                                                </div>
-                                            </form:form>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item">ID: ${user.id}</li>
+                                                    <li class="list-group-item">Full Name: ${user.fullName}</li>
+                                                    <li class="list-group-item">Address: ${user.address}</li>
+                                                    <li class="list-group-item">Phone Number: ${user.phoneNumber}</li>
+                                                    <li class="list-group-item">Password: ${user.password}</li>
+                                                </ul>
+                                            </div>
+                                            <a href="/admin/user" class="btn btn-success mt-2">Back</a>
+                                            <hr>
                                         </div>
                                     </div>
                                 </div>
