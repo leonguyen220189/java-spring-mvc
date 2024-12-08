@@ -42,15 +42,6 @@ public class UserController {
         this.roleService = roleService;
     }
 
-    @RequestMapping("")
-    public String getHomaPage(Model model) {
-        String test = this.userService.handleGetHomePage();// lấy dữ liệu từ database
-        model.addAttribute("test", test);
-        String SinhVien = "Thanh Trong";
-        model.addAttribute("TenSinhVien", SinhVien);
-        return "hellofromjsp";
-    }
-
     // method mặc định là GET sẽ trả về view khi nhấn vào Create User ở page:
     // /admin/user
     @RequestMapping(value = "/admin/user/create")

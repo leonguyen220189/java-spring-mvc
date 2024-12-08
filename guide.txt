@@ -1151,6 +1151,20 @@ g) Xử lý update(giống create)
 
 h) xử lý delete
 
+====Phần 13 chapter 12 Module Product====
+
+##1 - Design giao diện trang chủ##
+
+a) Tạo giao diện cho "/" home page
+- tạo 1 controller cho home page
+- clone https://github.com/hoidanit-be-java-spring-mvc/04-client-template.git
+- tạo 1 folder client bên trong webapp/resources để lưu tài nguyên của giao diện home page tránh trùng với admin
+	** cấu hình thêm /client -> /resources/client
+- copy all folder của template trừ folder scss (scss là cách viết css ngắn ngọn hơn bth và cần cấu hình trc mới đọc hiểu được spring chưa cấu hình ko đọc đc) vào client/
+
+- đổi lại đường dẫn trong file .jsp 
+
+
 
 
 
