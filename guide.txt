@@ -1004,7 +1004,7 @@ e) Hoàn thiện chức năng upload file (part1)
 Bước 1: mapping thêm Role (thuộc tính Object của User) 
 Bước 2: Để có thể gửi file lên server -> thêm thuộc tính enctype="multipart/form-data" -> vì file ko thể gửi dưới dạng string lên server được mà cần được chuyển sang dạng binary -> tối ưu
 Bước 3: thêm thuộc tính name cho <input type="file"> để server có thể thông qua đây lấy được dữ liệu (lưu ý chỗ này chỉ có thể dùng attr name ko dùng được id, class hay path của form:) 
-Bước 4: lấy file ở server (controller) -> dùng Annotation @RequetsParan("nameFile") MutilpartFile[kiểu giá trị] file[tên biến] -> trong file này ở server nó sẽ có 1 attr value chứa thông tin file (là các số dữ liệu binary) khi đã được chuyển đổi
+Bước 4: lấy file ở server (controller) -> dùng Annotation @RequetsParam("nameFile") MutilpartFile[kiểu giá trị] file[tên biến] -> trong file này ở server nó sẽ có 1 attr value chứa thông tin file (là các số dữ liệu binary) khi đã được chuyển đổi
 Bước 5: Lưu trữ file
 	- cấu hình thêm trong file .properties 
 	spring.servlet.multipart.max-file-size=50MB //dung lượng tối đa khi upload 1 file 
@@ -1074,7 +1074,75 @@ dùng Buffer truyền vào file chúng ta muốn lưu
 stream.write() //lưu file
 
 Stream.close() //để chống leak dữ liệu 
-	
+
+##5 - Các hình thức mã hóa data(Endcoding, hashing, encryption)##
+
+a) Endcoding - Decoding (mã hóa - giải mã) 
+	- Endcoding là quá trình chúng ta biến đổi data từ dạng này sang dạng khác
+		Vidu: input: "hello world"
+		      output: "101000010001"
+		+ không sử dụng key/password nào để mã hóa (nhược điểm)
+		+ có thể bị giải mã chuỗi đã được encoding 
+		+ thông thường ko dùng để bảo vệ data 
+		+ được dùng để compression(nén dữ liệu), Streaming 
+		+ các định dạng sử dụng encoding: base64, .mp3, .mp4
+
+b) Hashing
+	Vidu: input: "hello world"
+	      output: "333bef68dg8090q09302"
+	Hashing là cách chúng ta băm  data thành 1 chuỗi string đặc biệt(hash)
+	+ đây là quá trình 1 chiều ko thể giải mã 1 chuỗi đã được hash để lấy lại dữ liệu ban đầu
+	+ Nên làm cho các data mang tính cần được bảo mật (password)
+	+ Các bước: 
+		Lúc đăng ký:
+		Hash input đầu vào (băm dữ liệu nhập vào) thành 1 chuỗi ngẫu nhiêu
+		sau đó lưu vào database 
+		
+		Lúc đăng nhập:
+		Hash input đầu vào (băm dữ liệu nhập vào) thành 1 chuỗi 
+		so sánh với chuỗi đó với chuỗi đã được lưu tron database 
+
+c) Encryption
+	vừa có Tính bảo mật cao hơn - vừa có tính 2 chiều (encoding - decoding)
+	nâng cấp từ en-de coding được sử dụng để trao đổi dữ liệu 
+	mục đích: để chúng ta mã hóa để gửi dữ liệu - giải mã để nhận dữ liệu 
+
+	Nhược điểm: 
+		Giới hạn về mặt dung lượng
+		kế thừa những thuật toán phức tạp
+
+	được áp dụng như messager (tin nhắn được lưu trữ trong db sẽ được mã hóa và khi sao lưu ra sẽ được giải mã)
+
+d) Hash user password:
+** Lưu ý: dữ liệu ở đây chúng ta chưa validate
+
+đọc tham khảo về hashing: https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html#authentication-password-storage-bcrypt
+
+cách code: https://www.baeldung.com/spring-security-registration-password-encoding-bcrypt
+
+code dependency injection thêm private final PasswordEncoder passwordEncoder vào UserController
+	khi dùng passwordEncoder thì Spring security sẽ dùng thuật toán mặc định để hashing
+	-> muốn dùng thuật toán BCryptPasswordEncoder để hash thì chúng ta ko thể dùng trực tiếp BCryptPasswordEncoder được cần phải overide lại PasswordEncoder để return về BCryptPasswordEncoder
+
+	Muốn dùng cái này chúng ta phải khai báo dưới dạng Beans để ghi đè lên cấu hình mặt định của spring security dùng Bean để khi ứng dụng chạy lên thì nó dã ghi đè rồi 
+	Phải cấu hình lại Spring security 
+
+Tạo thêm SecurityConfiguration.java trong config để cấu hình Spring security
+class này dùng 2 Annotation @Configuration, @EnableMethodSecurity(securedEnabled = true) để cho spring biết ta cấu hình spring security ở đây 
+	Trong class này chúng ta cần khai báo BCryptPasswordEncoder dưới dạng Beans:
+		  @Bean
+		  public PasswordEncoder passwordEncoder() {
+		        return new BCryptPasswordEncoder();
+	          }
+cấu hình xong chúng ta đã có thể sử dụng -> mật khẩu sau khi hashing có thể điều chỉnh ngắn dài = cách truyền tham số vào thuật toán BCryptPasswordEncoder
+
+e)Lưu lại User vào database: 
+- chúng ta còn thiếu rold_id trong bảng role -> view nó trả về 1 role_name 
+-> chúng ta cần viết 1 service lấy role_id = role_name 
+
+-> sau đó add đối tượng role tìm được khi lưu Spring data sẽ xử lý và chỉ lưu id của nó thôi 
+
+
 
 
 		

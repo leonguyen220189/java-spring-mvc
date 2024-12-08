@@ -2,19 +2,20 @@ package vn.hoidanit.laptopshop.controller.admin;
 
 import java.util.List;
 
-import org.apache.tomcat.util.http.fileupload.UploadContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.ui.Model;
 
+import vn.hoidanit.laptopshop.service.RoleService;
 import vn.hoidanit.laptopshop.service.UploadService;
 import vn.hoidanit.laptopshop.service.UserService;
+import vn.hoidanit.laptopshop.domain.Role;
 import vn.hoidanit.laptopshop.domain.User;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,12 +26,19 @@ public class UserController {
 
     // final theo chuẩn dependency injection (ko thay đổi giá trị sau khi khởi tạo)
     private final UserService userService;
+    private final RoleService roleService;
+
     // upload file
     private final UploadService uploadService;
+    // hashing
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService, UploadService uploadService) {
+    public UserController(UserService userService, UploadService uploadService,
+            PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userService = userService;
         this.uploadService = uploadService;
+        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     @RequestMapping("")
@@ -44,22 +52,26 @@ public class UserController {
 
     // method mặc định là GET sẽ trả về view khi nhấn vào Create User ở page:
     // /admin/user
-    @RequestMapping(value = "/admin/user/create_user")
+    @RequestMapping(value = "/admin/user/create")
     public String getPageCreateUser(Model model) {
         model.addAttribute("newUser", new User());
-        return "/admin/user/create_user";
+        return "/admin/user/create";
     }
 
     // mặt dù url giống nhau nhưng method khác nhau -> Spring sẽ hiểu là xử lý khác
     // nhau
     // khi nhấn submit ở form tạo Create User (action=/admin/user/create) sẽ trả về
     // đây vì đây method=POST
-    @RequestMapping(value = "/admin/user/create_user", method = RequestMethod.POST)
+    @PostMapping(value = "/admin/user/create")
     public String CreateUser(Model model, @ModelAttribute("newUser") User user,
             @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
-        // this.userService.handleSaveUser(user);
         String nameAvatarFile = this.uploadService.handleSaveUploadFile(avatarFile, "avatar");
-        System.out.println(nameAvatarFile);
+        String hashedPw = this.passwordEncoder.encode(user.getPassword());
+        Role role = this.roleService.getRoleByName(user.getRole().getName());
+        user.setRole(role);
+        user.setAvatar(nameAvatarFile);
+        user.setPassword(hashedPw);
+        this.userService.handleSaveUser(user);
         return "redirect:/admin/user";
     }
 
@@ -84,10 +96,10 @@ public class UserController {
     public String getUserUpdatePage(Model model, @PathVariable long id) {
         User updatedUser = this.userService.getUserById(id);
         model.addAttribute("updatedUser", updatedUser);
-        return "/admin/user/update_user";
+        return "/admin/user/update";
     }
 
-    @PostMapping("/admin/user/update_user") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
+    @PostMapping("/admin/user/update") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
     public String postUserUpdate(Model model, @ModelAttribute("updatedUser") User updated_user) {
         User currentUser = this.userService.getUserById(updated_user.getId());
         // nếu id của người dùng != null -> nó sẽ hiểu là update, ở đây email và pw =
@@ -106,10 +118,10 @@ public class UserController {
     public String getUserDeletePage(Model model, @PathVariable long id) {
         User deletedUser = this.userService.getUserById(id);
         model.addAttribute("deletedUser", deletedUser);
-        return "/admin/user/delete_user";
+        return "/admin/user/delete";
     }
 
-    @PostMapping("/admin/user/delete_user")
+    @PostMapping("/admin/user/delete")
     public String postUserDelete(Model model, @ModelAttribute("deletedUser") User deleted_user) {
         this.userService.handleDeleteUserById(1);
         return "redirect:/admin/user";

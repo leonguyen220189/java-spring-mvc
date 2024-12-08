@@ -31,7 +31,7 @@
                                         <div class="col-md-10 col-12 mx-auto">
                                             <div class="d-flex justify-content-between">
                                                 <h3>Manage Users</h3>
-                                                <a href="/admin/user/create_user" class="btn btn-primary">Create
+                                                <a href="/admin/user/create" class="btn btn-primary">Create
                                                     User</a>
                                             </div>
                                             <hr>

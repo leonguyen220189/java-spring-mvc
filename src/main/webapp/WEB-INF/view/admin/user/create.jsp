@@ -43,7 +43,7 @@
                                         <div class="col-md-10 col-12 mx-auto">
                                             <h3>Create A User</h3>
                                             <hr>
-                                            <form:form action="/admin/user/create_user" method="post"
+                                            <form:form action="/admin/user/create" method="post"
                                                 modelAttribute="newUser" enctype="multipart/form-data">
                                                 <div class="d-flex justify-content-between">
                                                     <div class="mb-3 col-md-5 col-12">
