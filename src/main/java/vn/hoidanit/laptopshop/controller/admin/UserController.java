@@ -1,6 +1,5 @@
 package vn.hoidanit.laptopshop.controller.admin;
 
-import java.io.File;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,7 +54,7 @@ public class UserController {
     // khi nhấn submit ở form tạo Create User (action=/admin/user/create) sẽ trả về
     // đây vì đây method=POST
     @PostMapping(value = "/admin/user/create")
-    public String CreateUser(Model model, @ModelAttribute("newUser") User user,
+    public String postUserCreate(Model model, @ModelAttribute("newUser") User user,
             @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
         String nameAvatarFile = this.uploadService.handleSaveUploadFile(avatarFile, "avatar");
         String hashedPw = this.passwordEncoder.encode(user.getPassword());

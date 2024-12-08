@@ -104,4 +104,12 @@ public class Product {
                 + quantity + ", sold=" + sold + ", factory=" + factory + ", target=" + target + "]";
     }
 
+    public ProductDetail getProductDetail() {
+        return productDetail;
+    }
+
+    public void setProductDetail(ProductDetail productDetail) {
+        this.productDetail = productDetail;
+    }
+
 }
