@@ -2,16 +2,22 @@ package vn.hoidanit.laptopshop.controller.admin;
 
 import java.util.List;
 
+import org.apache.tomcat.util.http.fileupload.UploadContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.ui.Model;
+
+import vn.hoidanit.laptopshop.service.UploadService;
 import vn.hoidanit.laptopshop.service.UserService;
 import vn.hoidanit.laptopshop.domain.User;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
@@ -19,9 +25,12 @@ public class UserController {
 
     // final theo chuẩn dependency injection (ko thay đổi giá trị sau khi khởi tạo)
     private final UserService userService;
+    // upload file
+    private final UploadService uploadService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UploadService uploadService) {
         this.userService = userService;
+        this.uploadService = uploadService;
     }
 
     @RequestMapping("")
@@ -46,8 +55,11 @@ public class UserController {
     // khi nhấn submit ở form tạo Create User (action=/admin/user/create) sẽ trả về
     // đây vì đây method=POST
     @RequestMapping(value = "/admin/user/create_user", method = RequestMethod.POST)
-    public String CreateUser(Model model, @ModelAttribute("newUser") User user) {
-        this.userService.handleSaveUser(user);
+    public String CreateUser(Model model, @ModelAttribute("newUser") User user,
+            @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
+        // this.userService.handleSaveUser(user);
+        String nameAvatarFile = this.uploadService.handleSaveUploadFile(avatarFile, "avatar");
+        System.out.println(nameAvatarFile);
         return "redirect:/admin/user";
     }
 

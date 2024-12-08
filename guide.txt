@@ -925,7 +925,7 @@ class PostDetails {
 	
 	
 =====Phần 12 Chapter 11: module upload file====
-1 - Design giao diện Admin:
+##1 - Design giao diện Admin:##
 
 - clone https://github.com/hoidanit-be-java-spring-mvc/03-admin-template
 - vào project của chúng ta tạo 1 controller để xử lý cho admin -> trang /admin
@@ -934,9 +934,10 @@ class PostDetails {
 ***trong template này cần chú ý file index.html có những link liên kết tỉnh để các css/js -> cần tạo những folder và file này tạo trong /webapp/resources -> sau đó vào config/WebMvcConfig.java để cấu hình lại nơi để dữ án load file css/js khi load file index.html sẽ tìm tới đường dẫn được cấu hình tới để tìm các file css/js cần thiết
 ***đổi các đường dẫn assets/demo/...js -> js/...js trong file show_admin_page.jsp và đưa tất cả file.js vào trong /js
 
-2 - Chia layout cho Admin Page(page giao diện cho các trang chức năng)
+##2 - Chia layout cho Admin Page(page giao diện cho các trang chức năng)##
 
-3 - Dùng JQuery làm chức năng Image Preview (xem ảnh khi upload lên)
+##3 - Dùng JQuery làm chức năng Image Preview (xem ảnh khi upload lên)##
+
 copy paste đoạn nào vào <head/> của create.jsp
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 		//đầu tiên import thư viện JQuery vào để code JQuery
@@ -952,6 +953,128 @@ copy paste đoạn nào vào <head/> của create.jsp
                     });
                 </script>
 -> những đoạn này chỉ xảy ra ở client front end, Java backend sẽ không làm được 
+
+##4 - Nơi lưu trữ File##
+
+a) Hình thức upload file
+Có 2 hình thức upload file: single(upload 1 file/ 1 lần) và multiple (upload nhiều file / 1 lần)
+- Khi upload multiple files:
+	+ front end cần xử lý để truyền lên multiple files 
+	+ back end cần xử lý để lưu nhiều files 1 lúc 
+	+ vấn đề sẽ phát sinh nếu quan trọng thứ tự file upload 
+(thường những file nhẹ sẽ đến server trước, nặng sẽ đến sau -> nếu chúng ta ko xử lý thứ tự file upload có thể dẫn đến các vấn đề phát sinh)
+
+Để đảm bảo thứ tự của file upload -> upload từng file 1 (hiệu năng sẽ ko cao) để upload nhiều file = cách này có thể dùng vòng lặp cứ xong file này sẽ đến file khác (queue)
+
+Nếu muốn upload nhiều file cùng 1 lúc -> phải cho nó chạy song song với nhau  
+
+
+b) Nơi để lưu trữ file
+- Hình thức 1: lưu trữ qua các dịch vụ online ví dụ: Amazon(S3), cloudflare(R2)
+	Ưu điểm: truy cập mọi lúc mọi nơi. tự động backup giữ liệu
+	Nhược điểm: pay as you go (dùng bao nhiêu trả bấy nhiêu, hoặc mua theo gói cước) 
+
+**Các hình thức mà các ứng dụng ko cần trả phí thực hiện là đẩy dữ liệu về cho người dùng tự lưu trữ 
+- Hình thức 2: lưu trữ file trong database 
+	lưu trữ trong mySQL hỗ trợ định dạng blob và clob (khóa học sern trên ytb) 
+	Ưu: miễn phí có thể lưu tối đa 4Gb/file
+	Nhược: tốc độ IO chậm, phải tự backup 
+
+- Hình thức 3: Lưu trữ tại server/lưu trữ tại nơi chúng ta viết code 
+	Ưu: miễn phí, tốc độ IO nhanh hơn database (vì lưu raw file) 
+	Nhược: tự backup dữ liệu, tối ưu hóa IO 
+
+c) Cách thức lưu trữ hình thức 3
+- Nguyễn tắc upload file: với hình thức lưu trữ file tại server (tức là lưu tại folder chứa source code/ hoặc folder local trên máy tính) 
+	Bước 1: Client gửi file lên server (view)
+	Bước 2: server lưu file vào folder quy định trước
+	Bước 3: kiểm tra client có thể truy cập vào được file đã upload hay không (hiển thị ảnh ra view) 
+
+d) Upload file với JSP 
+- Sử dụng đối tượng MultipartFile để lấy file từ client gửi lên cho chúng ta 
+- Logic để lưu trữ file:
+	Chuyển file sang dạng bytes: byte[] bytes = file.getBytes(); -> Lưu trữ dưới dạng stream 
+	Sau đó dùng BufferedOutputStream stream-> để tạo ra lại file khác giống với file ban đầu 
+	sau đó dùng stream.write() để di chuyển file tới nơi lưu 
+
+e) Hoàn thiện chức năng upload file (part1)
+**nên convert lại tên file khi upload lên -> dưới dạng khác để tránh khi user upload nhiều file tên giống nhau 
+**chúng ta chỉ cần lưu tên của file ảnh vào database ko cần lưu đường dẫn vì mình đã config nó nằm ở avatar/
+
+Bước 1: mapping thêm Role (thuộc tính Object của User) 
+Bước 2: Để có thể gửi file lên server -> thêm thuộc tính enctype="multipart/form-data" -> vì file ko thể gửi dưới dạng string lên server được mà cần được chuyển sang dạng binary -> tối ưu
+Bước 3: thêm thuộc tính name cho <input type="file"> để server có thể thông qua đây lấy được dữ liệu (lưu ý chỗ này chỉ có thể dùng attr name ko dùng được id, class hay path của form:) 
+Bước 4: lấy file ở server (controller) -> dùng Annotation @RequetsParan("nameFile") MutilpartFile[kiểu giá trị] file[tên biến] -> trong file này ở server nó sẽ có 1 attr value chứa thông tin file (là các số dữ liệu binary) khi đã được chuyển đổi
+Bước 5: Lưu trữ file
+	- cấu hình thêm trong file .properties 
+	spring.servlet.multipart.max-file-size=50MB //dung lượng tối đa khi upload 1 file 
+	spring.servlet.multipart.max-request-size=50MB //tổng request bao gồm all files khi gửi lên server 
+https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.web
+
+h) Hoàn thiện chức năng upload file (part2)
+
+hướng dẫn upload multiple file
+	- ở thẻ input thêm attr multiple
+	- @RequetsParan("nameFile") MutilpartFile[] file (dùng kiểu array ở đây)
+dùng for lặp link hướng dẫn:
+https://www.digitalocean.com/community/tutorials/spring-mvc-file-upload-example-single-multiple-files
+
+https://spring.io/guides/gs/uploading-files
+
+Giải thích code: 
+public String CreateUser(Model model, @ModelAttribute("newUser") User user,
+            @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
+        try {
+            byte[] bytes = avatarFile.getBytes();
+            String rootPath = this.servletContext.getRealPath("/resources/images");
+            File dir = new File(rootPath + File.separator + "avatar");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            // Create the file on server
+            File serverFile = new File(dir.getAbsolutePath() + File.separator + System.currentTimeMillis() + "-"
+                    + avatarFile.getOriginalFilename());
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+            stream.write(bytes);
+            stream.close();
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
+        // this.userService.handleSaveUser(user);
+        return "redirect:/admin/user";
+    }
+
+byte[] bytes = avatarFile.getBytes();
+- lấy hình ảnh dưới dạng binary
+	
+String rootPath = this.servletContext.getRealPath("/resources/images");
+- đường link mình truyền vào là relative path -> câu lệnh này giúp lấy absolute path trên chính máy tính đang dùng 
+ServletContext là lớp tổng quát được spring viết bọc cả Servlet - this.servletContext.getRealPath sẽ giúp chúng ta lấy đường link 
+- thường 1 cấu trúc của 1 ứng dụng web sẽ có thư mục webapp khi build dự án nó sẽ lưu vào đây -> mặc định khi dùng this.servletContext.getRealPath("") -> mặc định trả ra địa chỉ chính xác đến thư mục webapp -> nó chỉ trả tới địa chỉ webapp chúng ta phải truyền thêm cho nó địa chỉ cụ thể muốn lưu vào cụ thể ở đây là /resources/images 	
+
+File dir = new File(rootPath + File.separator + "avatar");
+- tìm nơi nào chúng ta muốn lưu file chúng ta cộng chuỗi:
+	địa chỉ tới images + "/" + tên thư mục nơi lưu
+
+if (!dir.exists()) {
+   dir.mkdirs();
+}
+- nếu thư mục đó chưa tồn tại ta sẽ tạo mới nó 
+
+File serverFile = new File(dir.getAbsolutePath() + File.separator + System.currentTimeMillis() + "-"
+                    + avatarFile.getOriginalFilename());
+- tạo ra tên file chúng ta muốn lưu 
+- dir.getAbsolutePath() + File.separator: đường link lưu trữ thư mục được check hoặc tạo ra bởi if ơ trên + "\"
+- System.currentTimeMillis() + "-" + avatarFile.getOriginalFilename()); mili seconds + tên file: để sửa đổi tên file tránh trùng lặp
+//cơ chế để tạo tên tránh trùng lặp trong 100 năm: uuid của Mongo DB 
+
+BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+dùng Buffer truyền vào file chúng ta muốn lưu 
+
+stream.write() //lưu file
+
+Stream.close() //để chống leak dữ liệu 
+	
 
 
 		

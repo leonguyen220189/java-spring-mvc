@@ -33,18 +33,20 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
-    public User(long id, String email, String fullName, String password, String address, String phoneNumber,
-            String avatar) {
-        this.id = id;
-        this.email = email;
-        this.fullName = fullName;
-        this.password = password;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.avatar = avatar;
+    public Role getRole() {
+        return role;
     }
 
-    public User() {
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 
     public long getId() {
