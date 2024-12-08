@@ -31,10 +31,12 @@
                                         <div class="col-12 mx-auto">
                                             <h3>Delete A User (id = ${deletedUser.id})</h3>
                                             <hr>
-                                            <form:form action="/admin/user/delete_user" method="post"
+                                            <form:form action="/admin/user/delete" method="post"
                                                 modelAttribute="deletedUser">
                                                 <div class="alert alert-danger" role="alert">
                                                     A simple danger alert—check it out!
+                                                    <form:input style="display: none;" path="id"
+                                                        value="${deletedUser.id}" />
                                                 </div>
                                                 <div class="d-flex justify-content-between">
                                                     <a href="/admin/user" class="btn btn-success mt-2">Back</a>

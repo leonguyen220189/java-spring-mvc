@@ -1,5 +1,6 @@
 package vn.hoidanit.laptopshop.controller.admin;
 
+import java.io.File;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -100,7 +101,8 @@ public class UserController {
     }
 
     @PostMapping("/admin/user/update") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
-    public String postUserUpdate(Model model, @ModelAttribute("updatedUser") User updated_user) {
+    public String postUserUpdate(Model model, @ModelAttribute("updatedUser") User updated_user,
+            @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
         User currentUser = this.userService.getUserById(updated_user.getId());
         // nếu id của người dùng != null -> nó sẽ hiểu là update, ở đây email và pw =
         // null thì ko qtr vì ko update chúng
@@ -108,6 +110,8 @@ public class UserController {
         currentUser.setAddress(updated_user.getAddress());
         currentUser.setFullName(updated_user.getFullName());
         currentUser.setPhoneNumber(updated_user.getPhoneNumber());
+        currentUser.setRole(this.roleService.getRoleByName(updated_user.getRole().getName()));
+        currentUser.setAvatar(this.uploadService.handleSaveUploadFile(avatarFile, "avatar"));
         this.userService.handleSaveUser(currentUser);
         // java spring tự làm cho chúng ta hàm save() nếu đã có user -> update ko thì
         // create
@@ -123,7 +127,7 @@ public class UserController {
 
     @PostMapping("/admin/user/delete")
     public String postUserDelete(Model model, @ModelAttribute("deletedUser") User deleted_user) {
-        this.userService.handleDeleteUserById(1);
+        this.userService.handleDeleteUserById(deleted_user.getId());
         return "redirect:/admin/user";
     }
 

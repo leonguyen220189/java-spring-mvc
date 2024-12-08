@@ -31,8 +31,8 @@
                                         <div class="col-12 mx-auto">
                                             <h3>Update A User</h3>
                                             <hr>
-                                            <form:form action="/admin/user/update_user" method="post"
-                                                modelAttribute="updatedUser">
+                                            <form:form action="/admin/user/update" method="post"
+                                                modelAttribute="updatedUser" enctype="multipart/form-data">
                                                 <div class="mb-3" style="display: none;">
                                                     <label class="form-label">Id</label>
                                                     <form:input type="text" class="form-control" path="id" />
@@ -42,21 +42,45 @@
                                                     <form:input type="email" class="form-control" path="email"
                                                         disabled="true" />
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Phone Number</label>
-                                                    <form:input type="text" class="form-control" path="phoneNumber" />
+
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="mb-3 col-md-5 col-12">
+                                                        <label class="form-label">Full Name</label>
+                                                        <form:input type="text" class="form-control" path="fullName" />
+                                                    </div>
+                                                    <div class="mb-3 col-md-5 col-12">
+                                                        <label class="form-label">Phone Number</label>
+                                                        <form:input type="text" class="form-control"
+                                                            path="phoneNumber" />
+                                                    </div>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Full Name</label>
-                                                    <form:input type="text" class="form-control" path="fullName" />
+
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="mb-3 col-md-5 col-12">
+                                                        <label class="form-label">Role</label>
+                                                        <form:select class="form-select" path="role.name">
+                                                            <form:option value="ADMIN">ADMIN</form:option>
+                                                            <form:option value="USER">USER</form:option>
+                                                        </form:select>
+                                                    </div>
+                                                    <div class="mb-3 col-md-5 col-12">
+                                                        <label for="avatarFile" class="form-label">Avatar</label>
+                                                        <div class="input-group mb-3">
+                                                            <input type="file" class="form-control" id="avatarFile"
+                                                                accept=".png, .jpg, .jpeg" name="nameAvatarFile"
+                                                                value="D:/java/java_springmvc/backend/01-java-spring-laptopshop-starter/src/main/webapp/resources/images/avatar/1733646645884-R.png">
+                                                        </div>
+                                                    </div>
                                                 </div>
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Address</label>
                                                     <form:input type="text" class="form-control" path="address" />
                                                 </div>
                                                 <div class="d-flex justify-content-between">
                                                     <a href="/admin/user" class="btn btn-success mt-2">Back</a>
-                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                    <button type="submit" class="btn btn-primary"
+                                                        name="nameAvatarFile">Submit</button>
                                                 </div>
                                             </form:form>
                                         </div>

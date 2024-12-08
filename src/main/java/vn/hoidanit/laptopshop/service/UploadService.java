@@ -39,4 +39,12 @@ public class UploadService {
 
         return finalName;
     }
+
+    public File getFileImage(String target, String fileName) {
+        String rootPath = this.servletContext.getRealPath("/resources/images");
+        File dir = new File(rootPath + File.separator + target);
+        // Create the file on server
+        File serverFile = new File(dir.getAbsolutePath() + File.separator + fileName);
+        return serverFile;
+    }
 }

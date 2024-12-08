@@ -508,6 +508,11 @@ thêm vào thư mục /webapp/resources đây sẽ là nơi chứa website app c
 	    trongNguyen tên biến 
 	từ đây chúng ta đã nhận được dữ liệu từ view gửi về controller 
 
+**Lưu ý: 
+ở GetMapping khi dùng Model đưa 1 object lên view = model.addAttribute() -> nó chỉ thực hiển việc đưa Object này lên và có thể dùng Object này thông qua ${} 
+
+nếu có thiết lập ModelAttribute ở form thì phải đặt tên giống với tên được Model đưa lên còn lại toàn bộ dữ liệu trong Object này khi truyền về Post sẽ được quyết định bởi Form: những thuộc tính của Object này lấy giá trị bởi các thuộc tính path trong các tag input ở những tag này vẫn có thể sử dụng dữ liệu Object được đưa lên qua ${} -> phải gán hoặc chỉnh sửa dữ liệu cho các path này nếu các path này ko có dữ liệu -> thì nó sẽ gửi về POST giá trị null/0 đối với path đó của Object được định nghĩa bởi ModelAttribute ko liên quan tới Object được Get gửi lên 
+
 ====Phần 9 chapter 8: Spring Data với JPA và hibernate====
 
 1 - Spring cung cấp Spring data là công cụ giúp chúng ta tương tác với database một cách đơn giản 
@@ -1141,6 +1146,11 @@ e)Lưu lại User vào database:
 -> chúng ta cần viết 1 service lấy role_id = role_name 
 
 -> sau đó add đối tượng role tìm được khi lưu Spring data sẽ xử lý và chỉ lưu id của nó thôi 
+
+g) Xử lý update(giống create) 
+
+h) xử lý delete
+
 
 
 
