@@ -19,6 +19,8 @@ public class UploadService {
     }
 
     public String handleSaveUploadFile(MultipartFile avatarFile, String target) {
+        if (avatarFile.isEmpty())
+            return ""; // trường hợp ko view ko upload file
         String finalName = "";
         try {
             byte[] bytes = avatarFile.getBytes();

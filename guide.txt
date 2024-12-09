@@ -1165,6 +1165,148 @@ a) Tạo giao diện cho "/" home page
 - đổi lại đường dẫn trong file .jsp 
 
 
+b) Tạo Giao Diện cho Product Detail
+
+
+c) Chỉnh sửa lại giao diện Product Admin
+
+d) Valid dữ liệu (input đầu vào)
+- Kiểm tra tính hợp lệ của dữ liệu -> Hạn chế dữ liệu rác 
+
+- Nên validate ở Front-end hay Back-end
+	Front-end: 
+	Html: dùng các thuộc tính của các tag như type="", required, ...
+	Javascript: validate trước khi gửi dữ liệu đi (đối với form khi bấm submit -> validate)
+	-> Ưu điểm tăng trải nghiệm người dùng 
+	-> Nhược có thể hack được -> thiếu sự bảo mật 
+
+	Back-end: (server)	
+	-> Tăng tính bảo mật (ko bị hack được)
+
+- Validate với Java Spring
+Cách 1: sử dụng jakarta.validation (Jakarta Bean Validation)
+	Đây là cái tích hợp sẵn khi dùng mô hình MVC 
+	Tài Liệu: https://beanvalidation.org/
+	Ví dụ: https://spring.io/guides/gs/validating-form-input
+
+	Cần 2 thư viện: 
+	jakarta.validation
+	org.springframework.validation.BindingResult
+	
+	Cần thêm thư viện: 
+	<dependency> 
+	    <groupId>org.springframework.boot</groupId> 
+	    <artifactId>spring-boot-starter-validation</artifactId> 
+	</dependency>	
+
+	Spring đã giúp kết nối 2 thư viện này rồi chỉ cần sử dụng 
+Cách 2: Sử dụng Hibernate Validator(thư viện ở ngoài) 
+	Đa số trước giờ code dùng JPA chỉ dùng Hibernate để cấu hình vì hiện tại JPA đang giải quyết được vấn đề của ứng dụng chưa cần dùng tới Hibernate (Hibernate kế thừa JPA để phát triển thêm)
+
+	Khi làm việc với session này tới backend -> sử dụng hibernate chứ hiện tại chúng ta mới chỉ dùng CRUD chỉ cần dùng JPA 
+	Tài Liệu: https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#preface
+	Ví dụ:  https://www.geeksforgeeks.org/hibernate-validator-with-example/
+	Khi xem ví dụ đa số thư viện cài từ javax đây là version cũ -> nên dùng lại jakarta version mới 
+	
+	Lưu ý khi dùng Hibernate Validator cần cài thêm thư viện:
+	<dependency>
+	    <groupId>org.hibernate.validator</groupId>
+	    <artifactId>hibernate-validator</artifactId>
+	    <version>8.0.1.Final</version>
+	</dependency>
+
+
+**Trong ứng dụng này dùng cách 1 Jakarta.validation
+
+##2 - Validate Model##
+
+- Model User: 
+
+Tài liệu: https://spring.io/guides/gs/validating-form-input
+
+Bước 1: Decorate Model với annotation
+https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints
+
+<dependency> 
+    <groupId>org.springframework.boot</groupId> 
+    <artifactId>spring-boot-starter-validation</artifactId> 
+</dependency>
+
+Bước 2: Validate tại controller 
+Trước hết cần vào domain vào entity cần valid dùng những Annotation như @Email, @min, @max vào những thuộc tính cần validdate
+sau đó Để validate dữ liệu của 1 User trước khi lưu xuống data base ta cần đặt Annotation @Valid trước đối tượng User đó trong controller 
+
+Bước 3: Get message lỗi sau khi được Validate dùng Annotation @Binding Result (sẽ hiển thị kết quả của quá trình Validate) cũng đặt trong tham số của controller xử lý @Valid và tham số bindingResult nameObjectBindingResult này cần đặt ngay sau tham số @Valid nếu ko sẽ ko trả ra kết quả mong muốn
+
+@Binding Result   
+https://stackoverflow.com/a/7384449
+
+   List<FieldError> errors = nameObjectBindingResult.getFieldErrors();
+    for (FieldError error : errors ) {
+        System.out.println (error.getField() + " - " + error.getDefaultMessage());
+    }
+-> getField() sẽ hiển thị các trường bị lỗi khi có lỗi thì chương trình sẽ ko chạy bình thường được -> chúng ta cần return nó về lại /admin/product/create khi bị lỗi chứ ko redirect vì nếu rediretc nó sẽ mất thông báo lỗi mà nó load function của địa chỉ đó để chạy 
+   if(nameObjectBindingResult.hasErrors()) return "/admin/product/create";
+
+Bước 4: để hiển thị errors ra view JSP form cũng hỗ trợ cho chúng ta tag <form:errors path=""/> điền path của đối tượng cần kiểm tra 
+	-> tag này sẽ tự generate 1 tag <span> để hiển thị lỗi
+
+Đối với những tag của <form:> thì phải dùng thuộc tính của nó để generate ra lại 1 tag của html 
+	ví dụ: <form:errors cssClass="error" /> 
+	-> lên giao diện khi có error <span class="error"> </span>
+
+để thêm hiệu ứng dùng Bootstrap 5: https://getbootstrap.com/docs/5.0/forms/validation/#server-side
+Đối với span, thêm class “invalid-feedback” //mặc định display:none
+Đối với input, thêm class “is-invalid” // thêm vào khi có lỗi 
+Về error tags:
+https://docs.spring.io/spring-framework/reference/web/webmvc-view/mvc-jsp.html#mvc-view-jsp-formtaglib-errorstag
+
+https://docs.spring.io/spring-framework/docs/6.1.5/javadoc-api/org/springframework/web/servlet/tags/form/ErrorsTag.html
+
+Check theo điều kiện có valid hay không ?
+https://mkyong.com/spring-mvc/spring-mvc-form-check-if-a-field-has-an-error/
+
+để thêm class is-invalid vào input khi có lỗi có 2 cách
+
+Cách 1: dùng Annotation Spring:bind
+Bước 1: thêm annotation đó vào (trước có thêm form rồi nên ko cần thêm form nữa)
+  <%@taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+Bước 2:
+ <spring:bind path="newUser.password"> //tên đối tượng . tên thuộc tính cần kiểm tra 
+          <form:input type="password"
+                class="form-control ${status.error ? 'is-invalid' : ''}"
+                path="password" />
+</spring:bind>
+<form:errors path="password" cssClass="invalid-feedback" />
+
+Nhờ Spring:bind chúng ta sẽ có biến status biến này sẽ trả ra true (có lỗi thêm class) hoặc false (ko)
+
+
+
+Cách 2: dùng thư viện jstl/core đã cài sẵn dùng c: để sử dụng các function của jstl core 
+	
+     Gán giá trị cho 1 biến ở đây chúng ta set giá trị cho biến nameHasBindError = lỗi khi nhập sai pw
+     <c:set var="nameHasBindError">
+          <form:errors path="password" />
+     </c:set>
+
+     Kiểm tra cái biến nameHasBindError nếu nó có giá trị thì thêm class is-invalid, nếu ko có lỗi thì ko thêm
+     <form:input type="password"
+          class="form-control ${not empty nameHasBindError? 'is-invalid':''}"
+          path="password" />
+
+     <form:errors path="password" cssClass="invalid-feedback" />
+
+
+
+
+	
+	
+
+
+
+
 
 
 

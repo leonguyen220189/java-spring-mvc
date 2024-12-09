@@ -48,12 +48,23 @@
                                                 <div class="d-flex justify-content-between">
                                                     <div class="mb-3 col-md-5 col-12">
                                                         <label class="form-label">Email address</label>
-                                                        <form:input type="email" class="form-control" path="email" />
+                                                        <c:set var="emailError">
+                                                            <form:errors path="email" cssClass="invalid-feedback" />
+                                                        </c:set>
+                                                        <form:input type="email"
+                                                            class="form-control ${not empty emailError? 'is-invalid':''}"
+                                                            path="email" />
+                                                        <form:errors path="email" cssClass="invalid-feedback" />
                                                     </div>
                                                     <div class="mb-3 col-md-5 col-12">
                                                         <label class="form-label">Password</label>
-                                                        <form:input type="password" class="form-control"
+                                                        <c:set var="passwordError">
+                                                            <form:errors path="password" cssClass="invalid-feedback" />
+                                                        </c:set>
+                                                        <form:input type="password"
+                                                            class="form-control ${not empty passwordError? 'is-invalid':''}"
                                                             path="password" />
+                                                        <form:errors path="password" cssClass="invalid-feedback" />
                                                     </div>
                                                 </div>
                                                 <div class="d-flex justify-content-between">
@@ -64,7 +75,12 @@
                                                     </div>
                                                     <div class="mb-3 col-md-5 col-12">
                                                         <label class="form-label">Full Name</label>
-                                                        <form:input type="text" class="form-control" path="fullName" />
+                                                        <c:set var="fullNameError">
+                                                            <form:errors path="fullName" cssClass="invalid-feedback" />
+                                                        </c:set>
+                                                        <form:input type="text" path="fullName"
+                                                            class="form-control ${not empty fullNameError? 'is-invalid':''}" />
+                                                        <form:errors path="fullName" cssClass="invalid-feedback" />
                                                     </div>
                                                 </div>
                                                 <div class="mb-3 col-md-12">

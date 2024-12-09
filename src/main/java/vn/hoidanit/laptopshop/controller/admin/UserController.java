@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import vn.hoidanit.laptopshop.service.RoleService;
 import vn.hoidanit.laptopshop.service.UploadService;
@@ -18,6 +20,8 @@ import vn.hoidanit.laptopshop.domain.User;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -54,8 +58,20 @@ public class UserController {
     // khi nhấn submit ở form tạo Create User (action=/admin/user/create) sẽ trả về
     // đây vì đây method=POST
     @PostMapping(value = "/admin/user/create")
-    public String postUserCreate(Model model, @ModelAttribute("newUser") User user,
+    public String postUserCreate(Model model, @ModelAttribute("newUser") @Valid User user,
+            BindingResult newUserBindingResult,
             @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
+
+        // view error
+        List<FieldError> errors = newUserBindingResult.getFieldErrors();
+        for (FieldError error : errors) {
+            System.out.println(">>>>>" + error.getField() + " - " + error.getDefaultMessage());
+        }
+
+        if (newUserBindingResult.hasErrors()) {
+            return "admin/user/create";
+        }
+
         String nameAvatarFile = this.uploadService.handleSaveUploadFile(avatarFile, "avatar");
         String hashedPw = this.passwordEncoder.encode(user.getPassword());
         Role role = this.roleService.getRoleByName(user.getRole().getName());
