@@ -1,18 +1,15 @@
 package vn.hoidanit.laptopshop.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import vn.hoidanit.laptopshop.domain.Product;
+import vn.hoidanit.laptopshop.domain.ProductDetail;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findById(long id);
-
-    Product save(Product product);
+public interface ProductDetailRepository extends JpaRepository<ProductDetail, Long> {
+    ProductDetail save(ProductDetail productDetail);
 
     void deleteById(long id);
 }

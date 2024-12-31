@@ -6,7 +6,7 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Dashboard - Create Product</title>
+                <title>Dashboard - Update Product</title>
                 <link href="/css/styles.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -15,6 +15,10 @@
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
                 <script>
                     $(document).ready(() => {
+                        if ($(productPreview).attr("src").trim() !== "\\images\\product") {
+                            $("#productPreview").css({ "display": "block" });
+                        }
+
                         const productFile = $("#productFile");
                         productFile.change(function (e) {
                             const imgURL = URL.createObjectURL(e.target.files[0]);
@@ -41,10 +45,10 @@
                                 <div>
                                     <div class="row">
                                         <div class="col-md-10 col-12 mx-auto">
-                                            <h3>Create A Product</h3>
+                                            <h3>Update A Product</h3>
                                             <hr>
 
-                                            <form:form action="/admin/product/create" method="post"
+                                            <form:form action="/admin/product/update" method="post"
                                                 modelAttribute="product" enctype="multipart/form-data">
                                                 <c:set var="nameError">
                                                     <form:errors path="name" cssClass="invalid-feedback" />
@@ -63,6 +67,10 @@
                                                     <form:errors path="productDetail.shortDesc"
                                                         cssClass="invalid-feedback" />
                                                 </c:set>
+                                                <div class="mb-3" style="display: none;">
+                                                    <label class="form-label">Id</label>
+                                                    <form:input type="text" class="form-control" path="id" />
+                                                </div>
                                                 <div class="d-flex justify-content-between">
                                                     <div class="mb-3 col-md-5 col-12">
                                                         <label class="form-label">Name:</label>
@@ -132,7 +140,7 @@
                                                 </div>
                                                 <div class="col-12 mb3 mx-auto">
                                                     <img style="max-height: 250px; display: none;" alt="product preview"
-                                                        id="productPreview" class="mx-auto">
+                                                        id="productPreview" class="mx-auto" src="${pathProduct}">
                                                 </div>
                                                 <div class="col-12 mb3">
                                                     <button type="submit" class="btn btn-primary">Submit</button>

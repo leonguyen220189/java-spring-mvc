@@ -43,10 +43,8 @@ public class UploadService {
     }
 
     public File getFileImage(String target, String fileName) {
-        String rootPath = this.servletContext.getRealPath("/resources/images");
-        File dir = new File(rootPath + File.separator + target);
-        // Create the file on server
-        File serverFile = new File(dir.getAbsolutePath() + File.separator + fileName);
-        return serverFile;
+        File dir = new File("/images" + File.separator + target);
+        File serverFile = new File(dir + File.separator + fileName);
+        return serverFile;// lấy đường dẫn relative /images/avatar/ảnh
     }
 }

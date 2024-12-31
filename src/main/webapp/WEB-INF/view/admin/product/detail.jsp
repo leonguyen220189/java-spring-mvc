@@ -6,7 +6,7 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Dashboard - Detail Users</title>
+                <title>Dashboard - Detail Product</title>
                 <link href="/css/styles.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -28,31 +28,36 @@
                     <div id="layoutSidenav_content">
                         <main>
                             <div class="container-fluid px-4">
-                                <h1 class="mt-4">Manage Users</h1>
+                                <h1 class="mt-4">Manage Products</h1>
                                 <ol class="breadcrumb mb-4">
                                     <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Users</li>
+                                    <li class="breadcrumb-item active">Products</li>
                                 </ol>
                                 <div class="mt-5">
                                     <div class="row">
                                         <div class="col-12 mx-auto">
-                                            <h3>User Details</h3>
+                                            <h3>Product Details</h3>
                                             <hr>
                                             <div class="card mx-auto" style="width: 80%">
                                                 <div class="card-header">
-                                                    User Information
+                                                    Product Information
                                                 </div>
                                                 <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item">ID: ${user.id}</li>
-                                                    <li class="list-group-item">Full Name: ${user.fullName}</li>
-                                                    <li class="list-group-item">Address: ${user.address}</li>
-                                                    <li class="list-group-item">Phone Number: ${user.phoneNumber}</li>
-                                                    <li class="list-group-item">Email: ${user.email}</li>
-                                                    <li class="list-group-item">Avatar:
+                                                    <li class="list-group-item">ID: ${product.id}</li>
+                                                    <li class="list-group-item">Name: ${product.name}</li>
+                                                    <li class="list-group-item">Price: ${product.price}</li>
+                                                    <li class="list-group-item">Quantity: ${product.quantity}</li>
+                                                    <li class="list-group-item">Description:
+                                                        ${product.productDetail.detailDesc}</li>
+                                                    <li class="list-group-item">Short Description:
+                                                        ${product.productDetail.shortDesc}</li>
+                                                    <li class="list-group-item">Factory: ${product.factory}</li>
+                                                    <li class="list-group-item">Target: ${product.target}</li>
+                                                    <li class="list-group-item">Image:
                                                         <div class="col-12 mb3 mx-auto">
                                                             <img style="max-height: 250px; display: none;"
                                                                 alt="avatar preview" id="avatar" class="mx-auto"
-                                                                src="${avatar}">
+                                                                src="${image}">
                                                         </div>
                                                     </li>
                                                 </ul>

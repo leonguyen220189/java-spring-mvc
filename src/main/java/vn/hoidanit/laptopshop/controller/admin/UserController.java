@@ -1,5 +1,6 @@
 package vn.hoidanit.laptopshop.controller.admin;
 
+import java.io.File;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,11 +46,64 @@ public class UserController {
         this.roleService = roleService;
     }
 
+    // page: /admin/user
+    @GetMapping("/admin/user")
+    public String getUserPage(Model model) {
+        List<User> users = this.userService.fetchUsers();
+        model.addAttribute("users", users);
+        return "/admin/user/show";
+    }
+
+    // page: /admin/user/user.id trang detail của 1 user khi nhấn vào view ở
+    // page:/admin/user
+    @GetMapping("/admin/user/{id}") // ở đây có tên tham số là cái gì cũng đc
+    public String getUserDetailPage(Model model, @PathVariable long id) {
+        User user = this.userService.fetchUserById(id).get();
+        File avatar = this.uploadService.getFileImage("avatar", user.getAvatar());
+        model.addAttribute("user", user);
+        model.addAttribute("avatar", avatar);
+
+        return "/admin/user/detail";
+    }
+
+    @RequestMapping(value = "/admin/user/update/{id}") // ở đây có tên tham số là cái gì cũng đc
+    public String getUserUpdatePage(Model model, @PathVariable long id) {
+        User user = this.userService.fetchUserById(id).get();
+        File pathAvatar = this.uploadService.getFileImage("avatar", user.getAvatar());
+        model.addAttribute("user", user);
+        model.addAttribute("pathAvatar", pathAvatar);
+        return "/admin/user/update";
+    }
+
+    @PostMapping("/admin/user/update") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
+    public String postUserUpdate(Model model, @ModelAttribute("user") User user,
+            @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
+        User currentUser = this.userService.fetchUserById(user.getId()).get();
+        // nếu id của người dùng != null -> nó sẽ hiểu là update, ở đây email và pw =
+        // null thì ko qtr vì ko update chúng
+        // set lại user
+        currentUser.setAddress(user.getAddress());
+        currentUser.setFullName(user.getFullName());
+        currentUser.setPhoneNumber(user.getPhoneNumber());
+        currentUser.setRole(this.roleService.getRoleByName(user.getRole().getName()));
+        currentUser.setAvatar(this.uploadService.handleSaveUploadFile(avatarFile, "avatar"));
+        this.userService.saveUser(currentUser);
+        // java spring tự làm cho chúng ta hàm save() nếu đã có user -> update ko thì
+        // create
+        return "redirect:/admin/user";
+    }
+
+    @PostMapping("/admin/user/delete/{id}")
+    public String postUserDelete(Model model, @PathVariable long id) {
+        this.userService.deleteUserById(id);
+        return "redirect:/admin/user";
+    }
+
     // method mặc định là GET sẽ trả về view khi nhấn vào Create User ở page:
     // /admin/user
     @RequestMapping(value = "/admin/user/create")
     public String getPageCreateUser(Model model) {
-        model.addAttribute("newUser", new User());
+        model.addAttribute("user", new User());
         return "/admin/user/create";
     }
 
@@ -58,17 +112,17 @@ public class UserController {
     // khi nhấn submit ở form tạo Create User (action=/admin/user/create) sẽ trả về
     // đây vì đây method=POST
     @PostMapping(value = "/admin/user/create")
-    public String postUserCreate(Model model, @ModelAttribute("newUser") @Valid User user,
-            BindingResult newUserBindingResult,
+    public String postUserCreate(Model model, @ModelAttribute("user") @Valid User user,
+            BindingResult userBindingResult,
             @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
 
-        // view error
-        List<FieldError> errors = newUserBindingResult.getFieldErrors();
+        // view error in terminal
+        List<FieldError> errors = userBindingResult.getFieldErrors();
         for (FieldError error : errors) {
             System.out.println(">>>>>" + error.getField() + " - " + error.getDefaultMessage());
         }
 
-        if (newUserBindingResult.hasErrors()) {
+        if (userBindingResult.hasErrors()) {
             return "admin/user/create";
         }
 
@@ -78,63 +132,7 @@ public class UserController {
         user.setRole(role);
         user.setAvatar(nameAvatarFile);
         user.setPassword(hashedPw);
-        this.userService.handleSaveUser(user);
+        this.userService.saveUser(user);
         return "redirect:/admin/user";
     }
-
-    // page: /admin/user
-    @RequestMapping(value = "/admin/user")
-    public String getUserPage(Model model) {
-        List<User> users = this.userService.getAllUser();
-        model.addAttribute("users", users);
-        return "/admin/user/show";
-    }
-
-    // page: /admin/user/user.id trang detail của 1 user khi nhấn vào view ở
-    // page:/admin/user
-    @RequestMapping(value = "/admin/user/{id}") // ở đây có tên tham số là cái gì cũng đc
-    public String getUserDetailPage(Model model, @PathVariable long id) {
-        User users = this.userService.getUserById(id);
-        model.addAttribute("user", users);
-        return "/admin/user/detail";
-    }
-
-    @RequestMapping(value = "/admin/user/update/{id}") // ở đây có tên tham số là cái gì cũng đc
-    public String getUserUpdatePage(Model model, @PathVariable long id) {
-        User updatedUser = this.userService.getUserById(id);
-        model.addAttribute("updatedUser", updatedUser);
-        return "/admin/user/update";
-    }
-
-    @PostMapping("/admin/user/update") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
-    public String postUserUpdate(Model model, @ModelAttribute("updatedUser") User updated_user,
-            @RequestParam("nameAvatarFile") MultipartFile avatarFile) {
-        User currentUser = this.userService.getUserById(updated_user.getId());
-        // nếu id của người dùng != null -> nó sẽ hiểu là update, ở đây email và pw =
-        // null thì ko qtr vì ko update chúng
-        // set lại user
-        currentUser.setAddress(updated_user.getAddress());
-        currentUser.setFullName(updated_user.getFullName());
-        currentUser.setPhoneNumber(updated_user.getPhoneNumber());
-        currentUser.setRole(this.roleService.getRoleByName(updated_user.getRole().getName()));
-        currentUser.setAvatar(this.uploadService.handleSaveUploadFile(avatarFile, "avatar"));
-        this.userService.handleSaveUser(currentUser);
-        // java spring tự làm cho chúng ta hàm save() nếu đã có user -> update ko thì
-        // create
-        return "redirect:/admin/user";
-    }
-
-    @GetMapping("/admin/user/delete/{id}") // @GetMapping = @RequestMapping
-    public String getUserDeletePage(Model model, @PathVariable long id) {
-        User deletedUser = this.userService.getUserById(id);
-        model.addAttribute("deletedUser", deletedUser);
-        return "/admin/user/delete";
-    }
-
-    @PostMapping("/admin/user/delete")
-    public String postUserDelete(Model model, @ModelAttribute("deletedUser") User deleted_user) {
-        this.userService.handleDeleteUserById(deleted_user.getId());
-        return "redirect:/admin/user";
-    }
-
 }

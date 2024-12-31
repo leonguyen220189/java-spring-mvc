@@ -1,6 +1,7 @@
 package vn.hoidanit.laptopshop.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -15,35 +16,35 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User handleSaveUser(User user) {
+    public User saveUser(User user) {
         return this.userRepository.save(user);
     }
 
-    public User handleUpdateUser(User user) {
+    public User updateUser(User user) {
         return this.userRepository.save(user);
     }
 
-    public List<User> getAllUser() {
+    public List<User> fetchUsers() {
         return this.userRepository.findAll();
     }
 
-    public List<User> getAllUserByEmail(String email) {
+    public List<User> fetchUsersByEmail(String email) {
         return this.userRepository.findByEmail(email);
     }
 
-    public List<User> getAllUserByEmailAndAddress(String email, String Address) {
+    public List<User> fetchUsersByEmailAndAddress(String email, String Address) {
         return this.userRepository.findByEmailAndAddress(email, Address);
     }
 
-    public User getUserById(long id) {
+    public Optional<User> fetchUserById(long id) {
         return this.userRepository.findById(id);
     }
 
-    public String handleGetHomePage() {
+    public String getHomePage() {
         return "Hello From Service";
     }
 
-    public void handleDeleteUserById(long id) {
+    public void deleteUserById(long id) {
         this.userRepository.deleteById(id);
     }
 }

@@ -1298,6 +1298,12 @@ Cách 2: dùng thư viện jstl/core đã cài sẵn dùng c: để sử dụng 
 
      <form:errors path="password" cssClass="invalid-feedback" />
 
+Hoàn thiện Module Product: chỉnh sửa giao diện các ảnh ở phần admin bị bể và format giá tiền
+	<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+	
+		
+
+
 
 
 

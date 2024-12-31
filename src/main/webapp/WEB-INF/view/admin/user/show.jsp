@@ -8,6 +8,7 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Dashboard - Manage Users</title>
                 <link href="/css/styles.css" rel="stylesheet" />
+                <link href="/css/modal_warning.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -57,13 +58,15 @@
                                                                     class="btn btn-success">View</a>
                                                                 <a href="/admin/user/update/${user.id}"
                                                                     class="btn btn-warning mx-2">Update</a>
-                                                                <a href="/admin/user/delete/${user.id}"
-                                                                    class="btn btn-danger">Delete</a>
+                                                                <button id="warning-openModalButton"
+                                                                    class="btn btn-danger"
+                                                                    data-user-id="${user.id}">Delete</button>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>
                                                 </tbody>
                                             </table>
+                                            <jsp:include page="../layout/modal_warning.jsp" />
                                         </div>
                                     </div>
                                 </div>
@@ -74,7 +77,8 @@
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
                     crossorigin="anonymous"></script>
-                <script src="js/scripts.js"></script>
+                <script src="/js/scripts.js"></script>
+                <script src="/js/js_modal_warning.js"></script>
             </body>
 
             </html>

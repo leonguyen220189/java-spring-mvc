@@ -1,10 +1,13 @@
 package vn.hoidanit.laptopshop.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "product_detail")
@@ -19,8 +22,28 @@ public class ProductDetail {
     @MapsId
     private Product product;
 
+    @NotNull
+    @NotEmpty(message = "The description detail must not be left blank")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String detailDesc;
+
+    @NotNull
+    @NotEmpty(message = "The short description must not be left blank")
     private String shortDesc;
+
+    public ProductDetail(String detailDesc, String shortDesc, long id) {
+        this.detailDesc = detailDesc;
+        this.shortDesc = shortDesc;
+        this.id = id;
+    }
+
+    public ProductDetail(String detailDesc, String shortDesc) {
+        this.detailDesc = detailDesc;
+        this.shortDesc = shortDesc;
+    }
+
+    public ProductDetail() {
+    }
 
     public long getId() {
         return id;
@@ -56,7 +79,6 @@ public class ProductDetail {
 
     @Override
     public String toString() {
-        return "ProductDetail [id=" + id + ", product=" + product + ", detailDesc=" + detailDesc + ", shortDesc="
-                + shortDesc + "]";
+        return "ProductDetail [id=" + id + ", detailDesc=" + detailDesc + ", shortDesc=" + shortDesc + "]";
     }
 }

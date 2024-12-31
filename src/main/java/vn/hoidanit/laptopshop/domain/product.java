@@ -1,16 +1,15 @@
 package vn.hoidanit.laptopshop.domain;
 
-import java.util.List;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "products")
@@ -19,10 +18,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotNull
+    @NotEmpty(message = "The product name must not be left blank")
     private String name;
+
+    @NotNull
+    @DecimalMin(value = "0", inclusive = false, message = "The price product must be greater than 0")
     private String price;
     private String image;
 
+    @NotNull
+    @DecimalMin(value = "0", inclusive = false, message = "The quantity must be greater than 0")
     private long quantity;
     private long sold;
     private String factory;
@@ -31,7 +37,7 @@ public class Product {
     // không cần thiết khai báo quan hệ Product many to one OrderDetail
 
     // Product one to one ProducDetail
-    @OneToOne(mappedBy = "product")
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
     private ProductDetail productDetail;
 
     public long getId() {
@@ -98,18 +104,20 @@ public class Product {
         this.target = target;
     }
 
-    @Override
-    public String toString() {
-        return "Product [id=" + id + ", name=" + name + ", price=" + price + ", image=" + image + ", quantity="
-                + quantity + ", sold=" + sold + ", factory=" + factory + ", target=" + target + "]";
-    }
-
     public ProductDetail getProductDetail() {
         return productDetail;
     }
 
-    public void setProductDetail(ProductDetail productDetail) {
-        this.productDetail = productDetail;
+    public void setProductDetail(ProductDetail details) {
+        this.productDetail = details;
+        details.setProduct(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Product [id=" + id + ", name=" + name + ", price=" + price + ", image=" + image + ", quantity="
+                + quantity + ", sold=" + sold + ", factory=" + factory + ", target=" + target + ", productDetail="
+                + productDetail.toString() + "]";
     }
 
 }

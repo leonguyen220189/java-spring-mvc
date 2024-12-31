@@ -8,6 +8,7 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Dashboard - Manage Product</title>
                 <link href="/css/styles.css" rel="stylesheet" />
+                <link href="/css/modal_warning.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -46,24 +47,26 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- <c:forEach var="user" items="${users}">
+                                                    <c:forEach var="product" items="${products}">
                                                         <tr>
-                                                            <th scope="row">${user.id}</th>
-                                                            <td>${user.email}</td>
-                                                            <td>${user.fullName}</td>
-                                                            <td>${user.role.name}</td>
+                                                            <th scope="row">${product.id}</th>
+                                                            <td>${product.name}</td>
+                                                            <td>${product.price}</td>
+                                                            <td>${product.factory}</td>
                                                             <td>
-                                                                <a href="/admin/user/${user.id}"
+                                                                <a href="/admin/product/${product.id}"
                                                                     class="btn btn-success">View</a>
-                                                                <a href="/admin/user/update/${user.id}"
+                                                                <a href="/admin/product/update/${product.id}"
                                                                     class="btn btn-warning mx-2">Update</a>
-                                                                <a href="/admin/user/delete/${user.id}"
-                                                                    class="btn btn-danger">Delete</a>
+                                                                <button id="warning-openModalButton"
+                                                                    class="btn btn-danger"
+                                                                    data-product-id="${product.id}">Delete</button>
                                                             </td>
                                                         </tr>
-                                                    </c:forEach> -->
+                                                    </c:forEach>
                                                 </tbody>
                                             </table>
+                                            <jsp:include page="../layout/modal_warning.jsp" />
                                         </div>
                                     </div>
                                 </div>
@@ -75,6 +78,7 @@
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
                     crossorigin="anonymous"></script>
                 <script src="/js/scripts.js"></script>
+                <script src="/js/js_modal_warning.js"></script>
             </body>
 
             </html>
