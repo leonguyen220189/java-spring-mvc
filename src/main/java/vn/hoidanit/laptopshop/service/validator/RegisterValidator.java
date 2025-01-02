@@ -29,6 +29,14 @@ public class RegisterValidator implements ConstraintValidator<RegisterChecked, R
             valid = false;
         }
 
+        if (user.getPassword().length() < 8) {
+            context.buildConstraintViolationWithTemplate("Passwords must more than 8 characters")
+                    .addPropertyNode("password")
+                    .addConstraintViolation()
+                    .disableDefaultConstraintViolation();
+            valid = false;
+        }
+
         if (this.userService.checkExistedEmail(user.getEmail())) {
             context.buildConstraintViolationWithTemplate("Email is existed")
                     .addPropertyNode("email")

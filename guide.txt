@@ -1412,7 +1412,12 @@ Hoàn thiện Module Product: chỉnh sửa giao diện các ảnh ở phần ad
 - Tiếp theo sau khi đã kiểm tra lỗi: 
 	+ hiển thị ra View thông báo lỗi (dùng BindingResult để quăng qa View và dùng các thẻ Error để hiển thị)
 	+ liên kết xuống database để check email (thêm Annotation Service cho Validator để thực hiện tiêm userService vào để lấy email từ database lên check)
-	
+
+##3 - Tổng quan về Spring Security##
+
+a) enable Spring security lên: vào trang class main LaptopshopApplication.java
+	@SpringBootApplication(exclude = org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class) //comment lệnh này 
+	@SpringBootApplication mở lên này và để mặc định
 
 
 
