@@ -1418,6 +1418,120 @@ Hoàn thiện Module Product: chỉnh sửa giao diện các ảnh ở phần ad
 a) enable Spring security lên: vào trang class main LaptopshopApplication.java
 	@SpringBootApplication(exclude = org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class) //comment lệnh này 
 	@SpringBootApplication mở lên này và để mặc định
+	Ở đây nếu mở SpringBootApplication lên thì nó sẽ không hoạt động được vì:
+		- thứ nhất chúng ta đã cấu hình lại ở phần config mã hóa Password -> cần phải chỉnh password trong file properties = mã hóa theo chuẩn đã cấu hình 
+		- và 1 số lý do khác :vvv
+	khi enable nó lên thì khi truy cập vào app cần login và trang login này sẽ ghi đè lên /login đang custom
+
+b) chúng ta cần back code lại trước đó để kiểm tra luồng hoạt động mặc định của Spring Security
+Mô hình hoạt động của Spring Security trong việc đăng nhập = trang mặc định /login và tài khoản thì tự cấu hình trong .properties: 
+	1 - nhập và submit thông tin tài khoản từ giao diện (form)
+	2 - Thông tin này sẽ được Spring Security đưa qa các Filter Chains mặc định để kiểm tra về thông tin người dùng thì sẽ có qua UsernamePasswordAuthenticationFilter trong class filter này cần nhận về 1 Authentication -> để lưu nó vào SecurityContextHolder (đây là nơi để xác thực việc đăng nhập)
+	(muốn có authentication -> thì cần lấy được dữ liệu thông tin user đã có lên so sánh với dữ liệu đầu vào)
+	(nhưng dữ liệu của chúng ta có nhiều hình thức lưu trữ như là lưu ở memory/RAM, database, bên thứ 3, ...)
+	-> Spring Security cung cấp nhiều phương thức để lấy dữ liệu như: 
+		DaoAuthenticationProvider(nếu lưu dữ liệu ở database hoặc memory/RAM)
+		LdapAuthenticationProvider 
+		OpenIdAuthenticationProvider 
+		JwtAuthenticationProvider 
+		...
+	tất cả những class này kế thừa interface AuthenticationProvider
+	và để Spring xác định được đối với mỗi dự án thì dùng phương thức để lấy dữ liệu nào -> Spring dùng các class kế thừa từ AuthenticationManager như class ProviderManager
+
+	2.1 - Trong UsernamePasswordAuthenticationFilter sẽ gọi đến ProviderManager ở đây sẽ tạo ra một vòng lặp lặp qa tất cả các Provider xem Provider nào hợp với cấu hình của dự án và trả ra 1 Provider hợp lý đối với dự án 
+
+	2.2 - Sau khi có Provider rồi thì để kết nối xuống database ở đây thì cho mọi Provider Spring Security cùng cấp 1 interface UserDetailsService trong này sẽ có: các class kế thừa nó như
+		InMemoryUserDetailsService(nếu chúng ta ko cầu hình thì nó sẽ chọn cái này làm mặc định tức là lấy dữ liệu qua Ram/dữ liệu lưu trong code tức là account config trong .properties)
+		LdapUserDetailsService
+		....
+		hoặc là CustomUserDetailsService(loại người dùng tự kế thừa lại UserDetailsService và custom nó)
+		Đặc biệt trong Interface này chỉ có 1 method là loadUserByUsername() chúng ta cần custom cái method này sao cho hợp với dự án của chúng ta với:
+			input: username nhập vào ở view
+			output: UserDetails ở đây nó sẽ trả về cho Provider gọi nó (trong này lưu thông tin như password)
+	2.3 - cuối cùng là việc so sánh password Spring Security cung cấp 1 interface PasswordEncoder sẽ có 1 class kế thừa nó và được init khi đã lựa chọn ra được 1 Provider 
+		input: UserDetails (bao gồm password đã bị mã hóa theo dự án hiện tại thì mã hóa theo BCryptPasswordEncoder chúng ta đã override sơ lại cái PasswordEnconder trong phần config) và password lấy từ phía người dùng nhập vào 
+		output: Authentication Object trả về lại cho Filter UsernamePasswordAuthenticationFilter
+	3 - Khi UsernamePasswordAuthenticationFilter có data là authentication -> thì nó sẽ lưu data này vào 
+	SecurityContextHolder
+		SecurityContext
+			Authenticaion(user data: username, permission, ... ở đây ko lưu password)
+	và sẽ chèn dữ liệu này vào SecurityContextHolderFilter để thực hiện kiểm tra người dùng 
+
+Sau khi xong quá trình login của Spring Security có 2 trường hợp xảy ra: 
+	- Mỗi lần người dùng F5/refresh lại hệ thống tức là chúng ta gửi 1 request mới đến server -> thì Spring Security sẽ ko chạy lại all bước tùy theo cơ chế mà người dùng cấu hình như dùng Session thì nó sẽ vào kiểm tra SecurityContextHolderFilter đối với filter này sẽ kiểm tra bên trong SecurityContextHolder có lưu thông tin người dùng đăng nhập không nếu có thì người dùng sẽ tiếp tục sử dụng không cần phải đăng nhập nữa 
+	- Trường hợp sai thông tin đăng nhập
+		sẽ dùng ExceptionTranslationFilter filter này sẽ có trách nhiệm báo lỗi lại cho coder
+
+Chung quy lại: thì tất cả các phần Java Spring đã làm sẵn cho chúng ta rồi ta chỉ cần kế thừa và custom cách query kết nối xuống database ở UserDetailsService hoặc nâng cao hơn là tự viết 1 Filter ko dùng Filter mặc định của Spring Security 
+
+c) tiến hành thực hiện trên code = chế độ Debug để xem quá trình chạy 
+Ở đây sẽ chạy chế độ debug ở những class trong thư viện của Spring Security  
+Mở nhanh file (đã compiled) với VSCode:
+nhấn Ctrl + T
+- đầu tiên khi nhập dữ liệu vào Form login và nhấn submit -> Spring Security sẽ bắt đầu đưa dữ liệu qua các Filter
+Thứ tự các file class cần debug:
+1 - UsernamePasswordAuthenticationFilter(đặt breakpoint dòng 35)
+	trong class này để ý attemptAuthentication() hàm này sẽ trả về 1 biến authenticate 
+		return this.getAuthenticationManager().authenticate(authRequest);
+		nhấn ctrl bấm vào authenticate nó sẽ dẫn đến Interface AuthenticationManager
+
+2 - AuthenticationManager
+	đây chỉ đơn giản là 1 interface có phương thức authenticate chúng ta cần đi đến class implement interface này và override method đó để hoạt động 
+	bấm chuột phải vào class AuthenticationManager và chọn "go to implementations" chọn class ProviderManager
+
+3 - ProviderManager(đặt breakpoint tại hàng 66)
+	trong class này để ý method override là authenticate() ta có 1 vòng lặp để lặp qua tất cả các Provider và trả ra Provider phù hợp với cấu hình dự án hoặc đưa dữ liệu vào Provider đó luôn 
+	do chúng ta dùng username, password để đăng nhập kết hợp với database nên nó sẽ chạy vào DaoAuthenticationProvider
+
+4 - DaoAuthenticationProvider(đặt breakpoint dòng 53)
+	trong class này để ý method retrieveUser() trong này sẽ gọi đến Service (UserDetailsService) nó sẽ gọi đến method duy nhất của Service này là loadUserByUserName(username) 
+	khi click vào loadUserByUserName nó sẽ dẫn đến Interface UserDetailsService
+	-> chúng ta cần đến class kế thừa và override phương thức này và đối với dự án của chúng ta chưa cấu hình gì hết mà chỉ mới cài Spring Security thì mặc định nó sẽ dùng class InMemoryUserDetailsManager
+
+5 - InMemoryUserDetailsManager(đặt breakpoint dòng 123)
+	bên trong này nó cần viết logic để query dữ liệu
+	chú ý hàm loadUserByUsername() -> trả ra UserDetails Object (data là gồm thông tin người dùng - username, pw)
+	sau khi có data rồi thì Spring Security sẽ chạy vào SecurityContextHolderFilter 
+
+6 - SecurityContextHolderFilter(đặt breakpoint dòng 40)
+	chú ý hàm doFilter() giúp set context/thông tin người dùng vào đây (thông tin này đã bỏ qua pw)
+	có 1 biến để lưu dữ liệu deferredContext ban đầu nó sẽ load từ Request từ client để kiểm tra giá trị của biến này thì dùng deferredContext.get() vì nó có kiểu dữ liệu Supplier đây là 1 interface chỉ có 1 method Get
+
+Watch variable: bấm dấu + và thêm dữ liệu này vào để kiểm tra nó
+	deferredContext.get()
+		chứa authentication
+
+Sau khi đặt all tiến hành chạy ở chế độ Debug: 
+	1 - truy cập vào Url nó sẽ chưa hiển thị lên trang login vì Spring Security đầu tiên nó sẽ chạy vào SecurityContextHolderFilter để kiểm tra có data (người dùng đã đăng nhập và chưa logout trước đó chưa) nếu có thì nó sẽ bỏ qua login mà vào trang chủ luôn 
+		ban đầu deferredContext.get() chứa authentication = null
+	2 - sau khi nó kiểm tra trong đó xong nếu authentication = null nó sẽ hiển thị lên trang login 
+	
+	3 - sau khi nhập thông tin và nhấn submit nó vẫn sẽ chạy vào SecurityContextHolderFilter đầu tiên sau khi check authentication = null nó sẽ chạy vào UsernamePasswordAuthenticationFilter
+	
+	4 - trong UsernamePasswordAuthenticationFilter nó có gọi đến method authenticate() của ProviderManager(kế thừa và override từ interface AuthenticateManager) 
+		trong này nó sẽ có 1 vòng lặp để kiểm tra chúng ta dùng Provider nào ứng với việc mà mình login ở đây chúng ta dùng username và password cũng ko dùng third party -> sau khi chạy xong vòng lặp nó sẽ chạy vào DaoAuthenticationProvider
+
+	5 - trong DaoAuthenticationProvider nó sẽ chạy vào method retrieveUser ở đây nó sẽ gọi đến Service (UserDetailsService) nó sẽ gọi method loadUserByUsername ở đây chúng ta ko cấu hình database nên mặc định nó sẽ chạy đến class InMemoryUserDetailsService nơi kế thừa và override lại loadUserByUsername
+
+	6 - trong InMemoryUserDetailsService có loadUserByUsername được override -> trả về thông tin của User (UserDetails)
+	
+	7 - Sau khi có UserDetails trả về cho UsernamePasswordAuthenticationFilter rồi + password được lấy từ login -> PasswordEndcoder để mã hóa password và so sánh -> rồi trả về authentication
+
+	8 - từ đó chúng ta đã có data -> SecurityContextHolderFilter để lưu data lưu vào trong deferredContext nó chứa 
+		authentication: 
+			trạng thái authenticated: true
+			quyền hạn  user authorities: ở đây là 1 array nếu ko có cầu hình thì length = 0
+			credential = null (password của người dùng)
+			details chứa:
+				địa chỉ 
+				session sau này nếu dùng session nó sẽ lưu vào đây
+			principal là id của người dùng 
+				username = ...
+				password = null
+				....
+-> hoàn thành việc đăng nhập và trở về trang chủ - ở đây nếu chúng ta refresh lại trang chủ thì nó sẽ chạy vào SecurityContextHolderFilter để kiểm tra ngay bây h trong context nó có lưu session(mặc định)/thông tin người dùng không -> bỏ qua phần login 
+
+			
 
 
 
