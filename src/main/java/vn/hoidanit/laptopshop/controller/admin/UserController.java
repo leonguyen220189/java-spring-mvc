@@ -85,7 +85,7 @@ public class UserController {
         currentUser.setAddress(user.getAddress());
         currentUser.setFullName(user.getFullName());
         currentUser.setPhoneNumber(user.getPhoneNumber());
-        currentUser.setRole(this.roleService.getRoleByName(user.getRole().getName()));
+        currentUser.setRole(this.roleService.fetchRoleByName(user.getRole().getName()).get());
         currentUser.setAvatar(this.uploadService.handleSaveUploadFile(avatarFile, "avatar"));
         this.userService.saveUser(currentUser);
         // java spring tự làm cho chúng ta hàm save() nếu đã có user -> update ko thì
@@ -128,7 +128,7 @@ public class UserController {
 
         String nameAvatarFile = this.uploadService.handleSaveUploadFile(avatarFile, "avatar");
         String hashedPw = this.passwordEncoder.encode(user.getPassword());
-        Role role = this.roleService.getRoleByName(user.getRole().getName());
+        Role role = this.roleService.fetchRoleByName(user.getRole().getName()).get();
         user.setRole(role);
         user.setAvatar(nameAvatarFile);
         user.setPassword(hashedPw);

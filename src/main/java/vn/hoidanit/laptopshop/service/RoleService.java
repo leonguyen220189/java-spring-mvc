@@ -1,5 +1,7 @@
 package vn.hoidanit.laptopshop.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.laptopshop.domain.Role;
@@ -13,7 +15,7 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public Role getRoleByName(String name) {
+    public Optional<Role> fetchRoleByName(String name) {
         return this.roleRepository.findByName(name);
     }
 }

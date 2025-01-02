@@ -1302,22 +1302,116 @@ Hoàn thiện Module Product: chỉnh sửa giao diện các ảnh ở phần ad
 	<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 	
 		
+=====Chapter13: Module Auth (Session vaf Spring Security)=====
+
+##1 - DTO (Data Transfer Object)##
+- Trong form đăng ký thì có các trường như First Name, Last Name, Confirm Password -> mà trong Database ko có chỉ có Fullname và Password -> để xử lý trường hợp này t dùng DTO Design Pattern
+- Sơ lược hoạt động của DTO: A (dữ liệu thô) - B (dữ liệu đã xử lý để lưu vào Database)
+	Có thể thêm hoặc bớt data từ A để biến đổi nó thành B để phục vụ tốt cho nhu cầu của chúng ta
+	Cụ thể ở đây: chúng ta tạo 1 class lưu trữ thông tin đăng nhập(Firstname, Lastname, email, Password, Confirm Password) 'thông tin này ko lưu vào Database' từ những thông tin này t chuyển đổi nó thành 1 User thông qua Mapper
+
+- Mình có thể tạo 1 class khác để viết mapper nhưng ở đây để đơn giản thì ta viết mapper là một method trong các service luôn 
 
 
+##2 - Validate dữ liệu##
+- Thêm các file .java trong folder validate trong phần service
+- Hiện tại: trong các domain chúng ta dùng cái Annotation của thư viện cung cấp cho chúng ta để valid dữ liệu
+	+ Chúng ta có thể valid thủ công = code trong controller nhưng khuyết điểm là khó để đưa những lỗi này lên View 
+	+ Ở các trang create, update ở Admin thì chúng ta chỉ dùng BindingResult nếu như có lỗi nó sẽ tự động ném lỗi qa View 
+-> việc tự valid thủ công nếu dự án lớn sẽ rất piền -> chúng ta sẽ tự sẽ tự tạo ra các Annotation để valid theo nhu cầu 
+- Tạo Annotation: 
+	public @interface StrongPassword: đây là định nghĩa ra Annotation StrongPassword pải có @interface 
+	@Constraint(validatedBy = StrongPasswordValidator.class) -> nói cho java biết là Annotation này làm gì 
+	@Target({ ElementType.METHOD, ElementType.FIELD }) -> Phạm vi hoạt động của Annotation: trên 1 element, 1 class hay trên 1 method 
+	@Retention(RetentionPolicy.RUNTIME) -> khi nào thì Annotation này chạy 
+	@Documented: Cho phép annotation này xuất hiện trong tài liệu Javadoc.
 
+	Cần các trường: 
+		+ String massage() default "..." ->  Tin nhắn mặc định nếu ràng buộc bị vi phạm 
+		+ class<?>[] groups() default {};
+		+ class<? extend Payload>[] payload() default {};
 
-
+- Giải thích: 
+	+ @Constraint: Đánh dấu rằng đây là một annotation dùng để ràng buộc (constraint).
+	+ Payload: Dùng để cung cấp thêm thông tin meta về constraint, thường để nhóm thông tin lỗi.
 	
+	+ các Annotation như Target, Retention, Documented là các Annotation Meta 
 	
+	@Constraint(validatedBy = StrongPasswordValidator.class)
+	+ Liên kết annotation @StrongPassword với lớp StrongPasswordValidator, nơi logic kiểm tra sẽ được thực hiện.
+	 
 
+- Sau khi tạo Annotation ta cần định nghĩa nơi logic kiểm tra sẽ được thực hiện chính là phần Constraint valid = StrongPasswordValidator.class
+	Class StrongPasswordValidator: 
+		public class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {
 
+		    @Override
+		    public boolean isValid(String value, ConstraintValidatorContext context) {
+		        // check if string contains at least one digit, one lowercase letter, one
+		        // uppercase letter, one special character and 8 characters long
+		    return value.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!*()]).{8,}$");
+		    }
+		}
+	Để biến class StrongPasswordValidator thành 1 validator ta cần kế thừa lại ConstraintValidator những kiểu dữ liệu truyền vào này là những kiểu generate dùng template mình có thể truyền vào những kiểu dữ liệu bất kì 
+		public interface ConstraintValidator<A extends Annotation, T> {
+		   default void initialize(A constraintAnnotation) {
+		   } 
+		   boolean isValid(T var1, ConstraintValidatorContext var2); 
+		}
+	Ở đây: 
+		+ initialize là 1 interface là default method ko cần kế thừa chỉnh sửa nó 
+		+ isValid: cần kế thừa và chỉnh sửa nó sao cho phù hợp với mình validate viết override ở ngay trong class 	
+			-> trả ra False nếu vi phạm nguyên tắc bạn đề ra - True ngược lại 
+	StrongPasswordValidator
+	-> nhưng nếu ta làm như thế này thì nó chỉ valid được cho từng trường dữ liệu thôi 
+	-> để tối ưu code nhất thì chúng ta cần phải valid cho cả 1 class 
+	@Constraint(validatedBy = RegisterValidator.class)
+	@Target({ ElementType.TYPE }) // Adjusted to apply to the class level
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	public @interface RegisterChecked {
 
+	    String message() default "User register validation failed";
 
+	    Class<?>[] groups() default {};
 
+	    Class<? extends Payload>[] payload() default {};
+	}
+	- Đầu tiên chỉ lại Target ElementType.TYPE để dùng Annotation này trang trí cho 1 class 
+	- Tiếp theo cần sửa đổi lại logic chúng ta validate 
+	public class RegisterValidator implements ConstraintValidator<RegisterChecked, RegisterDTO> {
 
+    	@Override
+    	public boolean isValid(RegisterDTO user, ConstraintValidatorContext context) {
+        	boolean valid = true;
 
+	        // Check if password fields match
+        	if (!user.getPassword().equals(user.getConfirmPassword())) {
+	            context.buildConstraintViolationWithTemplate("Passwords must match")
+        	            .addPropertyNode("confirmPassword")
+                	    .addConstraintViolation()
+	                    .disableDefaultConstraintViolation();
+        	    valid = false;
+        	}
 
-		
+	        // Additional validations can be added here
+
+        	return valid;
+    	}
+	- Giải thích code:
+		context.buildConstraintViolationWithTemplate("Passwords must match") 
+		//mỗi lần gặp lỗi thì báo ra lỗi Passwords must match
+		addPropertyNode("confirmPassword")
+		//trường thông tin báo lỗi là confirmPassword - mapping với View 
+
+	- Để sử dụng Annotation này Vadlidate cho 1 class:
+		+ đặt Annotation phía trên tên class
+		+ dùng 2 Annotation Valid để kiểm tra dữ liệu và BindingResult để truyền lỗi qa View 
+			Valid: khi mà String qét thấy 1 biến dùng Valid thì nó sẽ chạy vào trong domain của biến đó rồi xét xem có các ràng buộc/constraint Validate dữ liệu ko -> nó sẽ chạy vào các Annotation là Constraint để check -> nó sẽ check hàm isValid 
+	
+- Tiếp theo sau khi đã kiểm tra lỗi: 
+	+ hiển thị ra View thông báo lỗi (dùng BindingResult để quăng qa View và dùng các thẻ Error để hiển thị)
+	+ liên kết xuống database để check email (thêm Annotation Service cho Validator để thực hiện tiêm userService vào để lấy email từ database lên check)
 	
 
 
