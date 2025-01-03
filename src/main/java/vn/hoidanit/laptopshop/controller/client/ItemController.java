@@ -21,6 +21,6 @@ public class ItemController {
     public String getMethodName(Model model, @PathVariable long id) {
         Product product = this.productService.fetchProductById(id).get();
         model.addAttribute("product", product);
-        return "/client/homepage/detail";
+        return "client/homepage/detail";
     }
 }

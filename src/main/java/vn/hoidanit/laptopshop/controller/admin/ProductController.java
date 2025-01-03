@@ -88,7 +88,7 @@ public class ProductController {
         session.setAttribute("pathProduct", pathProduct);
         model.addAttribute("product", product);
         model.addAttribute("pathProduct", session.getAttribute("pathProduct"));
-        return "/admin/product/update";
+        return "admin/product/update";
     }
 
     @PostMapping("/admin/product/update")

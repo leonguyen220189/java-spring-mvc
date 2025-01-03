@@ -51,7 +51,7 @@ public class UserController {
     public String getUserPage(Model model) {
         List<User> users = this.userService.fetchUsers();
         model.addAttribute("users", users);
-        return "/admin/user/show";
+        return "admin/user/show";
     }
 
     // page: /admin/user/user.id trang detail của 1 user khi nhấn vào view ở
@@ -63,7 +63,7 @@ public class UserController {
         model.addAttribute("user", user);
         model.addAttribute("avatar", avatar);
 
-        return "/admin/user/detail";
+        return "admin/user/detail";
     }
 
     @RequestMapping(value = "/admin/user/update/{id}") // ở đây có tên tham số là cái gì cũng đc
@@ -72,7 +72,7 @@ public class UserController {
         File pathAvatar = this.uploadService.getFileImage("avatar", user.getAvatar());
         model.addAttribute("user", user);
         model.addAttribute("pathAvatar", pathAvatar);
-        return "/admin/user/update";
+        return "admin/user/update";
     }
 
     @PostMapping("/admin/user/update") // @PostMapping=RequestMapping("", method = RequestMethod.POST)
@@ -104,7 +104,7 @@ public class UserController {
     @RequestMapping(value = "/admin/user/create")
     public String getPageCreateUser(Model model) {
         model.addAttribute("user", new User());
-        return "/admin/user/create";
+        return "admin/user/create";
     }
 
     // mặt dù url giống nhau nhưng method khác nhau -> Spring sẽ hiểu là xử lý khác

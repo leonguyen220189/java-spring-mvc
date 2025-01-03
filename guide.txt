@@ -1531,6 +1531,252 @@ Sau khi đặt all tiến hành chạy ở chế độ Debug:
 				....
 -> hoàn thành việc đăng nhập và trở về trang chủ - ở đây nếu chúng ta refresh lại trang chủ thì nó sẽ chạy vào SecurityContextHolderFilter để kiểm tra ngay bây h trong context nó có lưu session(mặc định)/thông tin người dùng không -> bỏ qua phần login 
 
+d) Custom logic ở loadUserByUsername giúp login với Spring Security 
+1 - Mở Spring Security lên 
+	cmt đoạn code này:
+// @SpringBootApplication(exclude = org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class)
+	Dùng code này:
+@SpringBootApplication
+
+2 - Khi đã enanle Spring Security -> chạy chương trình vào bất kì Url nào nó cũng sẽ redirect về trang login mặc định của Spring Security 
+
+3 - Custom lại luồng đăng nhập 
+	- Bên trong phần Config Security đang override lại passwordEnconder để băm password -> BCryptPasswordEndcoder -> chúng ta cần phải nói cho Spring Security dùng cái này để hash password
+	- Chỉnh lại không cho nó lấy dữ liệu mặc định InMemory (lấy tài khoản được config trong .properties) -> mà cấu hình lại để nó lấy từ Database 
+	
+	- Chúng ta sẽ viết logic lại cho UserDetailsService đây là 1 Interface -> kế thừa lại nó để ghi đè lại cấu hình mặc định (là chuyển từ dùng InMemory -> database)
+	Tạo 1 class CustomUserDetailsService trong Service implements UserDetailsService và Override lại abstract method của nó 
+	@Override
+	    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        
+	    }
+	Function này yêu cầu chúng ta trả ra 1 UserDetails nhưng đối với dự án này chỉ có thể Return về User (class tự tạo ra)
+	
+	Tìm hiểu về interface UserDetails extends Serializable gồm các trường: 
+		Collection<? extends GrantedAuthority> getAuthorities();
+	   	String getPassword();
+   		String getUsername();
+   		boolean isAccountNonExpired();
+   		boolean isAccountNonLocked();
+	   	boolean isCredentialsNonExpired();
+   		boolean isEnabled();
+	đây là 1 Interface ko hề có hàm tạo chúng ta cần tìm lớp con kế thừa nó để return về lớp con đó ở Function loadUserByUsername -> nó sẽ tự ép kiểu về UserDetails (Up casting)
+	-> bấm chuột phải vào interface + 'go to implementations' -> có class User (đây là class của Spring Security)
+	class User implements UserDetails, CredentialsContainer gồm: 
+	private String password;
+   	private final String username;
+   	private final Set<GrantedAuthority> authorities; //quyền, set sẽ đảm bảo các giá trị là độc quyền
+	private final boolean accountNonExpired;//tài khoản hết hạn hay chưa
+   	private final boolean accountNonLocked;//tài khoản có bị khóa không
+   	private final boolean credentialsNonExpired;//mật khẩu hết hạn chưa (kiểu bao nhiêu tháng đổi mk 1 lần)
+   	private final boolean enabled;//tài khoản có kích hoạt chưa 
+	... (một số thông tin phục vụ cho nhiều loại dự án khác nhau)
+	Và nó có hàm tạo để tạo ra 1 class này 
+	public User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+      		this(username, password, true, true, true, true, authorities);
+	}
+	-> có một số thông tin khá trùng với User tự tạo -> truyền dữ liệu từ User tự tạo vào đây để Return về 1 User của hệ thống để nó tự Ép kiểu về UserDetails 
+	Có 1 vấn đề là bây h có 2 class trùng tên User -> 1 User của hệ thống sẽ được import vào User tự tạo sẽ gọi trực tiếp tên package: vn.hoidanit.laptopshop.domain.User user = this.userService.fetchUserByEmail(username);
+	username ở đây thì nó sẽ lấy từ Form login -> khá hiệu quả linh hoạt mỗi hệ thống sẽ có mỗi username khác nhau như sdt, email, ... đối với dự án này thì t dùng email 
+	Return về giá User của Spring Security có các thông tin của User tự tạo:
+	        return new User(user.getEmail(), user.getPassword(), Collections.singletonList(new 	SimpleGrantedAuthority("ROLE_USER")));
+	Vì constructor của User(Spring) chỉ cần truyền vào username, password và quyền của người dùng
+	Với quyền của người dùng là 1 collection<'template/generate' GrantedAuthority> trong này chỉ cần truyền vào class kế thừa từ GrantedAuthority bấm vào thì thấy nó chỉ yêu cầu dữ liệu truyền vào là 1 chuỗi String 
+
+	Khi đã custom xong cái UserDetails service = CustomUserDetailsService -> cần nói cho Spring biết ta dùng cái Service này thay cho UserDetailsService mặc định + sử dụng hình thức hash code trong config Security:
+	- Nếu dùng version 5.7 trở xuống thì cần kế thừa lại WebSecurityConfigerAdapter còn version hiện tại thì làm việc với Bean/component -> ko cần kế thừa
+	- vào config Spring Security: 
+    @Bean
+    public UserDetailsService userDetailsService(UserService userService) {
+        return new CustomUserDetailsService(userService);
+    }
+   	Giải thích code: đoạn code này sẽ ghi đè lại UserDetailsService mặc định của Spring Security = CustomUserDetailsService thông qua việc return lại CustomUserDetailsService việc truyền userService vào là vì trong CustomUserDetailsService cần userService(service tự tạo) để truy vấn xuống csdl
+
+	Ở đây chúng ta đã nói với nó hash password và userdetailsService -> h lắp ráp chúng lại là thông báo cho spring Security ứng với việc login chúng ta pải làm như thế nào -> ghi đè lại authenticationManager để xâu chuỗi các hoạt động lại 
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http
+                .getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
+    }
+
+	Giải thích code: nạp tất cả các phần chúng ta custom vào đây để gửi đến các class cần sử dụng chúng như passwordEncoder sẽ gửi cho DaoAuthentication... chứ ko pải của AuthenticationManager ... 
+	
+e) Hiện tại bị lỗi: khi nhập sai mật khẩu nó sẽ chạy vào vòng lặp vô tận -> Fix
+- Bỏ phần code này trong config Security: vì cái Bean này nó bị mâu thuẫn với Spring Security
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http
+                .getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
+    }
+
+- Thay bằng: 
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
+        return daoAuthenticationProvider;
+    }
+	Ở đây chúng ta dùng trực tiếp DaoAuthenticationProvider để override trực tiếp lên UserDetailsService và PasswordEncoder mà DaoAuthenticationProvider này sử dụng chứ ko thông qua AuthenticationManager
+	 daoAuthenticationProvider.setHideUserNotFoundExceptions(false); câu code này giúp hiển thị lỗi trong CustomUserDetailsService của chúng là là câu "User is not found" dòng 25 -> khi bạn nhập sai email + mật khẩu sai 
+	-> nếu nhập đúng email mà sai mật khẩu nó mới hiện Bad Creditail -> giảm bảo mật
+	Nếu để mặc định thì dù nhập đúng hay ko đúng email hoặc mật khẩu nó luôn hiển thị câu lỗi mặc định là Bad Credential -> như thế này sẽ an toàn cho hệ thống hơn 
+
+Tiếp theo để đọc phần log trực tiếp xem hoạt động hay lỗi gì ở Spring Security ở terminal thì thêm vào trang properties:
+	loggin.level.org.springframework.security=DEBUG
+
+f) Lưu ý về lỗi Malicious String "//":
+- Cần chạy lại chương trình và đọc log lỗi
+- khi enable Spring Security -> phải code theo chuẩn của nó để đảm bảo an toàn 
+- chỉnh lại ở các controller khi return về địa chỉ của file jsp return "admin/user/create"; ko nên return "/admin/user/create"; vì mình đang đứng ở templates -> nên dùng địa chỉ tương đối nếu ko kích hoạt Spring Security lên nó sẽ bị lỗi 
+vì bên trong config WebMVCConfig mình có cấu hình mỗi lần đọc file view -> chạy vào /WEB-INF/view/
+-> nếu return "/admin/user/create" -> nó sẽ chạy vào /WEB-INF/view//admin/user/create -> lỗi 
+
+
+g) tiếp tục đặt và chạy dưới dạng Debug để xem cách hoạt động như so sánh password ở đâu và những trường thông tin lấy vào nó dùng ở đâu ? 
+- Đặt breakpoint: 
+
+	1 - DaoAuthenticationProvider: đặt tại dòng 53 trong hàm retrieveUser 
+		function này chỉ đơn giản là return ra user mà load được tại loadUserByUsername nhưng ko biết được ai gọi đến function này (bấm chuột phải vào function này + go to declare đi đến function định nghĩa/dùng nó) là 1 abstract class AbstractUserDetailsAuthenticationProvider 
+	
+	2 - AbstractUserDetailsAuthenticationProvider: tại hàm authenticate() đây là hàm xử lý khi bạn nhấn submit sau khi điền thông tin đăng nhập vào form trong đó có 1 đoạn if else để check tài khoản user sai -> throws Bad credentials trên giao diện
+	this.preAuthenticationChecks.check(user); để check user pre ở đây ý nghĩa là thực hiện cái này trước khi làm gì đó 
+	mình bấm tiếp vào hàm check -> ra 1 interface UserDetailsChecker -> đi tới class kế thừa override nó (chuột phải vào + go to implementations) -> AbstractUserDetailsAuthenticationProvider$DefaultPreAuthenticationChecks đây là class override lại hàm check:
+		ở đây nó sẽ kiểm tra các thông tin trong 1 biến UserDetails như:
+			boolean isAccountNonExpired();
+	   		boolean isAccountNonLocked();
+		   	boolean isCredentialsNonExpired();
+   			boolean isEnabled();
+		để kiểm tra tình trạng của tài khoản khi mình return 1 User(Spring Security) -> nên dùng hàm khởi tạo mặc định của nó để set những biến này = true -> pass qua cái kiểm tra này nếu ko nó sẽ bị lỗi đăng nhập 
+	Sau khi check tình trạng tài khoản thì nó đến check password 
+	this.additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken)authentication);
+	đi đến class override lại method này cũng chính là DaoAuthenticationProvider ở class này nó override lại và tiến hành so sánh password 
+	Lấy password từ trang login và nó hash code theo PasswordEncoder:
+		String presentedPassword = authentication.getCredentials().toString(); 
+	Lấy password từ UserDetails
+		userDetails.getPassword()
+	và thực hiện so sánh 
+	tiếp tục mình đặt breakpoint ở dòng 38 DaoAuthenticationProvider hoặc trong cái if (nhưng pải đặt mật khẩu sai nó mới chạy vào)
+
+	3 - SecurityContextHolderFilter: đặt breakpoint tại dòng 40 trong hàm doFilter()
+	+ thêm Variable cho phần Watch: deferredContext.get() 
+	Kiểm tra sau khi login thành công dữ liệu của người dùng được lưu vào đâu 
+
+
+
+h) Chuyển đổi trang login sau khi đã hoàn thành luồng hoạt động thành trang login của dự án + một số trang ko cần login 
+1 - Muốn chuyển đổi trang login -> phải biết cách thức hoạt động của nó -> inspect trang của nó xem form
+- Có 3 trường thông tin: (3 name của 3 thẻ input trong form)
+	username, password
+	_csrf
+
+- Sơ lược vè CSRF attack
+đây là loại tấn công về an toàn thông tin: Spring sử dụng 1 cơ chế gọi là Session để lưu trữ session thì nó đang sử dụng cookies với cơ chế của cookies mỗi một lần vào website khác -> brower mặc định nó sẽ gửi kèm cookies -> để tránh trường hợp này mỗi một lần người khác vào website -> thì server sẽ generate ra 1 token lưu vào input="_csrf" này -> hacker gọi đến server của người dùng nếu ko có name=token của thẻ input="_csrf" này sẽ ko hack được token này được Java Spring tự tạo 
+Csrf token: token ứng với lượt truy cập web của user. Cần token này để phòng tránh CSRF (Cross Site Request Forgery) . Hiểu một cách đơn giản, là tăng độ an toàn cho website của bạn
+https://www.youtube.com/watch?v=m0EHlfTgGUU
+Csrf token:
+https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html#csrf-integration-form
+<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+-> đối với form login của Java Spring cần thêm 1 thẻ input chứa token này 
+Cấu hình mặc định của trang login: 
+https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/form.html
+
+2 - Chỉnh sửa trang login: 
+	<form action="/login" method="post">
+	<input class="form-control" id="email" type="email" placeholder="name@example.com" name="username" />
+	<input class="form-control" id="password" type="password" placeholder="Password" name="password" />
+	Nếu để name của email = email luôn -> chúng ta cần cấu hình thêm 
+
+	thêm: có thể bỏ vào 1 div 
+	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+3 - cấu hình lại config để chuyển trang login 
+- tìm thử trang login nó cấu hình ở đâu 
+	tìm class SpringBootWebSecurityConfiguration trong này có 1 method defaultSecurityFilterChain có câu lệnh 
+	http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated()); câu này sẽ giúp xác thực/login đối với tất cả request từ client 
+	http.formLogin(withDefaults()); form login dùng default -> muốn customize form login cần phải điều chỉnh chỗ này 
+	http.httpBasic(withDefaults()); // đây là dạng đăng nhập = JSON web token || form basic ko dùng trong dự án này 
+- Ghi đè lại cái method SecurityFilterChain - cũng phải tạo 1 Bean vì SecurityFilterChain là 1 Bean vào config Security
+	@Bean
+        SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      	  	http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+        	.formLogin(formLogin -> formLogin.loginPage("/login").failureUrl("/login/?error").permitAll());
+	        return http.build();
+        }
+	Giải thích code: viết code từ version > 6 và dùng lamda 
+	1 - http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+	câu này đang đi ngược lại với Spring Security tức là bên trên mặc định mọi request đều cần đăng nhập nhưng cầu này mọi request đều ko cần đăng nhập qua .permitAll()
+	
+	2 - .formLogin(formLogin -> formLogin.loginPage("/login").failureUrl("login/?error").permitAll());
+	khi login phải vào url /login khi login fail redirect về login/?error và ai cũng có quyền vào trang login này 
+
+-> Lúc nay khi chạy chương trình chúng ta có thể vào all các Url khi đổi lại: http.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticate()) thì chạy vào url nó sẽ bị lỗi: localhost redirected you too many times.
+
+	Vào xem phần log chúng ta sẽ thấy lỗi: 
+	Get /login
+	Get /WEB-INF/view/client/auth/login.jsp ?? tại sao có url này trong khi mình dùng url /login cho view 
+	hoặc nó yêu cầu Initializing Servlet 'dispatcherServlet'
+	Thực tế lỗi này chỉ có ở Spring MVC chứ nếu dùng JSON web token sẽ ko gặp 
+
+	Lý do lỗi: vào controller 
+	-> khi chúng ta vào login -> chạy tới GetMapping("/login") function chỗ này sẽ return về "client/auth/login" 
+	-> với cấu hình trước đó thì nó sẽ trả về /WEB-INF/view/client/auth/login.jsp chỗ return này chúng ta đang forward lời gọi mặc định từ version 6.0 trở đi thì những lời gọi forward sẽ bị chặn -> ta cần cấu hình lại mở nó ra không thì page sẽ bị vòng lặp vô hạn nó sẽ cứ redirect 
+	Tức là khi chúng ta vào trang /login thì sẽ gọi đến file view -> Spring sẽ xem đây là lời gọi chuyển tiếp 
+	theo hướng dẫn:
+https://stackoverflow.com/a/75223368
+https://docs.spring.io/spring-security/reference/5.8/migration/servlet/authorization.html#_permit_forward_when_using_spring_mvc
+
+	Cấu hình thêm: 
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(authorize -> authorize
+                .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
+                .requestMatchers("/", "/login", "/client/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .anyRequest().authenticated())
+                .formLogin(formLogin -> formLogin.loginPage("/login").failureUrl("/login/?error").permitAll());
+        return http.build();
+    }
+	Giải thích code: lưu ý code sẽ được chạy từ trên xuống 
+	1 - .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
+		- DispatcherType.FORWARD cho phép/mở việc khi truy cập vào 1 url -> cho phép forward tới 1 file đường dẫn tới view ví dụ url:localhost:8080/login -> vào controller -> return /WEB-INF/view/client/auth/login.jsp cho phép điều này 
+		- DispatcherType.INCLUDE: nếu ta bỏ cái này thì vào bất kì url nào có truy cập đến thành phần khác như Service(gọi đến database hoặc cái gì đó khác) ngoài return 1 đường dẫn render ra view thì spring sẽ chặn lại và page đó sẽ ko load được trang và trong log nó sẽ hiện lỗi denied access 
+
+	Mặc định trong DispatcherType Spring sẽ chặn 2 loại FORWARD và INCLUDE ngoài ra còn có REQUEST, ASYNC, ERROR kể từ Version 5.8 
+	
+	2 - .requestMatchers("/", "/login", "/client/**", "/css/**", "/js/**", "/images/**").permitAll()
+	khai báo tất cả các đường dẫn được phép public ra ngoài ở đây ai cũng truy cập được
+	
+	3 - .formLogin(formLogin -> formLogin.loginPage("/login").failureUrl("/login/?error").permitAll());
+	trang đăng nhập dùng url /login lúc này nó sẽ chạy đến url trong controller của dự án khi đăng nhập sai nó redirect tới urll /login?error
+
+Cuối cùng là hiển thị thông báo lỗi khi đăng nhập sai thêm vào dưới form của trang login
+	<c:if test="${param.error != null}">
+	<div class="my-2" style="color: red;">Invalid email or password.                                                	</div>                                                   
+	</c:if>
+	
+
+	
+
+	
+
+
+
+
+
+
+
+
+	
 			
 
 
