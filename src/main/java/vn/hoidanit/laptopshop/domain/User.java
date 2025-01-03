@@ -31,7 +31,6 @@ public class User {
 
     @NotNull
     // @Size(min = 8, max = 20)
-    @StrongPassword
     private String password;
 
     private String address;

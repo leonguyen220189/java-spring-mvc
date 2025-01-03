@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import jakarta.servlet.DispatcherType;
 import vn.hoidanit.laptopshop.service.CustomUserDetailsService;
@@ -37,6 +38,12 @@ public class SecurityConfiguration {
     // authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     // return authenticationManagerBuilder.build();
     // }
+
+    @Bean
+    public AuthenticationSuccessHandler CustomSuccessHandler() {
+        return new CustomSuccessHandler();
+    }
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder,
             UserDetailsService userDetailsService) {
@@ -51,9 +58,16 @@ public class SecurityConfiguration {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                 .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
-                .requestMatchers("/", "/login", "/client/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/login", "/client/**", "/css/**", "/js/**", "/images/**", "/product/**")
+                .permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-                .formLogin(formLogin -> formLogin.loginPage("/login").failureUrl("/login?error").permitAll());
+                .formLogin(formLogin -> formLogin
+                        .loginPage("/login")
+                        .failureUrl("/login?error")
+                        .successHandler(CustomSuccessHandler())
+                        .permitAll())
+                .exceptionHandling(ex -> ex.accessDeniedPage("/access-deny"));
         return http.build();
     }
 

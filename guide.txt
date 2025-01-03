@@ -1736,7 +1736,7 @@ https://docs.spring.io/spring-security/reference/servlet/authentication/password
 https://stackoverflow.com/a/75223368
 https://docs.spring.io/spring-security/reference/5.8/migration/servlet/authorization.html#_permit_forward_when_using_spring_mvc
 
-	Cấu hình thêm: 
+	Cấu hình thêm: ở đây viết theo cú pháp lamda -> tất cả viết trong () nếu version cũ thì viết nối liên tiếp nhau .then().and()....	
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
@@ -1763,6 +1763,206 @@ Cuối cùng là hiển thị thông báo lỗi khi đăng nhập sai thêm vào
 	<c:if test="${param.error != null}">
 	<div class="my-2" style="color: red;">Invalid email or password.                                                	</div>                                                   
 	</c:if>
+
+i) Authorize với Spring
+tham khảo: https://docs.spring.io/spring-security/reference/servlet/authorization/index.html
+1 - Setup login with role
+Mặc định, spring sẽ thêm tiền tố (Prefix) https://docs.spring.io/spring-security/reference/servlet/authorization/architecture.html#authz-authorities
+
+Tạo 2 account:
+user@gmail.com với role = USER
+admin@gmail.com vơi role = ADMIN
+=> spring sẽ lưu mặc định trong SecurityContext là ROLE_USER VÀ ROLE_ADMIN (nên ta chỉ cần khởi tạo là USER hoặc ADMIN thôi vì mặc định nó sẽ thêm tiền tố ROLE_ phía trước) nếu muốn bỏ tiền tố đó thì cần Override lại 
+	@Bean
+	static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+		return new GrantedAuthorityDefaults("MYPREFIX_");
+	}
+
+Lỗi trong file này CustomUserDetailsService.java chúng ta đang hash code cứng dù lại admin hay user thường khi đăng nhập vào đều có role là USER: Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+=> update code thành: Collections.singletonList(new SimpleGrantedAuthority("ROLE_"user.getRole().getName())));
+
+
+2 - Các hình thức kiểm tra “quyền hạn”
+https://docs.spring.io/spring-security/reference/servlet/authorization/architecture.html#authz-authorities
+Ở mức cơ bản, có 2 hình thức xác thực người dùng chính:
+
+Hình thức 1: Method Security 
+https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html#using-authorization-expression-fields-and-methods
+
+- để enable cái này cần trong config Spring Security có @EnableMethodSecurity(securedEnabled = true) mặc định đã có sẵn
+- sau khi enable nó lên rồi thì Spring Security sẽ cung cấp 1 số Annotation như @PreAuthorize, @PostAuthorize, @PreFilter, @PostFilter giúp kiểm tra người dùng có đăng nhập chưa, có quyền hạn gì   
+- Những Annotation này chỉ áp dụng được đối với các Method ko áp dụng cho class chỉ đơn giản thêm những Annotation này trước những hàm cần tức là ví dụ method để xóa người dùng -> gắn 1 Annotation với quyền là ADMIN thì mới cho thực hiện 
+- link phía trên là nơi để tham khảo các method cho dự án và một số ví dụ áp dụng 
+-> đây là hình thức xác thực kĩ hơn và nó làm lớp phía sau sau khi xác thực tại Url 
+
+Khi truy cập vào Url: localhost:8080/admin (pass 1 lớp xác thực ở đây) -> sẽ chạy vào controller (nơi định nghĩa các Mapping) và check tiến hành check quyền của user trên các method = các Annotationlúc này thì nó đã pass qa cái url (qa cái Spring Security rồi)
+
+còn nếu viết authorize ngay tại Spring Security là ngay khi truy cập Url nó sẽ xác thực luôn trước khi nó đi sâu vào ứng dụng của chúng ta 
+
+-> ở đây có nhiều lớp xác thực 
+
+
+Hình thức 2: HTTP Request
+https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html#authorizing-endpoints
+
+- với hình thức này mỗi lần người dùng gửi 1 request đến server thì sẽ xác thực phần này trước 
+- khi dùng hình thức này ta phải gắn liền với Http tức là gắn liền với đường link Url xác thực lớp ngoài ngay khi truy cập vào url nó sẽ xác thực luôn
+- ở phần config trên trong khi override lại SecurityFilterChain chúng ta đã tiến hành xác thực rồi nhưng chưa có gán Role người dùng vào thôi những method những cái phương thức trong hàm này tìm hiểu ở link trên 
+
+Ngoài ra: Domain Object Security ACLs và Authorization Events 2 phần này nâng cao 
+
+j) Authorize By Role 
+Phân tích: 
+Yêu cầu 1: Với giao diện client
+Không phân biệt role, ai cũng có thể truy cập trang homepage, sản phẩm và xem chi tiết sản phẩm
+URL = / hoặc /product
+
+Thêm vào /product/** vào  -> nó sẽ cho phép /product/{1}, /product/{2}, ... nó chỉ cần biết có /product/ phần phía sau bất kể là gì vẫn được 
+.requestMatchers("/", "/login", "/client/**", "/css/**", "/js/**", "/images/**", "/product/**").permitAll()
+
+
+Người dùng cần đăng nhập (role = USER/ADMIN) để truy cập trang giỏ hàng và đơn hàng
+	URL = /cart hoặc /order
+
+hiện tại thì đối vơi
+
+Yêu cầu 2: với giao diện admin
+
+(/admin) => chỉ role = ADMIN
+
+Thêm lệnh: .requestMatchers("/admin/**").hasRole("ADMIN") hasRole ở đây nó sẽ loại bỏ đi tiền tố ROLE_ 
+
+bây h nếu đăng nhập = tài khoản user thường -> hiển thị lỗi Forbidden 403 nghĩa là truy cập không hợp lệ/ko được phép truy cập vào trang này 
+
+
+
+Yêu cầu 3: xử lý khi login success (optional >< previous url)
+Nhược điểm: Ở đây nó sẽ mất 1 cái ưu điểm mặc định của Spring là ví dụ khi mình bấm vào 1 url mà chưa đăng nhập -> khi đăng nhập -> tự redirect tới cái url vừa bấm đó 
+
+để làm yêu cầu 2 ta cần xem những link tài liệu bên dưới: ->
+
+public class CustomSuccessHandler implements AuthenticationSuccessHandler {
+
+    protected String determineTargetUrl(final Authentication authentication) {
+
+        Map<String, String> roleTargetUrlMap = new HashMap<>();
+        roleTargetUrlMap.put("USER", "/");
+        roleTargetUrlMap.put("ADMIN", "/admin");
+
+        final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        for (final GrantedAuthority grantedAuthority : authorities) {
+            String authorityName = grantedAuthority.getAuthority();
+            if (roleTargetUrlMap.containsKey(authorityName)) {
+                return roleTargetUrlMap.get(authorityName);
+            }
+        }
+
+        throw new IllegalStateException();
+    }
+
+    protected void clearAuthenticationAttributes(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return;
+        }
+        session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+    }
+
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+        String targetUrl = determineTargetUrl(authentication);
+
+        if (response.isCommitted()) {
+            return;
+        }
+
+        redirectStrategy.sendRedirect(request, response, targetUrl);
+        clearAuthenticationAttributes(request);
+    }
+
+}
+
+Giải thích code:
+
+đầu tiên hàm chủ đạo để xử lý là chúng ta viết logic override lại onAuthenticationSuccess 
+
+hàm determineTargetUrl: Phương thức này xác định URL đích (target URL) mà người dùng sẽ được chuyển hướng tới sau khi đăng nhập thành công, dựa trên quyền của họ 
+	tất cả dữ liệu check nhận từ String targetUrl = determineTargetUrl(authentication);
+	authentication ở đây chính là data khi đăng nhập thành công lưu vào trong Context/session
+	1 - Khởi tạo bản đồ quyền-URL (roleTargetUrlMap):
+		Mỗi quyền (role) được ánh xạ tới một URL đích cụ thể (VD: USER tới /, ADMIN tới /admin).
+	2 - Duyệt qua danh sách quyền (GrantedAuthority) của người dùng:
+		Duyệt các quyền mà người dùng hiện tại sở hữu.
+		Nếu quyền của người dùng khớp với một mục trong bản đồ, trả về URL tương ứng.
+	3 - Xử lý ngoại lệ:
+		Nếu không có quyền nào khớp, ném ra IllegalStateException.
+
+hàm clearAuthenticationAttributes: Xóa các thông tin liên quan đến xác thực (authentication attributes) trong phiên làm việc (session).
+Kiểm tra phiên làm việc:
+	1 - Nếu phiên làm việc không tồn tại (null), không thực hiện gì cả. 
+		 HttpSession session = request.getSession(false);
+		truyền vào tham số false để nói với spring nếu đang có 1 session thì lấy ra nếu ko có thì k lấy/làm gì cả
+		nếu ko truyền vào biến false nếu ko có session nó sẽ tạo mới 	
+	2 - Xóa thuộc tính lỗi xác thực:
+		Xóa thuộc tính WebAttributes.AUTHENTICATION_EXCEPTION khỏi phiên làm việc. Thuộc tính này thường chứa thông tin lỗi khi xác thực không thành công (ví dụ: sai mật khẩu).
+
+RedirectStrategy được sử dụng để thực hiện việc chuyển hướng (redirect) người dùng đến URL đích.
+
+hàm onAuthenticationSuccess: Đây là phương thức chính được gọi khi người dùng đăng nhập thành công.
+	1 - Xác định URL đích:
+		Gọi determineTargetUrl(authentication) để lấy URL dựa trên quyền của người dùng.
+	2 - Kiểm tra trạng thái phản hồi (response):
+		Nếu phản hồi đã được cam kết (committed), không thực hiện chuyển hướng.
+	3 - Chuyển hướng:
+		Dùng redirectStrategy để chuyển hướng người dùng đến URL đích.
+	4 - Xóa thông tin xác thực:
+		Gọi clearAuthenticationAttributes(request) để xóa thông tin lỗi xác thực trong phiên làm việc.
+
+Quy trình: myAuthenticationSuccessHandler() với hàm này t cần return về CustomSuccessHandler kế thừa lại AuthenticationSuccessHandler và ghi đè lại method onAuthenticationSuccess() viết logic ho hàm này -> User đăng nhập -> '/' - Admin đăng nhập -> '/admin'
+
+	sau đó vào lại config tạo ra 1 Bean và ghi đè lại AuthenticationSuccessHandler return về cái class  myAuthenticationSuccessHandler 
+
+	sau đó nạp vào 
+
+Khi login thành công, nếu role = USER -> redirect về “/”
+
+Nếu role = ADMIN -> redirect về /admin
+
+Tham khảo: https://www.baeldung.com/spring-redirect-after-login
+
+https://www.baeldung.com/spring-security-redirect-login
+
+https://github.com/spring-projects/spring-security/blob/main/web/src/main/java/org/springframework/security/web/authentication/SimpleUrlAuthenticationSuccessHandler.java#L60
+
+l) Chức năng Logout 
+- Khi chưa đăng nhập ẩn giỏ hàng và tài khoản: có rất nhiều cách như truyền 1 biến từ Controller lên View để check
+	Nhưng ở đây sẽ dùng những cái Spring cung cấp 
+https://stackoverflow.com/a/21336269
+<c:if test="${not empty pageContext.request.userPrincipal}">
+    User <c:out value="${pageContext.request.userPrincipal.name}" />
+</c:if>
+
+- Handle Logout: https://docs.spring.io/spring-security/reference/servlet/authentication/logout.html
+Nếu dùng mặc định theo Spring thì cần cung cấp 1 token cho nó là CSRF
+
+- Tạo 1 form với action="/logout" còn lại Spring sẽ làm cho bạn trong form này phải có Token 
+	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+m) thêm giao diện cho page Not Found khi cố truy cập vào 1 url mà user đó ko có quyền truy cập
+https://www.baeldung.com/spring-security-custom-access-denied-page
+
+
+
+
+
+
+	
+
+
+
 	
 
 	
