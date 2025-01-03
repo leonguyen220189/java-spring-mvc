@@ -1954,6 +1954,51 @@ Nếu dùng mặc định theo Spring thì cần cung cấp 1 token cho nó là 
 m) thêm giao diện cho page Not Found khi cố truy cập vào 1 url mà user đó ko có quyền truy cập
 https://www.baeldung.com/spring-security-custom-access-denied-page
 
+n) Cơ chế Session và Remember Me 
+đa số các cơ chế session mặc định ngay cả Java Spring 
+	-> khi vào browser mở 1 tab đăng nhập vào 1 website sau khi đăng nhập nó sẽ lưu thông tin đăng nhập vào session 
+	-> khi đóng tag đó và mở tab mới truy cập vào web thì những thông tin đăng nhập trong session vẫn còn 
+
+	Nhưng nếu đóng trình duyệt browser thì session đó sẽ mất -> khi vào lại web đó cần đăng nhập lại 
+Một số ứng dụng như Facebook,tiktok, ... dù đóng browser bao lâu khi mở lại nó vẫn còn ??? 
+
+Để giải quyết vấn đề mất session thì Spring Security có hỗ trợ 1 cơ chế gọi là Remmember me cơ chế này sẽ tự tìm hiểu ở dự án này sẽ dùng 1 thư viên Spring Session chứ ko dùng cái có sẵn của Spring Security -> những gì Remember Me làm được thì thư viện này đều làm xịn xò hơn 
+
+Cơ chế hoạt động của Spring security với session và cookies:
+	Để biết được phiên đăng nhập của người dùng còn hạn hay không thì nó sử dụng 1 cookies của browser nó lưu 1 SESSIONID trong này sẽ chứa 1 key chủa người dùng 
+	vì mỗi một lần gửi dùng gửi request lên server -> sẽ kèm theo cookies server sẽ check Id trong cookies ứng với mỗi người dùng nếu có thì nó trả thông tin như bình thường nếu không có nó sẽ redirect về /login -> đó cũng là lý do mỗi lần tắt browser -> mất cookies -> quay về login
+	thông tin về key và thông tin người dùng Spring sẽ lưu ở session
+		Mỗi một lần đăng nhập thành công nó sẽ tạo 1 session (chứa thông tin người dùng) ứng với 1 ID dưới dạng Key-Value với key là ID
+		
+	Thực tế ở đây session nó chỉ là 1 cơ chế 1 tên gọi, chứ dự án Java cái server chúng ta đang chạy thì server này sẽ lưu thông tin trong RAM/Memory chứ ko có session nào lưu cả -> đó cũng là lý do vì sao mỗi 1 lần restart lại server thì sẽ bị văng ra khỏi phiên đăng nhập vì mỗi lần restart nó sẽ xóa đi những thông tin lưu trong bộ nhớ lưu trong RAM 
+
+1. Remember me ?
+//close browser?
+https://docs.spring.io/spring-security/reference/servlet/authentication/rememberme.html
+Về ý tưởng làm remember me mặc định của Spring Security: bên trong cái file login.jsp làm thêm 1 input là nút remember me còn lại thì spring đã tự làm rồi 
+
+còn nếu muốn cấu hình sâu hơn thì như phiên đăng nhập đó kéo dài bao lâu thì hết hạn, ...thì thêm câu hình chỗ config http .rememberMe()
+
+https://www.baeldung.com/spring-security-remember-me
+
+2.Session là gì ?
+https://www.baeldung.com/cs/web-sessions
+
+Hiểu 1 cách đơn giản, Session là việc server: Lưu thông tin user vào Memory (RAM), với id để xác định user đấy là ai
+	Mỗi request client gửi lên server, sẽ cần đính kèm “key”/id 
+	Server sẽ dựa vào key client gửi lên, để biết client đấy là ai
+
+3. Cơ chế Session mặc định của Spring
+Được lưu tại client thông qua cookies
+Được lưu tại Memory => restart lại sẽ mất thông tin
+
+Giải pháp hay dùng: 
+https://spring.io/projects/spring-session
+
+m) Spring Session:
+đối với thư viện này nó sẽ cung cấp 1 filter gọi là springSessionRepositoryFilter và Filter này sẽ ghi đè lên HttpSession	
+
+
 
 
 
