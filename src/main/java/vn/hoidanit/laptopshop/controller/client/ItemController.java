@@ -8,6 +8,11 @@ import org.springframework.ui.Model;
 
 import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.service.ProductService;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class ItemController {
@@ -23,4 +28,14 @@ public class ItemController {
         model.addAttribute("product", product);
         return "client/homepage/detail";
     }
+
+    @PostMapping("/add-product-to-cart/{id}")
+    public String addProductToCart(@PathVariable long id, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        long productId = id;
+        this.productService.addProductToCart((String) session.getAttribute("email"), productId);
+        return "redirect:/";
+
+    }
+
 }

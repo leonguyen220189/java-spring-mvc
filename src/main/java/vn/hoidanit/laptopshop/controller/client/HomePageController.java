@@ -70,4 +70,9 @@ public class HomePageController {
     public String getDenyPage() {
         return "client/auth/deny";
     }
+
+    @GetMapping("/cart")
+    public String getCartPage() {
+        return "client/cart/show";
+    }
 }

@@ -1687,7 +1687,7 @@ Csrf token:
 https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html#csrf-integration-form
 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
--> đối với form login của Java Spring cần thêm 1 thẻ input chứa token này 
+-> từ nay đối với các form ngay cả đối với form login của Java Spring cần thêm 1 thẻ input chứa token này 
 Cấu hình mặc định của trang login: 
 https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/form.html
 
@@ -2135,13 +2135,21 @@ Render thông tin đó ra view có 2 cách:
 			${sessionScope.avatar}
 
 
+====Phần 15: Chapter 14 Module Cart/Order====
 
-Restart server?
+1 - Sửa lại mô hình database 
+Thêm 2 Model: Cart và CartDetail
 
-Expired?
+cart: user_id, total_quantity 
+	Mỗi user có một cart, và một cart chỉ thuộc một user (OneToOne)
+Trong các Repository nên dùng findByUser ko nên dùng findByUserId mặc dù trong database của cart chứa user_id vì trong code t phải làm theo mô hình hướng đối tượng 
 
-Login 1 session?
+cart_detail: id, quantity, price, product_id, cart_id
+	Mỗi cart_detail chỉ thuộc 1 cart, mỗi cart có nhiều cart_detail (ManyToOne)
+	Mỗi cart_detail có nhiều product, mỗi product thuộc nhiều cart_detail (ManyToMany)
 
+- Giao diện -> nút add to card bao bởi cái form và thêm token cho nó 
+- Xử lý add product to cart trong controller và Product Service 
 	
 
 
