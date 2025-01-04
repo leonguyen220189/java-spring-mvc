@@ -1956,21 +1956,33 @@ https://www.baeldung.com/spring-security-custom-access-denied-page
 
 n) Cơ chế Session và Remember Me 
 đa số các cơ chế session mặc định ngay cả Java Spring 
-	-> khi vào browser mở 1 tab đăng nhập vào 1 website sau khi đăng nhập nó sẽ lưu thông tin đăng nhập vào session 
-	-> khi đóng tag đó và mở tab mới truy cập vào web thì những thông tin đăng nhập trong session vẫn còn 
+	-> khi vào browser mở 1 tab đăng nhập vào 1 website sau khi đăng nhập nó sẽ lưu thông tin đăng nhập vào SESSION trong cookies 
+	-> khi đóng tag đó và mở tab mới truy cập vào web thì những thông tin đăng nhập trong SESSION trong cookies vẫn còn 
 
-	Nhưng nếu đóng trình duyệt browser thì session đó sẽ mất -> khi vào lại web đó cần đăng nhập lại 
+	Nhưng nếu đóng trình duyệt browser thì SESSION đó sẽ mất -> khi vào lại web đó cần đăng nhập lại 
 Một số ứng dụng như Facebook,tiktok, ... dù đóng browser bao lâu khi mở lại nó vẫn còn ??? 
 
-Để giải quyết vấn đề mất session thì Spring Security có hỗ trợ 1 cơ chế gọi là Remmember me cơ chế này sẽ tự tìm hiểu ở dự án này sẽ dùng 1 thư viên Spring Session chứ ko dùng cái có sẵn của Spring Security -> những gì Remember Me làm được thì thư viện này đều làm xịn xò hơn 
+- Để giải quyết vấn đề mất session thì Spring Security có hỗ trợ 1 cơ chế gọi là Remmember me cơ chế này sẽ tự tìm hiểu ở dự án này sẽ dùng 1 thư viên Spring Session chứ ko dùng cái có sẵn của Spring Security -> những gì Remember Me làm được thì thư viện này đều làm xịn xò hơn 
 
-Cơ chế hoạt động của Spring security với session và cookies:
-	Để biết được phiên đăng nhập của người dùng còn hạn hay không thì nó sử dụng 1 cookies của browser nó lưu 1 SESSIONID trong này sẽ chứa 1 key chủa người dùng 
-	vì mỗi một lần gửi dùng gửi request lên server -> sẽ kèm theo cookies server sẽ check Id trong cookies ứng với mỗi người dùng nếu có thì nó trả thông tin như bình thường nếu không có nó sẽ redirect về /login -> đó cũng là lý do mỗi lần tắt browser -> mất cookies -> quay về login
-	thông tin về key và thông tin người dùng Spring sẽ lưu ở session
+- Cơ chế hoạt động của Spring security với session và cookies:
+	- Để biết được phiên đăng nhập của người dùng còn hạn hay không thì nó sử dụng 1 cookies của browser nó lưu 1 SESSIONID trong này sẽ chứa 1 key chủa người dùng 
+	- vì mỗi một lần gửi dùng gửi request lên server -> sẽ kèm theo cookies server sẽ check Id trong cookies ứng với mỗi người dùng nếu có thì nó trả thông tin như bình thường nếu không có nó sẽ redirect về /login -> đó cũng là lý do mỗi lần tắt browser -> mất cookies -> quay về login
+	- thông tin về key và thông tin người dùng Spring sẽ lưu ở session
 		Mỗi một lần đăng nhập thành công nó sẽ tạo 1 session (chứa thông tin người dùng) ứng với 1 ID dưới dạng Key-Value với key là ID
 		
-	Thực tế ở đây session nó chỉ là 1 cơ chế 1 tên gọi, chứ dự án Java cái server chúng ta đang chạy thì server này sẽ lưu thông tin trong RAM/Memory chứ ko có session nào lưu cả -> đó cũng là lý do vì sao mỗi 1 lần restart lại server thì sẽ bị văng ra khỏi phiên đăng nhập vì mỗi lần restart nó sẽ xóa đi những thông tin lưu trong bộ nhớ lưu trong RAM 
+	- Thực tế ở đây session nó chỉ là 1 cơ chế 1 tên gọi, chứ dự án Java cái server chúng ta đang chạy thì server này sẽ lưu thông tin trong RAM/Memory chứ ko có session nào lưu cả -> đó cũng là lý do vì sao mỗi 1 lần restart lại server thì sẽ bị văng ra khỏi phiên đăng nhập vì mỗi lần restart nó sẽ xóa đi những thông tin lưu trong bộ nhớ lưu trong RAM 
+
+	- Để giữ một phiên đăng nhập: Cookies của người dùng gửi lên và Data người dùng đó tại server (trong Ram/Memory)
+	- Tại sao ko có Cookies tên là JSESSIONID mà là SESSION vì nó được cấu hình mặc định trong CookieSerializer trong Spring Session nếu muốn nó trở thành JSESSIONID thì cần Customize lại cái này
+		Cấu hình cookies: https://docs.spring.io/spring-session/reference/3.1/api.html#api-cookieserializer
+
+	
+- Cơ chế hoạt động của Session
+	Bước 1: Mỗi lần vào website, Server sẽ tạo 1 cookie lưu tại client
+	Bước 2: Nếu server restart, client vẫn lưu cookies => không bị mất dữ liệu
+	Nếu client close browser (đóng session). Cookies sẽ mất => bị mất dữ liệu
+=> tính bảo mật cao (ví dụ banking app)
+
 
 1. Remember me ?
 //close browser?
@@ -1997,6 +2009,91 @@ https://spring.io/projects/spring-session
 
 m) Spring Session:
 đối với thư viện này nó sẽ cung cấp 1 filter gọi là springSessionRepositoryFilter và Filter này sẽ ghi đè lên HttpSession	
+1.Tích hợp Spring-Session
+Bước 1: add dependencies
+ <dependency>
+    <groupId>org.springframework.session</groupId>
+    <artifactId>spring-session-jdbc</artifactId>
+ </dependency>
+không cần cài version vì kế thừa từ cha groupId
+
+Ở đây mình cài Spring-session JDBC vì chúng ta đang sử dụng cơ sở dữ liệu quan hệ -> nên dùng JDBC
+
+Bước 2: cấu hình với spring
+//application.properties
+https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.security
+
+Cấu hình vào file .properties
+spring.session.store-type=jdbc // nói với spring dùng cơ sở dữ liệu quan hệ
+spring.session.timeout=30m //sau bao lâu thì hết hạn session
+--chỉ cần khai báo như vậy còn lại username, password, ... đã khai báo trước đó rồi 
+
+spring.session.jdbc.initialize-schema=always//nếu chưa có Schema SPRING_SESSION trong database nó sẽ tự động tạo 
+sau khi mở cmt câu lệnh này và chạy chương trình -> trong database sẽ tự tạo ra 2 table nữa là spring_session, spring_session_attributes đây là 2 nơi giúp spring lưu dữ liệu session vào 
+
+Chỉ làm tới đây: -> từ lúc này mỗi một người dùng truy cập vào url/gửi request đến server thì trong database mặc định sẽ tạo 1 session cho người dùng đó vào database 
+	spring_session: MAX_INACTIVE_INTERVAL đây là time(1800 ~ 30') 1 session tồn tại được cấu hình timeout trong properties
+			PRINCIPAL_NAME nếu người dùng đã đăng nhập -> lưu username của người dùng nếu chưa nó sẽ null 
+			...
+	spring_session_attributes: lưu thông tin của người dùng, data nó lưu dưới dạng Blob dưới dạng này nó lưu được nhiều thông tin hơn và nếu sử dụng những thông tin này nó cần đồng bộ hóa với Memory (sau khi nó đồng bộ hóa)
+	- Mỗi lần restart lại server -> restart lại phần CPU/Memory/Ram của nó sẽ xóa hết đi nhưng lần này nó đã có lưu thông tin dưới database nó sẽ load data từ database lên lại CPU/Memory khi có request -> vẫn giữ được phiên đăng nhập
+	- Mỗi một phiên đăng nhập của người dùng để biết được người dùng đó là ai trong cookies nó lưu thêm 1 SESSION chứ ko phải JSESSION nếu clear cookies -> mất phiên đăng nhập 
+	Cách hoạt động: 
+		Mỗi một người dùng khi đăng nhập nó sẽ lưu 1 ID dưới dạng cookies với tên là SESSION và ID là value của nó sau khi	
+		Sau khi restart lại server thì data trong RAM/Memory sẽ mất hết nhưng nếu người dùng vẫn còn SESSION khi gửi request sẽ kèm theo cookies -> server sẽ tìm ID/SESSION đó dưới database nếu tìm được nó sẽ nạp thông tin người dùng đó lên Ram/Memory -> server đã có lại data
+		Việc so sánh SESSION trong database là nó lấy value của SESSION trong cookies đó mã hóa và so sánh với SESSION_ID trong database 
+
+	Cơ Chế Session: 
+		Trong cookies SESSION có cột Expires/Max-Age có value là session đây là cơ chế tăng tính bảo mật hoạt động giống như app ngân hàng khi out app -> cần đăng nhập lại tương tự như tắt browser -> đăng nhập lại. Đây là giá trị mặc định của Spring Session
+		-> nhưng đối với dự án này cần giữ phiên đăng nhập lâu như face, tiktok, ig, ... -> giải pháp là tích hợp thêm chức năng Remember Me 
+			Cơ chế hoạt động:https://docs.spring.io/spring-session/reference/3.1/spring-security.html#spring-security-rememberme	
+
+Để tích hợp Remember Me: 
+	1 - khai báo 1 Bean:
+@Bean
+public SpringSessionRememberMeServices rememberMeServices() {
+	SpringSessionRememberMeServices rememberMeServices =
+			new SpringSessionRememberMeServices();
+	// optionally customize
+	rememberMeServices.setAlwaysRemember(true);
+	return rememberMeServices;
+}
+
+	2 - khởi tạo nó trong SecurityFilterChain filterChain
+	http
+		// ... additional configuration ...
+		.rememberMe((rememberMe) -> rememberMe
+			.rememberMeServices(rememberMeServices())
+		);
+
+Sau khi cấu hình phần này xong lúc này thì khi tắt truy cập và đăng nhập vào web -> dù tắt browser thì mở lại nó vẫn còn phiên đăng nhập
+	trong database: 
+		spring_session: MAX_INACTIVE_INTERVAL không còn lưu time cố định mình config trong .properties nữa mà lâu 2592000(~30 ngày) thời gian này được config mặc định được dùng trong hàm rememberMeServices bấm vào setAlwaysRemember xem code và tùy chỉnh 
+
+	Cơ chế hoạt động: 
+		cứ mỗi lần gửi request/login vào hệ thống thì Cơ chế remember me sẽ tự update MAX_INACTIVE_INTERVAL lại thành 30 ngày tính từ thời gian truy cập web (SESSION trong cookies sẽ giúp bạn không cần đăng nhập khi còn trong thời hạn session 1) Phần này thay đổi là do tích hợp cơ chế Remember Me 
+		1 - Còn thời gian cấu tình trong properties nó chỉ là thời gian hoạt động của 1 session sau thời gian này nó sẽ xóa data trong Memory, còn dữ liệu trong database ko bị mật 
+		2 - thay đổi thời gian Expires của 1 SESSION của người dùng trong Cookies một số khá lớn -> để hạn chế việc logout của người dùng vì cookies để định danh người dùng nó chỉ được tạo khi người dùng đăng nhập thành công nên tức là nó chỉ tạo khi đăng nhập -> những lần sau khi vào trang hay refresh nó sẽ không cập nhật được có thể customize lại được
+	Đánh đổi lại sẽ giảm tính bảo mật 
+
+
+2 phần cấu trình trong properties này chưa cần đụng tới
+#server.servlet.session.timeout
+#spring.session.jdbc.table-name=SPRING_SESSION
+
+Bước 3: setup với Spring security
+
+https://docs.spring.io/spring-session/reference/3.0/spring-security.html#spring-security-concurrent-sessions
+
+Thêm trước rememberMe()
+.sessionManagement((sessionManagement) -> sessionManagement
+			.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+	.invalidSessionUrl("/logout?expired")
+				.maximumSessions(1)
+	.maxSessionsPreventsLogin(false))
+
+	//.logout(logout->logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
+
 
 
 
