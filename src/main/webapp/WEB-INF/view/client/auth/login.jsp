@@ -27,7 +27,7 @@
                                                 <h3 class="text-center font-weight-light my-4">Login</h3>
                                             </div>
                                             <div class="card-body">
-                                                <form action="/login" method="post">
+                                                <form method="POST" action="/login">
                                                     <c:if test="${param.error != null}">
                                                         <div class="my-2" style="color: red;">Invalid email or password.
                                                         </div>

@@ -2087,12 +2087,62 @@ https://docs.spring.io/spring-session/reference/3.0/spring-security.html#spring-
 
 Thêm trước rememberMe()
 .sessionManagement((sessionManagement) -> sessionManagement
-			.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+	.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
 	.invalidSessionUrl("/logout?expired")
-				.maximumSessions(1)
+	.maximumSessions(1)
 	.maxSessionsPreventsLogin(false))
 
-	//.logout(logout->logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
+	.logout(logout->logout.deleteCookies("JSESSIONID").invalidateHttpSession(true))
+
+Giải thích code: đơn giản phần này để tối ưu hóa 
+	.sessionCreationPolicy(SessionCreationPolicy.ALWAYS) giúp tạo session khi người dùng chưa có session
+	.invalidSessionUrl("/logout?expired") khi hết 1 session tự động logout 
+
+	.maximumSessions(1)
+	.maxSessionsPreventsLogin(false))
+	Hai phần này giúp giới hạn tại 1 thời điểm 1 tài khoản được đăng nhập trên bao nhiêu thiết bị 
+	Set giá trị là false tức là nếu A đang đăng nhập B cũng đăng nhập vào tk đó thì A sẽ bị văng ra/logout 
+	Set giá trị là true tức là nếu A đang đăng nhập B cũng đăng nhập vào tk đó thì B phải đợi A hết Session mới được vào
+
+	Phần Logout thì mỗi lần logout sẽ xóa đi Cookies JSESSIONID và báo cho server Session của  người dùng đó hết hạn 
+
+Tới đây thì không thể mở 2 trình duyệt để đăng nhập vào dự án này với cùng 1 account, account thứ nhất sẽ bị văng ra 
+
+i) Test Session 
+1 - Lấy data user từ session or SecurityContext?
+Hai cái này khi lấy thì đều phải lưu trong Memory tuy nhiên phạm vi và nội dung lưu của nó khác nhau:
+	Session: 
+		Kiểm soát được
+	SecurityContext:
+		không kiểm soát được mà phụ thuộc vào thư viên Spring Security	
+
+Muốn lấy tên hay hình ảnh của người dùng phải đưa nó vào Session vì mặc định những thông tin lưu vào Session chính là những thông tin trong Spring Security đó chính là lý do mỗi lần restart lại server nó không bị mật phiên đăng nhập vì nó lấy thông tin từ Session nó nạp lên lại cho Spring security 
+
+set thông tin cho Session ở đâu
+	muốn nạp thông tin vào session thì cần nạp vào khi người dùng đăng nhập thành công -> chúng ta sẽ set trong hàm onAuthenticationSuccess trong config CustomServiceHandler 
+
+Lấy thông tin ở đâu để set ?
+- lấy ra email của người dùng sau khi đăng nhập cũng chính là username được lưu trong Spring Security (authentication) sẽ lấy nó ra  
+- UserService để lấy ra user và load động nó lệnh:
+	Tiêm UserService vào = @AutoWired chứ nếu làm thủ công theo Dependency Injection khá nhiều cái để thêm
+
+Render thông tin đó ra view có 2 cách: 
+	1 - truyền lên view thông qua controller 
+		Nhược điểm: tất cả url nào cần thông tin đó đều phải truyền
+	2 - render trực tiếp qua view thông qua session 
+		dùng sessionScope để lấy thông tin: 
+			${sessionScope.fullName}
+			${sessionScope.avatar}
+
+
+
+Restart server?
+
+Expired?
+
+Login 1 session?
+
+	
 
 
 

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -16,8 +17,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import vn.hoidanit.laptopshop.domain.User;
+import vn.hoidanit.laptopshop.service.UserService;
 
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
+
+    @Autowired
+    private UserService userService;
 
     protected String determineTargetUrl(final Authentication authentication) {
 
@@ -55,7 +61,17 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
+        // redirect url when successfull login
         redirectStrategy.sendRedirect(request, response, targetUrl);
+
+        // set data user for session
+        HttpSession session = request.getSession(false);
+        String email = authentication.getName();
+        User user = this.userService.fetchUserByEmail(email);
+        session.setAttribute("fullName", user.getFullName());
+        session.setAttribute("avatar", user.getAvatar());
+
+        // clear ..
         clearAuthenticationAttributes(request);
     }
 
