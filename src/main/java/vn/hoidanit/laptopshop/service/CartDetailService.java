@@ -2,6 +2,7 @@ package vn.hoidanit.laptopshop.service;
 
 import java.util.List;
 
+import org.eclipse.tags.shaded.org.apache.bcel.generic.CALOAD;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
@@ -56,5 +57,21 @@ public class CartDetailService {
             cart.setTotal_quantity(cart.getTotal_quantity() - 1);
         }
         session.setAttribute("numberOfCartDetails", cart.getTotal_quantity());
+    }
+
+    public void updateCartDetail(Cart cart, Product product, long quantity) {
+        CartDetail cartDetail = this.fetchCartDetailByCartAndProduct(cart, product);
+        cartDetail.setQuantity(quantity);
+        Float price = Float.parseFloat(cartDetail.getPrice()) * cartDetail.getQuantity();
+        cartDetail.setPrice(String.valueOf(price));
+    }
+
+    public void updateCartDetailsBeforeCheckout(List<CartDetail> cartDetails) {
+        for (CartDetail cartDetail : cartDetails) {
+            CartDetail cd = this.fetchCartDetailById(cartDetail.getId());
+            cd.setQuantity(cartDetail.getQuantity());
+            cd.setPrice(cartDetail.getPrice());
+            this.saveCartDetail(cd);
+        }
     }
 }

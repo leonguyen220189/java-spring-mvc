@@ -2177,6 +2177,50 @@ Phần này buộc phải code javascript chứ k dùng java được vì server
 ##4 - Xử Lý xóa cart detail##
 làm trong itemController - logic trong cart detail service
 
+##5 - Xử Lý check out##
+
+Khi tăng giảm cart detail thì nó chỉ xử lý ở front end nhưng khi bấm checkout -> lưu vào database 
+
+1 - Cách xử lý Thêm form này ẩn vào nút thực hiện checkout ở /cart gửi thêm 1 cart lên view thông qa cái này t gửi thông tin những cartDetail về controller qua @modelAttribute
+<form:form action="/confirm-checkout" method="post" modelAttribute="cart">
+    <input type="hidden" name="${_csrf.parameterName}"
+        value="${_csrf.token}" />
+    <div style="display: none;">
+        <c:forEach var="cartDetail" items="${cart.cartDetails}"
+            varStatus="status">
+            <div class="mb-3">
+                <div class="form-group">
+                    <label>Id:</label>
+                    <form:input class="form-control" type="text"
+                        value="${cartDetail.id}"
+                        path="cartDetails[${status.index}].id" />
+                </div>
+                <div class="form-group">
+                    <label>Quantity:</label>
+                    <form:input class="form-control" type="text"
+                        id="cartDetails${status.index}.quantity"
+                        value="${cartDetail.quantity}"
+                        path="cartDetails[${status.index}].quantity" />
+                </div>
+                <div class="form-item">
+                    <label>price:</label>
+                    <form:input class="form-control" type="text"
+                        id="cartDetails${status.index}.price"
+                        value="${cartDetail.price}"
+                        path="cartDetails[${status.index}].price" />
+                </div>
+            </div>
+        </c:forEach>
+    </div>
+    <button type="submit"
+        class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4"
+        type="button">Proceed Checkout</button>
+</form:form>
+
+2 - ở Controller khi nhận dữ liệu thì tất cả thuộc tính của Cart đã mất hết chỉ có set các CartDetail vì ở view ta chỉ set thông tin cho cartDetail của cart (ko liên quan đến cart đã đưa lên view từ GET)
+-> ta lấy những cartDetail này ra để xử lý ở Service (lưu ý chỉ set lại những thông tin như quantity, price của cartDetail ko liên quan đến cart và Product) xử lý ở CartDetailService
+	đầu tiên lấy ra những cartDetail theo cartDetail Id được gửi qa -> sau đó set các giá trị như quantity, price theo những cartDetail được gửi đó -> save lại 
+
 	
 
 

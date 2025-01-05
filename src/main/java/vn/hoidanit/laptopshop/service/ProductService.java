@@ -64,10 +64,8 @@ public class ProductService {
             Boolean ExistedCartDetail = this.cartDetailService.checkExistedCartDetail(cart, product);
 
             if (ExistedCartDetail) {
-                CartDetail cartDetail = this.cartDetailService.fetchCartDetailByCartAndProduct(cart, product);
-                cartDetail.setQuantity(cartDetail.getQuantity() + 1);
-                Float price = Float.parseFloat(cartDetail.getPrice()) * cartDetail.getQuantity();
-                cartDetail.setPrice(String.valueOf(price));
+                this.cartDetailService.updateCartDetail(cart, product,
+                        this.cartDetailService.fetchCartDetailByCartAndProduct(cart, product).getQuantity() + 1);
             } else {
                 CartDetail cartDetail = new CartDetail();
                 // save cart detail into cart

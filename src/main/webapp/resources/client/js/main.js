@@ -150,6 +150,15 @@
         const input = button.parent().parent().find('input');
         input.val(newVal);
 
+        //set form index
+        const index = input.attr("data-cart-detail-index")
+        const postInputQuantity = document.getElementById(`cartDetails${index}.quantity`);
+        const postInputPrice = document.getElementById(`cartDetails${index}.price`);
+
+        if (postInputQuantity) {
+            $(postInputQuantity).val(newVal);
+        }
+
         //get price
         const price = input.attr("data-cart-detail-price");
         const id = input.attr("data-cart-detail-id");
@@ -158,6 +167,7 @@
         const priceElement = $(`p[data-cart-detail-id="${id}"]`);
         if (priceElement) {
             const newPrice = +price * newVal;
+            $(postInputPrice).val(newPrice);
             priceElement.text(formatCurrency(newPrice.toFixed(2)) + " đ");
         }
 

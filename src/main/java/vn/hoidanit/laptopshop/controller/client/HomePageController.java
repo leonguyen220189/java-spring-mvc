@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -98,8 +97,36 @@ public class HomePageController {
             total_price += Float.parseFloat(cartDetail.getPrice());
         }
 
+        model.addAttribute("cart", cart);
         model.addAttribute("cartDetails", cartDetails);
         model.addAttribute("total_price", total_price);
         return "client/cart/show";
     }
+
+    @PostMapping("/confirm-checkout")
+    public String getCheckoutPage(Model model, @ModelAttribute("cart") Cart cart) {
+        List<CartDetail> cartDetails = cart == null ? new ArrayList<CartDetail>() : cart.getCartDetails();
+        this.cartDetailService.updateCartDetailsBeforeCheckout(cartDetails);
+        return "redirect:/checkout";
+    }
+
+    @GetMapping("/checkout")
+    public String getCheckoutPage(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        float total_price = 0;
+        Cart cart = this.cartService
+                .fetchCartByUser(userService.fetchUserByEmail((String) session.getAttribute("email")));
+        List<CartDetail> cartDetails = cart == null
+                ? new ArrayList<CartDetail>()
+                : cart.getCartDetails(); // nó sẽ tự join 2 table cho chúng ta
+
+        for (CartDetail cartDetail : cartDetails) {
+            total_price += Float.parseFloat(cartDetail.getPrice());
+        }
+
+        model.addAttribute("cartDetails", cartDetails);
+        model.addAttribute("total_price", total_price);
+        return "client/checkout/show";
+    }
+
 }
