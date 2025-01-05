@@ -2150,6 +2150,25 @@ cart_detail: id, quantity, price, product_id, cart_id
 
 - Giao diện -> nút add to card bao bởi cái form và thêm token cho nó 
 - Xử lý add product to cart trong controller và Product Service 
+
+2 - Chỉnh Sửa chức năng Cart - CartDetail
+	Mọi thứ làm đều cơ bản dùng những kiến thức đã học 
+Bug nhỏ: 
+- Ban đầu: 
+	List<CartDetail> cartDetails = this.cartDetailService.fetchCartDetailsByCart(cart);
+	sau đó duyệt qa loop để add product vào rồi đưa lên view 
+	nhưng có bug là nếu người dùng ko có cartDetail nào -> cartDetails = null -> lỗi
+- Fix:
+List<CartDetail> cartDetails = this.cartDetailService.fetchCartDetailsByCart(cart) == null ? new ArrayList<CartDetail>() : this.cartDetailService.fetchCartDetailsByCart(cart);
+	Lúc này nếu cartDetails nó sẽ ép kiểu về ArrayList -> đây sẽ là mảng có length = 0 -> ko loop được nhưng vẫn k lỗi
+
+- Ban đầu:
+	long numberOfCartDetails = user.getCart().getTotal_quantity();
+	-> có thể người dùng chưa có cart (chưa từng click vào add to cart 1 sản phẩm) -> user.getCart() = null -> lỗi
+- Fix:
+	long numberOfCartDetails = user.getCart() == null ? 0 : user.getCart().getTotal_quantity();
+
+
 	
 
 

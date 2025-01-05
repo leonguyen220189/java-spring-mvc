@@ -1,5 +1,7 @@
 package vn.hoidanit.laptopshop.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.laptopshop.domain.Cart;
@@ -29,5 +31,9 @@ public class CartDetailService {
 
     public long countCartDetailsByCart(Cart cart) {
         return this.cartDetailRepository.countByCart(cart);
+    }
+
+    public List<CartDetail> fetchCartDetailsByCart(Cart cart) {
+        return this.cartDetailRepository.findAllByCart(cart);
     }
 }
