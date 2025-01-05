@@ -1413,7 +1413,7 @@ Hoàn thiện Module Product: chỉnh sửa giao diện các ảnh ở phần ad
 	+ hiển thị ra View thông báo lỗi (dùng BindingResult để quăng qa View và dùng các thẻ Error để hiển thị)
 	+ liên kết xuống database để check email (thêm Annotation Service cho Validator để thực hiện tiêm userService vào để lấy email từ database lên check)
 
-##3 - Tổng quan về Spring Security##
+##3 - Spring Security##
 
 a) enable Spring security lên: vào trang class main LaptopshopApplication.java
 	@SpringBootApplication(exclude = org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class) //comment lệnh này 
@@ -2137,7 +2137,7 @@ Render thông tin đó ra view có 2 cách:
 
 ====Phần 15: Chapter 14 Module Cart/Order====
 
-1 - Sửa lại mô hình database 
+##1 - Sửa lại mô hình database##
 Thêm 2 Model: Cart và CartDetail
 
 cart: user_id, total_quantity 
@@ -2151,7 +2151,7 @@ cart_detail: id, quantity, price, product_id, cart_id
 - Giao diện -> nút add to card bao bởi cái form và thêm token cho nó 
 - Xử lý add product to cart trong controller và Product Service 
 
-2 - Chỉnh Sửa chức năng Cart - CartDetail
+##2 - Chỉnh Sửa chức năng Cart - CartDetail##
 	Mọi thứ làm đều cơ bản dùng những kiến thức đã học 
 Bug nhỏ: 
 - Ban đầu: 
@@ -2167,6 +2167,13 @@ List<CartDetail> cartDetails = this.cartDetailService.fetchCartDetailsByCart(car
 	-> có thể người dùng chưa có cart (chưa từng click vào add to cart 1 sản phẩm) -> user.getCart() = null -> lỗi
 - Fix:
 	long numberOfCartDetails = user.getCart() == null ? 0 : user.getCart().getTotal_quantity();
+
+##3 - Xử Lý tăng giải Product trong cart##
+
+Phần này buộc phải code javascript chứ k dùng java được vì server ko biết người dùng đang làm gì ngoài giao diện
+điều chỉnh lại nút tăng giảm trong resources/client/js/main.js 
+	hàm // Product Quantity
+
 
 
 	

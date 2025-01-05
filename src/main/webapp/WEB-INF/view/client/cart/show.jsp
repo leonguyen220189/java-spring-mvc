@@ -100,7 +100,9 @@
                                                     </div>
                                                     <input type="text"
                                                         class="form-control form-control-sm text-center border-0"
-                                                        value="${cartDetail.quantity}">
+                                                        value="${cartDetail.quantity}"
+                                                        data-cart-detail-id="${cartDetail.getId()}"
+                                                        data-cart-detail-price="${cartDetail.getPrice()}">
                                                     <div class="input-group-btn">
                                                         <button
                                                             class="btn btn-sm btn-plus rounded-circle bg-light border">
@@ -110,7 +112,7 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <p class="mb-0 mt-4">
+                                                <p class="mb-0 mt-4" data-cart-detail-id="${cartDetail.getId()}">
                                                     <fmt:formatNumber type="number" value="${cartDetail.price}" /> đ
                                                 </p>
                                             </td>
@@ -125,6 +127,9 @@
                                 </tbody>
                             </table>
                         </div>
+                        <c:if test="${empty cartDetails}">
+                            <p class="text-center mt-4">An Empty Cart</p>
+                        </c:if>
                         <c:if test="${not empty cartDetails}">
                             <div class="row g-4 justify-content-start">
                                 <div class="col-12 col-md-8">
@@ -133,7 +138,7 @@
                                             <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
                                             <div class="d-flex justify-content-between mb-4">
                                                 <h5 class="mb-0 me-4">Subtotal:</h5>
-                                                <p class="mb-0">
+                                                <p class="mb-0" data-cart-total-price="${total_price}">
                                                     <fmt:formatNumber type="number" value="${total_price}" /> đ
                                                 </p>
                                             </div>
@@ -148,7 +153,7 @@
                                         </div>
                                         <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                             <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                            <p class="mb-0 pe-4">
+                                            <p class="mb-0 pe-4" data-cart-total-price="${total_price}">
                                                 <fmt:formatNumber type="number" value="${total_price}" /> đ
                                             </p>
                                         </div>
@@ -163,16 +168,11 @@
                 </div>
                 <!-- Cart Page End -->
 
-
-                <jsp:include page="../layout/feature.jsp" />
-
                 <jsp:include page="../layout/footer.jsp" />
-
 
                 <!-- Back to Top -->
                 <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i
                         class="fa fa-arrow-up"></i></a>
-
 
                 <!-- JavaScript Libraries -->
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
