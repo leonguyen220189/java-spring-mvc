@@ -7,19 +7,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.ui.Model;
 
 import vn.hoidanit.laptopshop.domain.Product;
+import vn.hoidanit.laptopshop.service.CartDetailService;
+import vn.hoidanit.laptopshop.service.CartService;
 import vn.hoidanit.laptopshop.service.ProductService;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class ItemController {
     final private ProductService productService;
+    final private CartDetailService cartDetailService;
 
-    public ItemController(ProductService productService) {
+    public ItemController(ProductService productService, CartDetailService cartDetailService) {
         this.productService = productService;
+        this.cartDetailService = cartDetailService;
     }
 
     @GetMapping("/product/{id}")
@@ -38,4 +41,10 @@ public class ItemController {
 
     }
 
+    @PostMapping("/cart/del-cart-detail/{id}")
+    public String delCartDetailById(@PathVariable long id, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        this.cartDetailService.RemoveCartDetail(session, id);
+        return "redirect:/cart";
+    }
 }

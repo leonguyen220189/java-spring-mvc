@@ -2174,7 +2174,8 @@ Phần này buộc phải code javascript chứ k dùng java được vì server
 điều chỉnh lại nút tăng giảm trong resources/client/js/main.js 
 	hàm // Product Quantity
 
-
+##4 - Xử Lý xóa cart detail##
+làm trong itemController - logic trong cart detail service
 
 	
 

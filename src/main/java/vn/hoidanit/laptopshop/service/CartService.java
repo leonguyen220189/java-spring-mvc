@@ -18,6 +18,10 @@ public class CartService {
         return this.cartRepository.findByUser(user);
     }
 
+    public Cart fetchCartById(long id) {
+        return this.cartRepository.findById(id);
+    }
+
     public Cart saveCart(Cart cart) {
         return this.cartRepository.save(cart);
     }
