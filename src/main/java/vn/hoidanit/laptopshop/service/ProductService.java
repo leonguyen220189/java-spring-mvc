@@ -6,6 +6,9 @@ import java.util.Optional;
 import vn.hoidanit.laptopshop.domain.User;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
 import vn.hoidanit.laptopshop.domain.Product;
@@ -44,8 +47,8 @@ public class ProductService {
         return this.productRepository.findAll();
     }
 
-    public void addProductToCart(String email, long productId) {
-        User user = this.userService.fetchUserByEmail(email);
+    public void addProductToCart(HttpSession session, long productId) {
+        User user = this.userService.fetchUserByEmail((String) session.getAttribute("email"));
         if (user != null) {
             Cart cart = this.cartService.fetchCartByUser(user);
             if (cart == null) {
@@ -57,14 +60,26 @@ public class ProductService {
                 cart = this.cartService.saveCart(otherCart);
             }
 
-            CartDetail cartDetail = new CartDetail();
-            // save cart detail into cart
             Product product = fetchProductById(productId).get();
-            cartDetail.setCart(cart);
-            cartDetail.setProduct(product);
-            cartDetail.setPrice(product.getPrice());
-            cartDetail.setQuantity(0);
-            this.cartDetailService.savCartDetail(cartDetail);
+            Boolean ExistedCartDetail = this.cartDetailService.checkExistedCartDetail(cart, product);
+
+            if (ExistedCartDetail) {
+                CartDetail cartDetail = this.cartDetailService.fetchCartDetailByCartAndProduct(cart, product);
+                cartDetail.setQuantity(cartDetail.getQuantity() + 1);
+                Float price = Float.parseFloat(cartDetail.getPrice()) * cartDetail.getQuantity();
+                cartDetail.setPrice(String.valueOf(price));
+            } else {
+                CartDetail cartDetail = new CartDetail();
+                // save cart detail into cart
+                cartDetail.setCart(cart);
+                cartDetail.setProduct(product);
+                cartDetail.setPrice(product.getPrice());
+                cartDetail.setQuantity(1);
+
+                this.cartDetailService.saveCartDetail(cartDetail);
+            }
+            cart.setTotal_quantity(this.cartDetailService.countCartDetailsByCart(cart));
+            session.setAttribute("numberOfCartDetails", cart.getTotal_quantity());
         }
     }
 }

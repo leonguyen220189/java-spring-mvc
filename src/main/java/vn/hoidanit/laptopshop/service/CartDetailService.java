@@ -2,7 +2,9 @@ package vn.hoidanit.laptopshop.service;
 
 import org.springframework.stereotype.Service;
 
+import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
+import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.repository.CartDetailRepository;
 
 @Service
@@ -13,7 +15,19 @@ public class CartDetailService {
         this.cartDetailRepository = cartDetailRepository;
     }
 
-    public CartDetail savCartDetail(CartDetail cartDetail) {
+    public CartDetail saveCartDetail(CartDetail cartDetail) {
         return this.cartDetailRepository.save(cartDetail);
+    }
+
+    public Boolean checkExistedCartDetail(Cart cart, Product product) {
+        return this.cartDetailRepository.existsByCartAndProduct(cart, product);
+    }
+
+    public CartDetail fetchCartDetailByCartAndProduct(Cart cart, Product product) {
+        return this.cartDetailRepository.findByCartAndProduct(cart, product);
+    }
+
+    public long countCartDetailsByCart(Cart cart) {
+        return this.cartDetailRepository.countByCart(cart);
     }
 }

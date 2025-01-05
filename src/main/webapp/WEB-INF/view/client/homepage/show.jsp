@@ -52,7 +52,7 @@
                 <div class="container-fluid fruite py-5">
                     <div class="container py-5">
                         <div class="tab-class text-center">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mb-3">
                                 <div class="col-lg-4 text-start">
                                     <h1>Sản Phẩm Nổi Bật</h1>
                                 </div>

@@ -21,7 +21,7 @@ public class Cart {
     private User user;
 
     @Min(value = 0)
-    private int total_quantity;
+    private long total_quantity;
 
     // Order one to many Order Detail
     @OneToMany(mappedBy = "cart")
@@ -35,11 +35,11 @@ public class Cart {
         this.user = user;
     }
 
-    public int getTotal_quantity() {
+    public long getTotal_quantity() {
         return total_quantity;
     }
 
-    public void setTotal_quantity(int total_quantity) {
+    public void setTotal_quantity(long total_quantity) {
         this.total_quantity = total_quantity;
     }
 

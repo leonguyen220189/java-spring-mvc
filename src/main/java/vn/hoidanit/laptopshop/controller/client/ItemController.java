@@ -33,7 +33,7 @@ public class ItemController {
     public String addProductToCart(@PathVariable long id, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         long productId = id;
-        this.productService.addProductToCart((String) session.getAttribute("email"), productId);
+        this.productService.addProductToCart(session, productId);
         return "redirect:/";
 
     }

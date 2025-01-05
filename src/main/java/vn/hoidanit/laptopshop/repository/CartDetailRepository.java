@@ -5,8 +5,15 @@ import org.springframework.stereotype.Repository;
 
 import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
+import vn.hoidanit.laptopshop.domain.Product;
 
 @Repository
 public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
     CartDetail findByCart(Cart cart);
+
+    Boolean existsByCartAndProduct(Cart cart, Product product);// count theo id của cart và product
+
+    CartDetail findByCartAndProduct(Cart cart, Product product);
+
+    long countByCart(Cart cart);
 }
