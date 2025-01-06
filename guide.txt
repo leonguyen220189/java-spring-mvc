@@ -2221,6 +2221,20 @@ Khi tăng giảm cart detail thì nó chỉ xử lý ở front end nhưng khi b�
 -> ta lấy những cartDetail này ra để xử lý ở Service (lưu ý chỉ set lại những thông tin như quantity, price của cartDetail ko liên quan đến cart và Product) xử lý ở CartDetailService
 	đầu tiên lấy ra những cartDetail theo cartDetail Id được gửi qa -> sau đó set các giá trị như quantity, price theo những cartDetail được gửi đó -> save lại 
 
+3 - Xử lý đặt hàng 
+Tạo thêm 1 OrderDTO để lưu những thông tin cần thiết 
+thực hiện: 
+	- truyền object lên view 
+	- lấy dữ liệu phía controller 
+	- xử lý bên OrderService:
+		tạo và set dữ liệu cho Order (chừa lại giá tiền)
+		lấy cart -> lấy cartDetails -> set OrderDetails 
+		set giá tiền cho Order
+		remove các CartDeatils 
+		update số lượng của cart 
+
+		
+
 	
 
 

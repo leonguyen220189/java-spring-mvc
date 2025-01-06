@@ -1,8 +1,5 @@
 package vn.hoidanit.laptopshop.controller.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -10,13 +7,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import org.springframework.ui.Model;
 
-import vn.hoidanit.laptopshop.domain.Cart;
-import vn.hoidanit.laptopshop.domain.CartDetail;
 import vn.hoidanit.laptopshop.domain.Product;
+import vn.hoidanit.laptopshop.domain.User;
+import vn.hoidanit.laptopshop.domain.DTO.OrderDTO;
 import vn.hoidanit.laptopshop.service.CartDetailService;
-import vn.hoidanit.laptopshop.service.CartService;
+import vn.hoidanit.laptopshop.service.OrderService;
 import vn.hoidanit.laptopshop.service.ProductService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -25,10 +23,13 @@ import jakarta.servlet.http.HttpSession;
 public class ItemController {
     final private ProductService productService;
     final private CartDetailService cartDetailService;
+    private final OrderService orderService;
 
-    public ItemController(ProductService productService, CartDetailService cartDetailService) {
+    public ItemController(ProductService productService, CartDetailService cartDetailService,
+            OrderService orderService) {
         this.productService = productService;
         this.cartDetailService = cartDetailService;
+        this.orderService = orderService;
     }
 
     @GetMapping("/product/{id}")
@@ -52,4 +53,16 @@ public class ItemController {
         this.cartDetailService.RemoveCartDetail(session, id);
         return "redirect:/cart";
     }
+
+    @PostMapping("/place-order")
+    public String placeOrder(HttpServletRequest request, @ModelAttribute("orderDTO") OrderDTO orderDTO) {
+        HttpSession session = request.getSession(false);
+        User user = new User();
+        user.setId((long) session.getAttribute("id"));
+
+        this.orderService.placeOrder(session, user, orderDTO);
+
+        return "redirect:/placed-order";
+    }
+
 }

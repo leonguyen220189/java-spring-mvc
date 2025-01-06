@@ -3,6 +3,7 @@ package vn.hoidanit.laptopshop.controller.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +20,7 @@ import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
 import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.domain.User;
+import vn.hoidanit.laptopshop.domain.DTO.OrderDTO;
 import vn.hoidanit.laptopshop.domain.DTO.RegisterDTO;
 import vn.hoidanit.laptopshop.service.CartDetailService;
 import vn.hoidanit.laptopshop.service.CartService;
@@ -123,10 +125,17 @@ public class HomePageController {
         for (CartDetail cartDetail : cartDetails) {
             total_price += Float.parseFloat(cartDetail.getPrice());
         }
+        OrderDTO orderDTO = new OrderDTO();
 
+        model.addAttribute("orderDTO", orderDTO);
         model.addAttribute("cartDetails", cartDetails);
         model.addAttribute("total_price", total_price);
         return "client/checkout/show";
+    }
+
+    @GetMapping("/placed-order")
+    public String getPlacedOrderPage() {
+        return "client/checkout/placed";
     }
 
 }

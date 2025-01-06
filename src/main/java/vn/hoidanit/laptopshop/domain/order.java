@@ -2,8 +2,6 @@ package vn.hoidanit.laptopshop.domain;
 
 import java.util.List;
 
-import org.hibernate.annotations.ManyToAny;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +17,11 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private double totalPrice;
+    private String totalPrice;
+    private String recieverName;
+    private String recieverAddress;
+    private String recieverMobile;
+    private String status;
 
     // user id: order many to one user
     @ManyToOne
@@ -38,16 +40,66 @@ public class Order {
         this.id = id;
     }
 
-    public double getTotalPrice() {
+    public String getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(String totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getRecieverName() {
+        return recieverName;
+    }
+
+    public void setRecieverName(String recieverName) {
+        this.recieverName = recieverName;
+    }
+
+    public String getRecieverAddress() {
+        return recieverAddress;
+    }
+
+    public void setRecieverAddress(String recieverAddress) {
+        this.recieverAddress = recieverAddress;
+    }
+
+    public String getRecieverMobile() {
+        return recieverMobile;
+    }
+
+    public void setRecieverMobile(String recieverMobile) {
+        this.recieverMobile = recieverMobile;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
     }
 
     @Override
     public String toString() {
-        return "order [id=" + id + ", totalPrice=" + totalPrice + "]";
+        return "Order [id=" + id + ", totalPrice=" + totalPrice + ", recieverName=" + recieverName
+                + ", recieverAddress=" + recieverAddress + ", recieverMobile=" + recieverMobile + ", status=" + status
+                + ", user=" + user + ", orderDetails=" + orderDetails + "]";
     }
 }

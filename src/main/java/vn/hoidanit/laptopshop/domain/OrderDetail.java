@@ -19,7 +19,7 @@ public class OrderDetail {
     private long id;
 
     private long quantity;
-    private long price;
+    private String price;
 
     // order_id
     // OrderDetail many to one order
@@ -53,11 +53,11 @@ public class OrderDetail {
         this.quantity = quantity;
     }
 
-    public long getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
