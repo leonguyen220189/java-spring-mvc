@@ -72,4 +72,8 @@ public class UserService {
     public User fetchUserByEmail(String email) {
         return this.userRepository.findOneByEmail(email);
     }
+
+    public long countUser() {
+        return this.userRepository.count();
+    }
 }

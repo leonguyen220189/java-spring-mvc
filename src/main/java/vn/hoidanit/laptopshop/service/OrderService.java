@@ -29,7 +29,7 @@ public class OrderService {
         this.cartDetailService = cartDetailService;
     }
 
-    public List<Order> fetchAllOrder() {
+    public List<Order> fetchOrders() {
         return this.orderRepository.findAll();
     }
 
@@ -43,6 +43,10 @@ public class OrderService {
 
     public void deleteOrderById(long id) {
         this.orderRepository.deleteById(id);
+    }
+
+    public long countOrder() {
+        return this.orderRepository.count();
     }
 
     public void placeOrder(HttpSession session, User user, OrderDTO orderDTO) {

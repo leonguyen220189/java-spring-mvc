@@ -39,7 +39,7 @@
                                                     User</a>
                                             </div>
                                             <hr>
-                                            <table class="table table-bordered table-hover">
+                                            <table class="table text-center table-bordered table-hover">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">ID</th>

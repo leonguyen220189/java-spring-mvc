@@ -22,4 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Boolean existsByEmail(String email);
 
     User findOneByEmail(String email);
+
+    long count();
+
 }

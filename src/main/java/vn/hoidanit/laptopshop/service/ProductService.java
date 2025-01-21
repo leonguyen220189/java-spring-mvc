@@ -47,7 +47,11 @@ public class ProductService {
         return this.productRepository.findAll();
     }
 
-    public void addProductToCart(HttpSession session, long productId) {
+    public long countProduct() {
+        return this.productRepository.count();
+    }
+
+    public void addProductToCart(HttpSession session, long productId, long quantity) {
         User user = this.userService.fetchUserByEmail((String) session.getAttribute("email"));
         if (user != null) {
             Cart cart = this.cartService.fetchCartByUser(user);
@@ -65,14 +69,14 @@ public class ProductService {
 
             if (ExistedCartDetail) {
                 this.cartDetailService.updateCartDetail(cart, product,
-                        this.cartDetailService.fetchCartDetailByCartAndProduct(cart, product).getQuantity() + 1);
+                        this.cartDetailService.fetchCartDetailByCartAndProduct(cart, product).getQuantity() + quantity);
             } else {
                 CartDetail cartDetail = new CartDetail();
                 // save cart detail into cart
                 cartDetail.setCart(cart);
                 cartDetail.setProduct(product);
                 cartDetail.setPrice(product.getPrice());
-                cartDetail.setQuantity(1);
+                cartDetail.setQuantity(quantity);
 
                 this.cartDetailService.saveCartDetail(cartDetail);
             }

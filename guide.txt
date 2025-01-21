@@ -2242,6 +2242,11 @@ thực hiện:
 		@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	ở Order cascade = CascadeType.ALL giúp khi xóa cha con sẽ tự xóa theo 
 
+5 - Hoàn thành sơ lược giao diện:
+	- Page Admin
+	- Lịch sử mua hàng của khách
+	- thêm product từ view detail
+
 		
 
 	

@@ -18,12 +18,14 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
+import vn.hoidanit.laptopshop.domain.Order;
 import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.domain.User;
 import vn.hoidanit.laptopshop.domain.DTO.OrderDTO;
 import vn.hoidanit.laptopshop.domain.DTO.RegisterDTO;
 import vn.hoidanit.laptopshop.service.CartDetailService;
 import vn.hoidanit.laptopshop.service.CartService;
+import vn.hoidanit.laptopshop.service.OrderService;
 import vn.hoidanit.laptopshop.service.ProductService;
 import vn.hoidanit.laptopshop.service.UserService;
 
@@ -34,14 +36,16 @@ public class HomePageController {
     private final PasswordEncoder passwordEncoder;
     private final CartDetailService cartDetailService;
     private final CartService cartService;
+    private final OrderService orderService;
 
     public HomePageController(ProductService productService, UserService userService, PasswordEncoder passwordEncoder,
-            CartDetailService cartDetailService, CartService cartService) {
+            CartDetailService cartDetailService, CartService cartService, OrderService orderService) {
         this.productService = productService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.cartDetailService = cartDetailService;
         this.cartService = cartService;
+        this.orderService = orderService;
     }
 
     @GetMapping("/")
@@ -136,6 +140,13 @@ public class HomePageController {
     @GetMapping("/placed-order")
     public String getPlacedOrderPage() {
         return "client/checkout/placed";
+    }
+
+    @GetMapping("/order-history")
+    public String getHistoryPage(Model model) {
+        List<Order> orders = this.orderService.fetchOrders();
+        model.addAttribute("orders", orders);
+        return "client/history/show";
     }
 
 }

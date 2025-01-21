@@ -17,4 +17,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     void deleteById(long id);
 
+    long count();
 }

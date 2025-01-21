@@ -26,7 +26,7 @@ public class OrderController {
 
     @GetMapping("/admin/order")
     public String getOrderPage(Model model) {
-        List<Order> orders = this.orderService.fetchAllOrder();
+        List<Order> orders = this.orderService.fetchOrders();
         List<User> users = new ArrayList();
         for (Order order : orders) {
             users.add(order.getUser());
