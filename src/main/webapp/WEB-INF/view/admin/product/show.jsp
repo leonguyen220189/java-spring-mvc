@@ -10,6 +10,9 @@
                 <link href="/css/styles.css" rel="stylesheet" />
                 <link href="/css/modal_warning.css" rel="stylesheet" />
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+                    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+                    crossorigin="anonymous">
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
                 <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -58,8 +61,7 @@
                                                                     class="btn btn-success">View</a>
                                                                 <a href="/admin/product/update/${product.id}"
                                                                     class="btn btn-warning mx-2">Update</a>
-                                                                <button id="warning-openModalButton"
-                                                                    class="btn btn-danger"
+                                                                <button class="btn btn-danger warning-openModalButton"
                                                                     data-product-id="${product.id}">Delete</button>
                                                             </td>
                                                         </tr>

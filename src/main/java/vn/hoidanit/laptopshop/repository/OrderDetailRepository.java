@@ -9,4 +9,6 @@ import vn.hoidanit.laptopshop.domain.OrderDetail;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<Order, Long> {
     OrderDetail save(OrderDetail orderDetail);
+
+    void deleteById(long id);
 }

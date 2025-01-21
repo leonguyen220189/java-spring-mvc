@@ -2233,6 +2233,15 @@ thực hiện:
 		remove các CartDeatils 
 		update số lượng của cart 
 
+4 - Làm thêm Pages của Admin
+
+- làm view cho phần order 
+- xóa order có 2 cách: 
+	+ xóa OrderDetails trước rồi mới xóa Order (cách thủ công)
+	+ thiết lập     
+		@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+	ở Order cascade = CascadeType.ALL giúp khi xóa cha con sẽ tự xóa theo 
+
 		
 
 	

@@ -8,6 +8,7 @@
         <p>Are you sure you want to proceed?</p>
 
         <form id="warning-modal-form" method="post">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
             <input type="hidden" name="warning-value" id="warning-value" />
             <!-- Yes/No buttons -->
             <div class="warning-button-container">

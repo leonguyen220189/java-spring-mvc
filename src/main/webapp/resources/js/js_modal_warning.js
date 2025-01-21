@@ -1,6 +1,6 @@
 window.addEventListener('DOMContentLoaded', event => {// Get references to modal elements
     const modal = document.getElementById('warning-myModal');
-    const openModalButton = document.getElementById('warning-openModalButton');
+    const openModalButtons = document.getElementsByClassName("warning-openModalButton");
     const closeModalIcon = document.getElementById('warning-closeModalIcon');
     const yesButton = document.getElementById('warning-yesButton');
     const noButton = document.getElementById('warning-noButton');
@@ -8,18 +8,24 @@ window.addEventListener('DOMContentLoaded', event => {// Get references to modal
 
     if (modal) {
         // Open modal
-        if (openModalButton) {
-            openModalButton.addEventListener('click', () => {
-                const userId = openModalButton.getAttribute('data-user-id');
-                const product = openModalButton.getAttribute('data-product-id');
-                if (userId) {
-                    warningModalForm.action = `/admin/user/delete/${userId}`;
-                }
-                if (product) {
-                    warningModalForm.action = `/admin/product/delete/${product}`;
-                }
-                modal.style.display = 'flex'; // Show modal
-            });
+        if (openModalButtons) {
+            for (let i = 0; i < openModalButtons.length; i++) {
+                openModalButtons[i].addEventListener('click', () => {
+                    const userId = openModalButtons[i].getAttribute('data-user-id');
+                    const productId = openModalButtons[i].getAttribute('data-product-id');
+                    const orderId = openModalButtons[i].getAttribute('data-order-id');
+                    if (userId) {
+                        warningModalForm.action = `/admin/user/delete/${userId}`;
+                    }
+                    if (productId) {
+                        warningModalForm.action = `/admin/product/delete/${productId}`;
+                    }
+                    if (orderId) {
+                        warningModalForm.action = `/admin/order/delete/${orderId}`;
+                    }
+                    modal.style.display = 'flex'; // Show modal
+                });
+            }
 
             // Close modal (x icon)
             closeModalIcon.addEventListener('click', () => {

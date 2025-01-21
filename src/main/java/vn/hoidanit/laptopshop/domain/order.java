@@ -2,6 +2,7 @@ package vn.hoidanit.laptopshop.domain;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,7 +30,7 @@ public class Order {
     private User user;
 
     // Order one to many Order Detail
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
 
     public long getId() {

@@ -46,6 +46,8 @@
         </div>
     </div>
 
+    <jsp:include page="../layout/feature.jsp" />
+
     <script src="/client/js/main.js"></script>
 </body>
 

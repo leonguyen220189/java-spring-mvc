@@ -29,8 +29,20 @@ public class OrderService {
         this.cartDetailService = cartDetailService;
     }
 
+    public List<Order> fetchAllOrder() {
+        return this.orderRepository.findAll();
+    }
+
+    public Order fetchOrderById(long id) {
+        return this.orderRepository.findById(id);
+    }
+
     public Order saveOrder(Order order) {
         return this.orderRepository.save(order);
+    }
+
+    public void deleteOrderById(long id) {
+        this.orderRepository.deleteById(id);
     }
 
     public void placeOrder(HttpSession session, User user, OrderDTO orderDTO) {
@@ -41,7 +53,7 @@ public class OrderService {
         order.setRecieverAddress(orderDTO.getRecieverAddress());
         order.setRecieverMobile(orderDTO.getRecieverMobile());
         order.setRecieverName(orderDTO.getRecieverName());
-        order.setStatus("placed order");
+        order.setStatus("PENDING");
         order = this.orderRepository.save(order);
         long total_price = 0;
 

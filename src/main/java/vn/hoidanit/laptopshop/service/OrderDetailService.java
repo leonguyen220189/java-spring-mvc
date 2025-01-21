@@ -17,4 +17,8 @@ public class OrderDetailService {
     public OrderDetail saveOrderDetail(OrderDetail orderDetail) {
         return this.orderDetailRepository.save(orderDetail);
     }
+
+    public void deleteOrderDetailById(long id) {
+        this.orderDetailRepository.deleteById(id);
+    }
 }
