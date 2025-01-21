@@ -2247,6 +2247,54 @@ thực hiện:
 	- Lịch sử mua hàng của khách
 	- thêm product từ view detail
 
+6 - Tổng kết kiến thức đã học Cơ Bản:
+
+Các kiến thức đã học:
+	- Spring Boot : cấu hình và chạy dự án Spring một cách 
+nhanh chóng gồm: 
+		+ quản lý file pom.xml - sử dụng maven 
+		+ cấu hình file .properties 
+		+ trong file LaptopShopApplication.java sử dụng @SpringBootApplication để chạy dự án (dùng các Annotation khác)
+
+	- Spring JPA: viết query database theo ORM (object relational mapping)
+		+ để tương tác với Database thông qua đối tượng chứ ko viết câu lệnh raw 
+
+	- Cách viết code theo mô hình : Controller - Service - Repository
+		+ Controller: nơi điều hướng
+		+ Service: Phụ trách lấy data
+		+ Repository: thực hiện hành động lấy data 	
+
+	- Cách viết code theo mô hình Domain Driven Design : Định nghĩa domain (model)
+
+	- Cách validate dữ liệu với package hỗ trợ sẵn của java
+		+ Sử dụng trực tiếp các Annotation của java
+		+ Kế thừa lại các Interface như ConstraintValidatorContext để tự customize Annotation validator 
+		+ hiển thị lỗi khi invalid dùng BindingResult để đưa ra view 
+
+	- Cách tư duy và thiết kế database, đồng thời ràng buộc mối quan hệ giữa các model (OneToOne, OneToMany, ManytoMany)
+
+	- Cách viết code theo chuẩn DI (dependency injection)
+		+ Inject vào hàm constructor
+		+ dùng Annotation @Autowired		
+
+	- Spring MVC: viết code theo mô hình MVC với view là JSP, sử dụng JSTL (Jakarta Standard Tag Library)
+
+	- Spring Security: authentication (người dùng đã đăng nhập hay chưa ?) và authorization (người dùng có quyền làm gì) cho Spring
+
+	- Spring Session : duy trì phiên đăng nhập của người dùng
+		+ Tắt trình duyệt vẫn còn session (Remmember me)
+		+ restart lại trình duyệt vẫn còn session
+
+Ngoài ra còn có:
+	- Chức năng upload file
+	- Kỹ năng sinh tồn Debug xem code chạy :v
+
+Nhược điểm của cách làm ở trên:
+	- Chưa tối ưu hóa hiệu năng. Phần này sẽ được làm tiếp tục tại 2 chapter tiếp theo.
+
+	- Reload every time :v
+
+
 		
 
 	
