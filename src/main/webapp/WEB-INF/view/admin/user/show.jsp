@@ -68,6 +68,30 @@
                                                     </c:forEach>
                                                 </tbody>
                                             </table>
+                                            <nav aria-label="Page navigation example">
+                                                <ul class="pagination justify-content-center">
+                                                    <li class="page-item">
+                                                        <a class="${currentPage eq 1 ? 'disabled page-link' : 'page-link'}"
+                                                            href="/admin/user?page=${currentPage-1}"
+                                                            aria-label="Previous">
+                                                            <span aria-hidden="true">&laquo;</span>
+                                                        </a>
+                                                    </li>
+                                                    <c:forEach begin="0" end="${totalPages - 1}" varStatus="status">
+                                                        <li class="page-item"><a
+                                                                class="${currentPage eq status.index + 1 ? 'active page-link' : 'page-link'}"
+                                                                href="/admin/user?page=${status.index + 1}">${status.index
+                                                                + 1}</a></li>
+
+                                                    </c:forEach>
+                                                    <li class="page-item">
+                                                        <a class="${currentPage eq totalPages ? 'disabled page-link' : 'page-link'}"
+                                                            href="/admin/user?page=${currentPage+1}" aria-label="Next">
+                                                            <span aria-hidden="true">&raquo;</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </nav>
                                             <jsp:include page="../layout/modal_warning.jsp" />
                                         </div>
                                     </div>

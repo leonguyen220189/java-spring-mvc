@@ -51,7 +51,7 @@
                                 </div>
                                 <div>
                                     <a class="d-flex m-2 py-2 rounded-pill active btn btn-warning" data-bs-toggle="pill"
-                                        href="#tab-1">
+                                        href="/products">
                                         <span class="text-dark" style="width: 130px;">All Products</span>
                                     </a>
                                 </div>
@@ -79,7 +79,8 @@
                                                                 </h4>
                                                                 <p style="font-size: 13px;">
                                                                     ${product.productDetail.shortDesc}</p>
-                                                                <div class="d-flex flex-lg-wrap justify-content-center">
+                                                                <div
+                                                                    class="d-flex flex-lg-wrap justify-content-center flex-column">
                                                                     <p class="text-dark fs-5 fw-bold mb-3"
                                                                         style="font-size: 15px; text-align: center; width: 100%;">
                                                                         <fmt:formatNumber type="number"

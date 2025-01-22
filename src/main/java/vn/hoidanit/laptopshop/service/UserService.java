@@ -3,8 +3,11 @@ package vn.hoidanit.laptopshop.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.domain.Role;
 import vn.hoidanit.laptopshop.domain.User;
 import vn.hoidanit.laptopshop.domain.DTO.RegisterDTO;
@@ -71,6 +74,10 @@ public class UserService {
 
     public User fetchUserByEmail(String email) {
         return this.userRepository.findOneByEmail(email);
+    }
+
+    public Page<User> fetchUsersPagination(Pageable pageable) {
+        return this.userRepository.findAll(pageable);
     }
 
     public long countUser() {

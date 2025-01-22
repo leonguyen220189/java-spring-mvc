@@ -2,6 +2,8 @@ package vn.hoidanit.laptopshop.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
@@ -9,6 +11,7 @@ import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
 import vn.hoidanit.laptopshop.domain.Order;
 import vn.hoidanit.laptopshop.domain.OrderDetail;
+import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.domain.User;
 import vn.hoidanit.laptopshop.domain.DTO.OrderDTO;
 import vn.hoidanit.laptopshop.repository.OrderRepository;
@@ -88,6 +91,10 @@ public class OrderService {
             // update session
             session.setAttribute("numberOfCartDetails", 0);
         }
+    }
+
+    public Page<Order> fetchOrdersPagination(Pageable pageable) {
+        return this.orderRepository.findAll(pageable);
     }
 
 }

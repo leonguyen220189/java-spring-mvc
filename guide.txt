@@ -2233,7 +2233,7 @@ thực hiện:
 		remove các CartDeatils 
 		update số lượng của cart 
 
-4 - Làm thêm Pages của Admin
+##6 - Làm thêm Pages của Admin##
 
 - làm view cho phần order 
 - xóa order có 2 cách: 
@@ -2242,12 +2242,12 @@ thực hiện:
 		@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	ở Order cascade = CascadeType.ALL giúp khi xóa cha con sẽ tự xóa theo 
 
-5 - Hoàn thành sơ lược giao diện:
+##7 - Hoàn thành sơ lược giao diện:##
 	- Page Admin
 	- Lịch sử mua hàng của khách
 	- thêm product từ view detail
 
-6 - Tổng kết kiến thức đã học Cơ Bản:
+##8 - Tổng kết kiến thức đã học Cơ Bản:##
 
 Các kiến thức đã học:
 	- Spring Boot : cấu hình và chạy dự án Spring một cách 
@@ -2292,7 +2292,140 @@ Ngoài ra còn có:
 Nhược điểm của cách làm ở trên:
 	- Chưa tối ưu hóa hiệu năng. Phần này sẽ được làm tiếp tục tại 2 chapter tiếp theo.
 
-	- Reload every time :v
+	- Reload every time 
+
+
+====Phần 16: Chapter 15: Pagination Query====
+
+##1 - Tại sao cần phân trang (Pagination) Data##
+
+- Vấn đề tồn đọng: fetch tất cả data (paginate)
+- Nếu dữ liệu nhỏ (vài chục, vài trăm rows), không vấn đề gì. Tuy nhiên, vài ngàn, vài trăm ngàn, vài triệu … sẽ là vấn đề.
+
+Why ? lấy càng nhiều data, càng tốn nhiều băng thông (tốc độ truyền tải của mạng internet ) và thời gian chờ đợi càng lâu, làm giảm trải nghiệm của người dùng.
+
+- Giải pháp đề ra:
+Chỉ lấy số lượng data vừa đủ. Câu chuyện này tương tự :  
+	+ Muốn download file nhanh -> tải file nhẹ thôi (file càng nặng, tải càng lâu, thời gian chờ đợi càng lớn)
+	+ Muốn chờ đợi ít -> fetch ít data thôi nhé (và chỉ lấy data cần thiết, không dư thừa)
+
+##2. Khái Niệm Offset/Limit##
+Tài liệu: 
+https://www.sqltutorial.org/sql-limit/
+https://www.w3schools.com/php/php_mysql_select_limit.asp
+
+- Limit: giới hạn số phần tử muốn lấy
+- Offset: bỏ đi bao nhiêu phần tử , rồi mới lấy data
+
+N1, N2, N3, …. N98, N99, N100 (LIMIT = 10)
+
+PAGE 1: N1, N2, … N10 -> OFFSET = 0
+PAGE 2: N11, N12, … N20 -> OFFSET = 10
+PAGE 3: N21, N22,... N30 -> OFFSET = 20
+…
+PAGE 9: N81, N82.. N90
+PAGE 10: N91, N92… N100 -> OFFSET = 90
+
+
+##3 - Khái niệm Query String##
+https://en.wikipedia.org/wiki/Query_string
+- keyword sẽ hiển thị trên url thực tế server chỉ có 1 url dùng query string sẽ giúp cung cấp thêm thông tin cho phía server mà không cần thay đổi url 
+- Quy tắc: url?key=value nếu có nhiều tham số thì dùng &
+
+https://example.com/over/there     ?name=ferret
+https://example.com/path/to/page?name=ferret&color=purple
+
+https://example.com/path/to/search?page=1&limit=10
+
+##4 - Design Pagination##
+Tài liệu: https://getbootstrap.com/docs/5.0/components/pagination/
+
+##5 - Spring Pagination##
+Tài liệu:
+https://docs.spring.io/spring-data/rest/reference/paging-and-sorting.html
+https://docs.spring.io/spring-data/rest/docs/2.0.0.M1/reference/html/paging-chapter.html
+- Các loại Repository hay dùng với Spring
+	CRUDRepository
+	JpaRepository
+	PagingAndSortingRepository (là Parent của JpaRepository)
+	… 
+
+Tham khảo: https://stackoverflow.com/a/74512964
+
+- Cách xử lý Pagination với Spring
+	Kế thừa JpaRepository (kế thừa PagingAndSortingRepository)
+	Sử dụng Pageable 
+		là tham số truyền thêm vào trong các hàm FindAll() để phân trang 	
+		FindAll() có tham số là Pageable là hàm kế thừa từ PagingAndSortingRepository và hàm này trả về kiểu dữ liệu Page chứ không phải List 
+
+##6 -  Update Fetch Product với Pagination##
+Tất cả liên quan tới Pagination import từ org.springframework.data.domain
+Tham khảo: https://stackoverflow.com/questions/56240870/paging-with-spring-mvc-jpa-and-datatables
+
+	Bước 1: Tạo Pageable Object
+	Sử dụng @RequestParam (lấy dữ liệu String query + form qua attr name của tag input) để lấy tham số page từ client gửi lên
+	dùng: Pageable pageable = PageRequest.of(page - 1, 2);
+	hàm of:
+		public static PageRequest of(int pageNumber, int pageSize) {
+		      return of(pageNumber, pageSize, Sort.unsorted());
+	        }	
+	nó sẽ return về hàm of 3 tham số với Sort là dùng để sắp xếp 
+		public static PageRequest of(int pageNumber, int pageSize, Sort sort) {
+	   	      return new PageRequest(pageNumber, pageSize, sort);
+   		}
+	ở đây nó trả về PageRequest kế thừa AbstractPageRequest 
+			AbstractPageRequest kế thừa Pageable 
+	-> ép kiểu về Pageable 
+
+
+	Bước 2: findAll with Pageable
+	Page<Product> products = this.productService.fetchProductsPagination(pageable);
+        List<Product> prds = products.getContent(); // chuyển từ Page<Product> -> List<Product>
+
+	Bước 3: Truyền data qua view
+	Lấy data với getContent
+
+Cần tính tổng số trang
+Xử lý next, prev
+
+** Xử lý đến đây sẽ còn lỗi: có 1 lỗi, là khi bạn nhấn vào menu điều hướng bên trái, thay vì nhập trực tiếp vào url sẽ bị:  http://localhost:8080/admin/product
+
+There was an unexpected error (type=Bad Request, status=400).
+Required parameter 'page' is not present.
+
+**Fix bug: 
+Không truyền tham số page lên url
+https://stackoverflow.com/questions/22373696/requestparam-in-spring-mvc-handling-optional-parameters
+
+gán giá trị mặc định cho page = 1 (nếu không truyền page lên url)
+
+//todo
+Cập nhật quản lý user, order với pagination
+
+##7 - Hoàn thiện Fetch Product##
+
+Cần tính tổng số trang
+Xử lý next, prev.
+
+Logic xử lý:
+Từ controller, truyền qua view: currentPage, totalPages
+
+Sử dụng totalPages để dùng vòng lặp render ra phần pagination.
+https://stackoverflow.com/a/6099110
+
+Nếu index = currentPage -> thêm class active
+
+Nếu currentPage = 1 => disable button “previous”.
+Nếu currentPage = length của vòng lặp => disable button “next”
+
+
+
+
+
+
+
+
+
 
 
 		
