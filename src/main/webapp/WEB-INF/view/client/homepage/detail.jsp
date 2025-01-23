@@ -37,7 +37,7 @@
             </head>
 
             <body>
-
+                <jsp:include page="../layout/spinner.jsp" />
                 <jsp:include page="../layout/header.jsp" />
 
                 <!-- Single Page Header start -->

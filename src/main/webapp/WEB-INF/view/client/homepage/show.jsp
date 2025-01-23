@@ -36,7 +36,7 @@
             </head>
 
             <body>
-
+                <jsp:include page="../layout/spinner.jsp" />
                 <jsp:include page="../layout/header.jsp" />
 
                 <jsp:include page="../layout/banner.jsp" />

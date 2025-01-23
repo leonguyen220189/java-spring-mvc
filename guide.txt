@@ -2418,6 +2418,157 @@ Nếu index = currentPage -> thêm class active
 Nếu currentPage = 1 => disable button “previous”.
 Nếu currentPage = length của vòng lặp => disable button “next”
 
+====Phần 17: Chapter 16 Filter Query với JPA Specifications ====
+
+##1 -  Filter dữ liệu với Spring##
+
+Tham khảo  query của jhipster:
+https://github.com/hoidanit-be-java-spring-mvc/02-java-react-with-jhipster
+https://reflectoring.io/spring-data-specifications/
+
+- Cách Query truyền thống
+	+ sử dụng Query Method : định nghĩa câu query với Spring JPA
+	+ sử dụng JPA Criteria query (v2.0): https://www.mastertheboss.com/hibernate-jpa/criteria-query/hibernate-criteria-example-code/
+	+ sử dụng thư viện (third-party), ví dụ: querydsl: https://github.com/querydsl/querydsl
+
+- Đối với dự án này dùng API Specification đã hỗ trợ sẵn của Spring JPA từ version 3 trở đi 
+ https://docs.spring.io/spring-data/jpa/reference/jpa/specifications.html
+
+Ý tưởng: tương tự như việc phân trang, repository kế thừa JpaSpecificationExecutor nhờ việc kế thừa interface này sẽ cung cấp thêm các hàm findAll() với tham số truyền vào là Specification<T> -> làm sao để tạo ra biến Specification<T>
+
+Trong interface Specification thì có rất nhiều Static function nhưng có 1 hàm bắt buộc phải ghi đè lại là: 
+	toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) 3 biến này nằm trong JPA Criteria v2.0 1 trong những cách làm Query truyền thống
+	-> trả về kiểu dữ liệu Predicate 
+	
+
+Truyền specification vào hàm findAll:
+List<T> findAll(Specification<T> spec);
+
+##2 - Giới Thiệu Java Predicate##
+
+Tài liệu: https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html
+https://www.geeksforgeeks.org/java-8-predicate-with-examples/
+
+- Predicate là function trả ra boolean (true/false)
+- Khi nào cần Predicate: https://stackoverflow.com/a/38278857
+- Trong interface này sẽ hỗ trợ các Function này + CriteriaBuilder giúp query dữ liệu 
+
+Sử dụng function với 1 tham số đầu vào (lưu ý đây là 1 Object), và trả ra true/false (hay được dùng với cú pháp lamda)
+( arg ) - > return true/false
+
+##3 - Giới Thiệu JPA Criteria MetaModel##
+
+https://vladmihalcea.com/jpa-criteria-metamodel/
+
+Trong thư mục Src:
+	main: thư mục lưu code chính
+	test: thư mục viết test case 
+Ngoài có thư mục target 
+
+- Cài đặt thư viện:
+<!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-jpamodelgen -->
+<dependency>
+    <groupId>org.hibernate.orm</groupId>
+    <artifactId>hibernate-jpamodelgen</artifactId>
+    <version>6.4.1.Final</version>
+    <scope>provided</scope>
+</dependency>
+
+Khi cài đặt xong thư viện trong thư mục target sẽ thêm 2 Folder generated-sources và generated-test-sources 
+Trong generated-sources sẽ chứa các class nằm trong domain + "_" ở cuối tên được generate tự động để giải quyết trường hợp: 
+	- Khi dùng CriteriaBuilder sẽ phải truyền trường thông tin muốn kiểm tra như vậy -> hash code dữ liệu -> 
+	-> dùng meta model giúp truyền động dữ liệu (là truyền động 1 tên thuộc tính chứ ko pải 1 chuỗi String thể hiện tên thuộc tính đó)
+
+Mục đích sử dụng: hạn chế “hardcode tối đa”. Phần còn lại, thư viện lo
+
+##4 - Create Specification##
+
+Tài liệu:  https://docs.spring.io/spring-data/jpa/reference/jpa/specifications.html
+https://reflectoring.io/spring-data-specifications/
+
+- Specification: cách tạo câu điều kiện Where (dynamic)
+- Root: đại diện table muốn truy vấn, được dùng để truy cập entity và fields của nó
+- CriteriaQuery: tạo ra cấu trúc tổng quan của query, dùng để  modify the select, join, group by, order by, etc. (ít dùng)
+- CriteriaBuilder: sử dụng predicates, để build ra điều kiện của câu query
+
+Ví dụ chức năng: tìm sản phẩm theo tên (có thể ứng dụng làm tính năng search)
+	Bước 1: Định nghĩa Specification
+		private Specification<Product> nameLike(String name){
+  			return (root, query, criteriaBuilder) 
+      			-> criteriaBuilder.like(root.get(Product_.NAME), "%"+name+"%");
+		}
+
+	
+
+	Bước 2: Repository kế thừa JpaSpecificationExecutor để override lại một số findAll() có tham số là 1 Specification
+	Bước 3: Sử dụng findAll( )
+	//test = cách truyền name=abc lên url , sử dụng tính năng /products tại client
+
+##5 - Cách Tạo Predicate với Criteria Builder##
+Tài liệu:
+https://spring.io/blog/2011/04/26/advanced-spring-data-jpa-specifications-and-querydsl
+
+ở đây khi return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(Product_.NAME), "%"+name+"%"); 
+là chúng ta đang override ghi đè lại method toPredicate (khi 1 interface có đúng 1 method ko tính default || static) -> thì có thể viết như thế theo kiểu lamda
+
+Filter dữ liệu qua criteriaBuilder 
+
+
+//todo: tách riêng function search by Name để không lỗi project
+//hướng dẫn cách tạo fake data để test
+
+Bước 1: Trang bị kiến thức về SQL
+Cần có kiến thức cơ bản về sử dụng điều kiện với SQL
+https://www.w3schools.com/sql/
+
+Bước 2: Xác định câu lệnh phù hợp
+Các câu lệnh hỗ trợ:
+
+https://docs.oracle.com/javaee/7/api/javax/persistence/criteria/CriteriaBuilder.html
+
+##6 - Các yêu cầu làm Specification##
+Mục đích: Tạo filter cho các tiêu chí
+factory : hãng sản xuất
+target : mục đích sử dụng
+price: giá cả
+ 
+Cách tư duy:
+Query hãng sản xuất: dùng điều kiện in
+
+Query mục đích sử dụng: dùng điều kiện in
+
+Query giá cả: dùng điện kiện so sánh : equal, lessThan, greaterThan…
+-> tìm kiếm theo range -> sử dụng and (sử dụng nhiều Predicate)
+
+Lưu ý: gộp specification vào 1 class để code cho gọn 
+Cụ thể:
+Tham khảo: https://fptshop.com.vn/may-tinh-xach-tay
+
+Yêu cầu 1: http://localhost:8080/products?min-price=1000
+Lấy ra tất cả sản phẩm có giá cả tối thiểu là 1000 (vnd)
+
+Yêu cầu 2: http://localhost:8080/products?max-price=100000
+Lấy ra tất cả sản phẩm có giá cả tối đa  là 100000 (vnd)
+
+Yêu cầu 3: http://localhost:8080/products?factory=APPLE
+Lấy ra tất cả sản phẩm có hãng sản xuất = APPLE
+
+Yêu cầu 4: http://localhost:8080/products?factory=APPLE,DELL
+Lấy ra tất cả sản phẩm có hãng sản xuất = APPLE hoặc DELL . Truyền nhiều điều kiện, ngăn cách các giá trị bởi dấu phẩy (điều kiện IN)
+
+Yêu cầu 5: http://localhost:8080/products?price=10-toi-15-trieu
+Lấy ra tất cả sản phẩm theo range (khoảng giá).  10 triệu <= price <= 15 triệu
+
+Yêu cầu 6: http://localhost:8080/products?price=10-toi-15-trieu,16-toi-20trieu
+Lấy ra tất cả sản phẩm theo range (khoảng giá).  10 triệu <= price <= 15 triệu và
+16 triệu <= price <= 20 triệu
+
+
+
+
+
+
+
 
 
 

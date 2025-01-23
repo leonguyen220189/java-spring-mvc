@@ -7,6 +7,7 @@ import vn.hoidanit.laptopshop.domain.User;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpServlet;
@@ -15,9 +16,11 @@ import jakarta.servlet.http.HttpSession;
 import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
 import vn.hoidanit.laptopshop.domain.Product;
+import vn.hoidanit.laptopshop.domain.Product_;
 import vn.hoidanit.laptopshop.repository.CartDetailRepository;
 import vn.hoidanit.laptopshop.repository.CartRepository;
 import vn.hoidanit.laptopshop.repository.ProductRepository;
+import vn.hoidanit.laptopshop.service.specification.ProductSpecs;
 
 @Service
 public class ProductService {
@@ -56,6 +59,65 @@ public class ProductService {
 
     public long countProduct() {
         return this.productRepository.count();
+    }
+
+    public Page<Product> fetchProductsWithSpec(Pageable pageable, double min) {
+        return this.productRepository.findAll(ProductSpecs.minPrice(min), pageable);
+    }
+
+    // case 5
+    public Page<Product> fetchProductsWithSpec(Pageable page, String price) {
+        // eg: price 10-toi-15-trieu
+        if (price.equals("10-toi-15-trieu")) {
+            double min = 10000000;
+            double max = 15000000;
+            return this.productRepository.findAll(ProductSpecs.matchPrice(min, max),
+                    page);
+        } else if (price.equals("15-toi-30-trieu")) {
+            double min = 15000000;
+            double max = 30000000;
+            return this.productRepository.findAll(ProductSpecs.matchPrice(min, max),
+                    page);
+        } else
+            return this.productRepository.findAll(page);
+    }
+
+    // case 6
+    public Page<Product> fetchProductsWithSpec(Pageable page, List<String> price) {
+        Specification<Product> combinedSpec = (root, query, criteriaBuilder) -> criteriaBuilder.disjunction();
+        int count = 0;
+        for (String p : price) {
+            double min = 0;
+            double max = 0;
+            // Set the appropriate min and max based on the price range string
+            switch (p) {
+                case "10-toi-15-trieu":
+                    min = 10000000;
+                    max = 15000000;
+                    count++;
+                    break;
+                case "15-toi-20-trieu":
+                    min = 15000000;
+                    max = 20000000;
+                    count++;
+                    break;
+                case "20-toi-30-trieu":
+                    min = 20000000;
+                    max = 30000000;
+                    count++;
+                    break;
+                // Add more cases as needed
+            }
+            if (min != 0 && max != 0) {
+                Specification<Product> rangeSpec = ProductSpecs.matchMultiplePrice(min, max);
+                combinedSpec = combinedSpec.or(rangeSpec);
+            }
+        }
+        // Check if any price ranges were added (combinedSpec is empty)
+        if (count == 0) {
+            return this.productRepository.findAll(page);
+        }
+        return this.productRepository.findAll(combinedSpec, page);
     }
 
     public void addProductToCart(HttpSession session, long productId, long quantity) {

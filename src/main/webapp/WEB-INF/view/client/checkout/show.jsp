@@ -38,7 +38,7 @@
                 </head>
 
                 <body>
-
+                    <jsp:include page="../layout/spinner.jsp" />
                     <jsp:include page="../layout/header.jsp" />
                     <div class="container-fluid">
                         <div class="container py-5">
