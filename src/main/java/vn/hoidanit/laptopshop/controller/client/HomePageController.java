@@ -105,7 +105,7 @@ public class HomePageController {
                 : cart.getCartDetails(); // nó sẽ tự join 2 table cho chúng ta
 
         for (CartDetail cartDetail : cartDetails) {
-            total_price += Float.parseFloat(cartDetail.getPrice());
+            total_price += cartDetail.getPrice();
         }
 
         model.addAttribute("cart", cart);
@@ -132,7 +132,7 @@ public class HomePageController {
                 : cart.getCartDetails(); // nó sẽ tự join 2 table cho chúng ta
 
         for (CartDetail cartDetail : cartDetails) {
-            total_price += Float.parseFloat(cartDetail.getPrice());
+            total_price += cartDetail.getPrice();
         }
         OrderDTO orderDTO = new OrderDTO();
 

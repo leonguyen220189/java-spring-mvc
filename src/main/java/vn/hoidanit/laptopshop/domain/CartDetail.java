@@ -17,7 +17,7 @@ public class CartDetail {
     private long id;
 
     private long quantity;
-    private String price;
+    private double price;
 
     @ManyToOne
     @JoinColumn(name = "cart_id")
@@ -43,11 +43,11 @@ public class CartDetail {
         this.quantity = quantity;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 

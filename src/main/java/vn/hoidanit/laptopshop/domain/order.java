@@ -18,7 +18,7 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String totalPrice;
+    private double totalPrice;
     private String recieverName;
     private String recieverAddress;
     private String recieverMobile;
@@ -41,11 +41,11 @@ public class Order {
         this.id = id;
     }
 
-    public String getTotalPrice() {
+    public double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(String totalPrice) {
+    public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
     }
 

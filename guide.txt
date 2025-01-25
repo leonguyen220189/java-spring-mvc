@@ -2497,8 +2497,12 @@ Ví dụ chức năng: tìm sản phẩm theo tên (có thể ứng dụng làm 
   			return (root, query, criteriaBuilder) 
       			-> criteriaBuilder.like(root.get(Product_.NAME), "%"+name+"%");
 		}
+	Tại sao nó lại return về như vậy return (root, query, criteriaBuilder) 
+      			-> criteriaBuilder.like(root.get(Product_.NAME), "%"+name+"%"); có thể bấm vào bên trong interface Specification thì có một số phương thức trả về Specification<T> return về vậy -> override lại 
+	(root, query, criteriaBuilder) -> cái này yêu cầu trả về 1 Predicate -> dùng CriteriaBuilder có những phương thức Static trả về Predicate 
+	-> ta đã có 1 biến Specification<T> -> ở repository ta kế thừa thêm JpaSpecificationExcutor để Query có thêm phương thức findAll(Specification<T>, Pageable) 
 
-	
+	Bản chất khi Return như thế là nó đã trả về 1 Specification<Product> interface này chỉ có 1 function cần phải ghi đè theo cái viết lamda ta có thể viết ngắn gọn lại như vậy 
 
 	Bước 2: Repository kế thừa JpaSpecificationExecutor để override lại một số findAll() có tham số là 1 Specification
 	Bước 3: Sử dụng findAll( )
@@ -2562,6 +2566,70 @@ Lấy ra tất cả sản phẩm theo range (khoảng giá).  10 triệu <= pric
 Yêu cầu 6: http://localhost:8080/products?price=10-toi-15-trieu,16-toi-20trieu
 Lấy ra tất cả sản phẩm theo range (khoảng giá).  10 triệu <= price <= 15 triệu và
 16 triệu <= price <= 20 triệu
+	// case 6
+	public Page<Product> fetchProductsWithSpec(Pageable page, List<String> price) {
+        Specification<Product> combinedSpec = (root, query, criteriaBuilder) -> criteriaBuilder.disjunction();
+		lệnh này để tạo ra 1 Specification<Product> rỗng (ko pải null) để dùng các hàm của Specification
+        int count = 0;
+        for (String p : price) {
+            double min = 0;
+            double max = 0;
+            // Set the appropriate min and max based on the price range string
+            switch (p) {
+                case "10-toi-15-trieu":
+                    min = 10000000;
+                    max = 15000000;
+                    count++;
+                    break;
+                case "15-toi-20-trieu":
+                    min = 15000000;
+                    max = 20000000;
+                    count++;
+                    break;
+                case "20-toi-30-trieu":
+                    min = 20000000;
+                    max = 30000000;
+                    count++;
+                    break;
+                // Add more cases as needed
+            }
+            if (min != 0 && max != 0) {
+                Specification<Product> rangeSpec = ProductSpecs.matchMultiplePrice(min, max);
+                combinedSpec = combinedSpec.or(rangeSpec); 
+		// đưa lần lược các Specification<Product> hợp điều kện vào combinedSpec
+            }
+        }
+        // Check if any price ranges were added (combinedSpec is empty)
+        if (count == 0) {
+            return this.productRepository.findAll(page);
+        }
+        return this.productRepository.findAll(combinedSpec, page);
+    }
+
+##7 - Xử lý Javascript truyền động URL Filter##
+
+Mục tiêu:
+Khi nhấn button filter, cần lấy được các tiêu chí filter, và truyền động lên URL
+
+Khi reload page, nếu có data trên đường link, cần checkbox filter
+
+Lưu ý:
+Ví dụ: http://localhost:8080/products?page=1&price=duoi-10-trieu%2C10-15-trieu&sort=gia-tang-dan&factory=APPLE%2CACER&target=GAMING%2CTHIET-KE-DO-HOA%2CMONG-NHE
+
+Trên url có những ký tự “%2C”, đây là dấu phẩy ae nhé. Chẳng qua là browser nó encode thành như vậy (đối với ký tự đặc biệt)
+
+Vấn đề trên không ảnh hưởng gì tới hệ thống của chúng ta, vì đa phần các ngôn ngữ server sẽ tự động decode (chuyển cái %2C thành dấu phẩy)
+
+Tham khảo về url encoding: https://en.wikipedia.org/wiki/Percent-encoding
+
+##8 -  Multiple Specification##
+Tài liệu:
+https://docs.spring.io/spring-data/jpa/docs/current/api/org/springframework/data/jpa/domain/Specification.html
+
+##9 -  Add Sort
+dùng pageable = PageRequest.of(page - 1, 10, Sort.by(Product_.PRICE).ascending()); để sort theo giá PageRequest là child của Pageable nên return về nó sẽ ép kiểu về Pageable 
+	-> sắp xếp lúc phân trang 
+
 
 
 

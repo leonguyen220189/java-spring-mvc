@@ -62,7 +62,7 @@ public class OrderService {
         order.setRecieverName(orderDTO.getRecieverName());
         order.setStatus("PENDING");
         order = this.orderRepository.save(order);
-        long total_price = 0;
+        double total_price = 0;
 
         // create order detail
         Cart cart = this.cartService.fetchCartByUser(user);
@@ -77,10 +77,10 @@ public class OrderService {
                 orderDetail.setPrice(cd.getPrice());
                 orderDetail.setQuantity(cd.getQuantity());
                 this.orderDetailService.saveOrderDetail(orderDetail);
-                total_price = total_price + Long.parseLong(cd.getPrice());
+                total_price = total_price + cd.getPrice();
             }
 
-            order.setTotalPrice(String.valueOf(total_price));
+            order.setTotalPrice(total_price);
             this.orderRepository.save(order);
 
             // delete cart detail and update cart

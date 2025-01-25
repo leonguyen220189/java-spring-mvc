@@ -62,8 +62,8 @@ public class CartDetailService {
     public void updateCartDetail(Cart cart, Product product, long quantity) {
         CartDetail cartDetail = this.fetchCartDetailByCartAndProduct(cart, product);
         cartDetail.setQuantity(quantity);
-        Float price = Float.parseFloat(cartDetail.getPrice()) * cartDetail.getQuantity();
-        cartDetail.setPrice(String.valueOf(price));
+        double price = cartDetail.getPrice() * cartDetail.getQuantity();
+        cartDetail.setPrice(price);
     }
 
     public void updateCartDetailsBeforeCheckout(List<CartDetail> cartDetails) {
