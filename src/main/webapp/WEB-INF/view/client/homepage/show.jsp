@@ -9,6 +9,15 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
                 <meta name="description" content="" />
                 <meta name="author" content="" />
+
+                <!-- Sử Dụng Ajax -->
+                <meta name="_csrf" content="${_csrf.token}" />
+                <!-- default header name is X-CSRF-TOKEN -->
+                <meta name="_csrf_header" content="${_csrf.headerName}" />
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css"
+                    rel="stylesheet">
+
+
                 <title>Trang Chủ - Laptop Shop</title>
 
                 <!-- Google Web Fonts -->
@@ -86,7 +95,7 @@
                                                                         <fmt:formatNumber type="number"
                                                                             value="${product.price}" /> đ
                                                                     </p>
-                                                                    <form action="/add-product-to-cart/${product.id}"
+                                                                    <!-- <form action="/add-product-to-cart/${product.id}"
                                                                         method="post">
                                                                         <input type="hidden"
                                                                             name="${_csrf.parameterName}"
@@ -95,7 +104,17 @@
                                                                             class="mx-auto btn border border-secondary rounded-pill px-3 text-primary"><i
                                                                                 class="fa fa-shopping-bag me-2 text-primary"></i>
                                                                             Add to cart</button>
-                                                                    </form>
+                                                                    </form> -->
+
+                                                                    <!-- Sử Dụng Ajax -->
+                                                                    <button data-product-id="${product.id}"
+                                                                        class="btnAddToCartHomepage mx-auto btn border border-secondary rounded-pill px-3 text-primary">
+                                                                        <i
+                                                                            class="fa fa-shopping-bag me-2 text-primary"></i>
+                                                                        Add to cart
+                                                                    </button>
+
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -237,6 +256,10 @@
 
                 <!-- Template Javascript -->
                 <script src="/client/js/main.js"></script>
+
+                <!-- Sử Dụng Ajax -->
+                <script
+                    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
             </body>
 
             </html>

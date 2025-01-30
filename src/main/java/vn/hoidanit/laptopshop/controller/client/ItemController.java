@@ -96,13 +96,13 @@ public class ItemController {
         } catch (Exception e) {
             // TODO: handle exception
         }
-        Pageable pageable = PageRequest.of(page - 1, 10);
+        Pageable pageable = PageRequest.of(page - 1, 6);
         if (productCriteriaDTO.getSort() != null && productCriteriaDTO.getSort().isPresent()) {
             String sort = productCriteriaDTO.getSort().get();
-            if (sort.equals("gia-tang-dan")) {
-                pageable = PageRequest.of(page - 1, 10, Sort.by(Product_.PRICE).ascending());
-            } else if (sort.equals("gia-giam-dan")) {
-                pageable = PageRequest.of(page - 1, 10, Sort.by(Product_.PRICE).descending());
+            if (sort.equals("ascending-price")) {
+                pageable = PageRequest.of(page - 1, 6, Sort.by(Product_.PRICE).ascending());
+            } else if (sort.equals("descending-price")) {
+                pageable = PageRequest.of(page - 1, 6, Sort.by(Product_.PRICE).descending());
             }
         }
         Page<Product> products = this.productService.fetchProductsWithSpec(pageable, productCriteriaDTO);

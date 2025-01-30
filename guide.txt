@@ -2631,6 +2631,24 @@ dùng pageable = PageRequest.of(page - 1, 10, Sort.by(Product_.PRICE).ascending(
 	-> sắp xếp lúc phân trang 
 
 
+====Phần 14: Chapter 17 Tổng Kết====
+
+##1 - Roadmap Spring ##
+
+Spring mvc là gì ?
+Là cách chúng ta viết code theo mô hình Model-View-Controller, sử dụng server side rendering (tức là giao diện được tạo từ phía server)
+Spring boot
+Spring MVC
+Spring JPA
+Spring Security
+Spring Session
+
+
+Tham khảo: https://roadmap.sh/spring-boot
+File pdf road map: https://drive.google.com/file/d/19jxMycYHJaPJy3M6fqRwBWbxDyoT3sFY/view?usp=sharing
+
+
+
 
 
 

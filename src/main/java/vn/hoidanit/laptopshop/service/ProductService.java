@@ -90,19 +90,19 @@ public class ProductService {
             double max = 0;
             // Set the appropriate min and max based on the price range string
             switch (p) {
-                case "duoi-10-trieu":
-                    min = 0;
+                case "under-10-million":
+                    min = 1;
                     max = 10000000;
                     break;
-                case "10-15-trieu":
+                case "10-15-million":
                     min = 10000000;
                     max = 15000000;
                     break;
-                case "15-20-trieu":
+                case "15-20-million":
                     min = 15000000;
                     max = 20000000;
                     break;
-                case "tren-20-trieu":
+                case "over-20-million":
                     min = 20000000;
                     max = 200000000;
                     break;
@@ -114,62 +114,6 @@ public class ProductService {
         }
         return combinedSpec;
     }
-    // // case 5
-    // public Page<Product> fetchProductsWithSpec(Pageable page, String price) {
-    // // eg: price 10-toi-15-trieu
-    // if (price.equals("10-toi-15-trieu")) {
-    // double min = 10000000;
-    // double max = 15000000;
-    // return this.productRepository.findAll(ProductSpecs.matchPrice(min, max),
-    // page);
-    // } else if (price.equals("15-toi-30-trieu")) {
-    // double min = 15000000;
-    // double max = 30000000;
-    // return this.productRepository.findAll(ProductSpecs.matchPrice(min, max),
-    // page);
-    // } else
-    // return this.productRepository.findAll(page);
-    // }
-
-    // // case 6
-    // public Page<Product> fetchProductsWithSpec(Pageable page, List<String> price)
-    // {
-    // Specification<Product> combinedSpec = (root, query, criteriaBuilder) ->
-    // criteriaBuilder.disjunction();
-    // int count = 0;
-    // for (String p : price) {
-    // double min = 0;
-    // double max = 0;
-    // // Set the appropriate min and max based on the price range string
-    // switch (p) {
-    // case "10-toi-15-trieu":
-    // min = 10000000;
-    // max = 15000000;
-    // count++;
-    // break;
-    // case "15-toi-20-trieu":
-    // min = 15000000;
-    // max = 20000000;
-    // count++;
-    // break;
-    // case "20-toi-30-trieu":
-    // min = 20000000;
-    // max = 30000000;
-    // count++;
-    // break;
-    // // Add more cases as needed
-    // }
-    // if (min != 0 && max != 0) {
-    // Specification<Product> rangeSpec = ProductSpecs.matchMultiplePrice(min, max);
-    // combinedSpec = combinedSpec.or(rangeSpec);
-    // }
-    // }
-    // // Check if any price ranges were added (combinedSpec is empty)
-    // if (count == 0) {
-    // return this.productRepository.findAll(page);
-    // }
-    // return this.productRepository.findAll(combinedSpec, page);
-    // }
 
     public void addProductToCart(HttpSession session, long productId, long quantity) {
         User user = this.userService.fetchUserByEmail((String) session.getAttribute("email"));
