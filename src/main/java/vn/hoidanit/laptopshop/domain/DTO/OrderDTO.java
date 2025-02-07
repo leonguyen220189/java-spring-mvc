@@ -4,6 +4,15 @@ public class OrderDTO {
     private String recieverName;
     private String recieverMobile;
     private String recieverAddress;
+    private String paymentMethod;
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
 
     public String getRecieverName() {
         return recieverName;

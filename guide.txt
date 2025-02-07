@@ -2637,15 +2637,359 @@ dùng pageable = PageRequest.of(page - 1, 10, Sort.by(Product_.PRICE).ascending(
 
 Spring mvc là gì ?
 Là cách chúng ta viết code theo mô hình Model-View-Controller, sử dụng server side rendering (tức là giao diện được tạo từ phía server)
-Spring boot
-Spring MVC
-Spring JPA
-Spring Security
-Spring Session
+Spring boot: cách cấu hình được dự án String
+Spring MVC: cách sử dụng Service - Controller - Repository - JSP - JSTL 
+Spring JPA: kết nối với database thông qua ORM 
+Spring Security: authentication, authorization
+Spring Session: duy trì phiên đăng nhập 
 
 
 Tham khảo: https://roadmap.sh/spring-boot
 File pdf road map: https://drive.google.com/file/d/19jxMycYHJaPJy3M6fqRwBWbxDyoT3sFY/view?usp=sharing
+====STRING BOOT====
+
+String Core: 
+- Introduce: 
+	Terminology
+	Architecture: nhờ StringBoot việc chạy 1 dự án String chỉ đơn giản thông qua 1 Annotation @SpringBootApplication
+	why String
+- Configuration: cấu hình Security - MVC (thư mục config)
+- Dependency Injection
+- Spring IOC: inversion of control (Dependency Injection) 
+- Spring AOP
+- Spring MVC
+- Annotation
+- Spring Bean Scope
+
+
+String MVC:
+- Servlet: controller(Annotation)
+- JSP Files: view
+- Architecture
+- components: service, model
+
+String Data: 
+- Spring Data JPA: dự án sử dụng cái này
+- Spring Data MongoDB
+- Spring Data JDBC
+- Hibernate: 
+	Transactions: giải quyết các vấn đề ngoại lệ (kiểm soát được) -> dữ liệu được toàn vẹn 
+	Relationships: mới sử dụng cái này
+	Entity lifecycle: 
+
+Testing
+
+Spring Boot: 
+- Spring Boot Starters: dùng Annotation và cấu hình trong file properties 
+- AutoConfiguration
+- Actuators: theo dõi hệ thống 
+- Embedded Server: chạy server Java như trên công 8080 ... nó đã tự động làm 
+
+Spring Security
+- Authentication: đã làm
+- Authorization: đã làm
+- OAuth2: đăng nhập = gg, face...
+- JWT Authentication: xác thực thông qua token
+
+Microservices:
+	Spring Cloud
+
+##2 - Sử Dụng Ajax (Extra)##
+
+Nhấn thêm sản phẩm vào giỏ hàng: không reload lại trang (sử dụng Front end)
+
+1. Check giao diện khi chưa đăng nhập
+Khi chưa đăng nhập, không thể thêm sản phẩm vào giỏ hàng và bị đá về trang login
+=> do cơ chế mặc định của Spring security (chúng ta đang authorize tất cả request)
+
+//fix bug filter sản phẩm dưới 10 triệu (set min # 0)
+//fix bug disable next/previous button (set css class)
+
+2. Add to cart mà không reload page
+
+Xử lý phía JavaScript: bắt sự kiện nút add to cart - xử dụng Js để update số lượng giỏ hàng 
+File /client/homepage/show thêm vào <head/> thêm token _csrf vào phần header Spring có hướng dẫn ngoài việc thêm vào thẻ input trong form có thể thêm vào thẻ meta ở header để lấy token 
+                <meta name="_csrf" content="${_csrf.token}" />
+                <!-- default header name is X-CSRF-TOKEN -->
+                <meta name="_csrf_header" content="${_csrf.headerName}" />
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css"
+                    rel="stylesheet">
+Link href này là thư viện jquery-toast-plugin để hiển thị cái thông báo hiện bên góc pải màn hình khi bấm Add to cart 
+Đóng tất cả Form của các nút Add to cart (để chuyển hướng nó qua API chứ ko cho nó chạy về Controller)
+Các nút thêm data-product-id="${product.id}" để xác định đang xử lý sản phẩm nào và thêm class btnAddToCartHomepage để bắt sự kiện
+Thêm Script:<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script> để sử dụng thư viện 
+
+Sau đó sử lý sự kiện trong /client/js/main.js:
+	- Kiểm tra đăng nhập qua = function isLogin()
+	- sau đó lấy productId, token và header 
+	- quy định 1 đường link đến server đến API
+	- truyền token vào header theo cú pháp của ajax
+	- truyền data lên server (truyền đến link đã quy định trước đó)
+		
+	- nếu thành công -> thay đổi lại số lượng của giỏ hàng thông qua ID của giỏ hàng - hiển thị thông báo thành công
+	
+Viết Logic cho API: 
+package vn.hoidanit.laptopshop.controller.client;
+
+import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import vn.hoidanit.laptopshop.service.ProductService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+class CartRequest {
+    private long quantity;
+    private long productId;
+
+    public long getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(long quantity) {
+        this.quantity = quantity;
+    }
+
+    public long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(long productId) {
+        this.productId = productId;
+    }
+}
+
+@RestController
+public class CartAPI {
+    private final ProductService productService;
+
+    public CartAPI(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @PostMapping("/api/add-product-to-cart")
+    public ResponseEntity<Long> addProductToCart(
+            @RequestBody() CartRequest cartRequest,
+            HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        this.productService.addProductToCart(session, cartRequest.getProductId(), cartRequest.getQuantity());
+        long sum = (long) session.getAttribute("numberOfCartDetails");
+        return ResponseEntity.ok().body(sum);
+    }
+}
+
+Viết lại 1 class nhận dữ liệu truyền về từ JS link POST pải giống link được quy định trong JS logic trong POST này được xử lý giống như trước chỉ thêm việc truyền cái sum lên lại view để cập nhật lại số lượng sản phẩm trong giỏ hàng giá trị này sẽ gửi lên lại ngay chỗ này success: function (response) để thực hiện cập nhật lại số lượng sản phẩm
+
+Dùng AJAX để ko cần reload page
+Cứ reload đi. Ko sao cả. Học thêm frontend và viết api sẽ giải quyết được vấn đề trên.
+Tham khảo: https://github.com/kamranahmedse/jquery-toast-plugin
+
+##3 - Phong Cách Code Dự Án Spring##
+- Sử dụng DI - Dependency Injection
+Tham khảo: https://odrotbohm.de/2013/11/why-field-injection-is-evil/
+
+Có 2 cách hay dùng nhất để sử dụng DI với Spring.
+	Cách 1: Field Injection với @Autowired annotation
+	Cách 2: Constructor Injection 
+Field injection (@Autowired)
+++ less code to write
+-- unsafe code
+ - more complicated to test
+
+Constructor injection:
+++ safe code
+ - more code to write (see the hint to Lombok)
+ + easy to test
+
+
+- Sử dụng interface
+Tham khảo:
+https://stackoverflow.com/questions/53941713/best-practice-to-organize-service-service-implementation-and-repository-in-a-spr
+
+Viết seviceImp
+
+- Relationship giữa các model
+Tối ưu hóa hiệu năng với Fetch mode eager/lazy
+
+Tham khảo: https://www.baeldung.com/hibernate-lazy-eager-loading
+
+##4 - Fix Bug Generated Model##
+
+Lỗi: không tìm thấy các file _Model trong thư mục (hoặc có nhưng vẫn lỗi)
+
+target -> classes -> generated-sources
+
+- Tắt ứng dụng Spring , sau đấy xóa thư mục target (đây là thư mục dịch từ code java sang .class)
+- clear cache của VSCode (có thể vscode update version nên gây ra lỗi)
+Chọn F1 -> Java: Clean Java Language Server Workspace"
+Nhấn chuột phải vào file pom.xml , chọn “Reload Project” (chờ 1 xíu để project nó build)
+- Chạy lại project. Nếu vẫn lỗi, sử dụng bước 4.
+- Sử dụng phần mềm “chuyên dùng” code Java, ví dụ Spring Tool Suite.
+
+Chạy project với Spring Tool Suite, sau đấy sử dụng VSCode.
+
+##5 - Fix Bug Session Lưu Object##
+
+Lý do lỗi:
+Session hiện đang lưu tại database, mỗi lần người dùng đăng nhập, hoặc F5 lại website,
+Spring sẽ query session này (lưu tại database) và nạp vào memory.
+Session lưu vào database ở dưới dạng byte
+Session dùng trong memory, đôi khi sử dụng class/object, vì vậy cần có cơ chế hỗ trợ chuyển từ class -> byte và ngược lại
+
+fix: tất cả các đối tượng muốn lưu vào Session -> thì các class của đối tượng đó phải implements Serializable
+
+====Phần 19: Chapter18 Tích hợp các hình thức thanh toán online====
+
+##1.0 Tích hợp VNPay##
+
+Áp dụng tương tự cho VietQR, MoMo, ZaloPay…
+
+Mô Hình (kiểm thử/test)
+	  (1)    (2)      (3)
+Khách Hàng -> web -> VNPay -> ngân hàng
+	  <-	 <-	   <-
+ 	  (6)    (5)       (4)
+
+ở đây chúng ta có 1 web Thương Mại Điện Tử -> cần kết nối tới VNPay nhờ VNPay kết nối/thanh toán với ngân hàng (vì VNPay tuân thủ được các tiêu chuẩn an toàn đối với ngân hàng) từ ngân hồi sẽ phản hồi lại qua VNPay rồi tới web
+
+? lưu thông tin như thế nào vì trên mô hình chỉ nói đến đường đi của tiền tệ (ví dụ khác đơn hàng nhưng cùng giá cả ?? -> sinh ra paymentref cho mỗi đơn hàng)
+
+Môhình áp dụng trong khóa học
+
+- Merchant cần tạo địa chỉ IPN (server call server) sử dụng cập nhật tình trạng thanh toán (trạng thái thanh toán) cho giao dịch. Merchant cần gửi cho VNPAY URL này.
+	IPN: Instant Payment Notification
+	Do IPN cần phải tạo (có https) và cần gửi cho VNPAY cấu hình, vì vậy, phần này được bỏ qua trong khóa học này.
+	sẽ ko sử dụng IPN 
+Mô hình áp dụng:
+	Bước 1: User chọn hình thức thanh toán với VNPAY, backend cần tạo ra URL thanh toán theo tiêu chuẩn của VNPAY
+	Bước 2: User tiến hành thanh toán với giao diện của VNPAY
+	Bước 3: Do không có IPN, nên là sử dụng trực tiếp callback vnp_ReturnUrl
+	Sau khi nhận callback, backend thay đổi trạng thái order (từ UNPAID, chuyển thành PAYMENT_FAILED/PAYMENT_SUCCEED) dựa vào tham số paymentRef
+
+Tổng quan:
+	    ---------2 Tạo url thanh toán (có paymentref + giá) redirect tới VNPAY-->
+	    |									   |
+	Back End <---chọn thanh toán VNP (order + paymentref) 1 --- Front End <---trả kết quả thanh toán(callback URL) 3--- VNPay <-----> Bank
+	|   |							      |
+	|   <------------ update order/payment status 4----------------
+ 5 update order status
+	|
+	|
+	Database			(IPN)
+	
+thực tế nếu ở bước 4 thì VNPay sẽ cấu hình IPN để IPN update xuống database (IPN này là 1 web hook đặc biệt được viết ở pía backend sẽ an toàn hơn) nhưng ở mô hình này ko có -> thông qua url ở frontend (sẽ không an toàn) khi thanh toán thành công ta sẽ update ở controller xuống database 
+
+làm sao để từ url ở frontend khi thanh toán thành công -> giúp backend biết được mà update payment status: 
+	- khi thanh toán thành công ở trang test ở VNPay -> redirect về lại trang localhost:8080/placed-order cái này được cấu hình trong .properties hoidanit.vnpay.vnp-return-url=http://localhost:8080/placed-order và được gửi lên VNpay thực hiện qua VNPayService.java
+	- ở url này thì nó sẽ kèm theo các parameters query trong số paras đó 
+
+Bước 2 chỉ có thể tạo url thanh toán theo tiêu chuẩn của VNPay chỉ làm ở pía backend ko làm được ở pía frontend 
+##1.1 Tài liệu tích hợp#
+Trang chủ: https://vnpay.vn/ nơi xem thông tin chi tiết
+Dành cho developer:
+https://sandbox.vnpayment.vn/apis/ nơi xem thông tin về các API cho dev 
+	đối với dự án này sử dụng API thanh toán PAY
+
+Cần đăng ký tài khoản để sử dụng môi trường TEST:
+https://sandbox.vnpayment.vn/devreg/ nơi đăng ký tài khoản 
+Output của video này cần đặt được:
+Bạn cần đăng ký thành công tài khoản của môi trường test, và có được 2 tham số sau được nhận qua email đăng ký tài khoản:
+	- Terminal ID / Mã Website (vnp_TmnCode): 5NXCJC5H
+	- Secret Key / Chuỗi bí mật tạo checksum (vnp_HashSecret): 920D093WUISO03CN9VH5GAC2R9TZTDE6
+
+Sốthẻ dùng đểtest
+ Ngân hàng:  NCB
+ Số thẻ: 9704198526191432198
+ Tên chủ thẻ: NGUYEN VAN A
+ Ngày phát hành: 07/15
+ Mật khẩu OTP: 123456
+
+Tài khoản để đăng nhập vào trang quản trị của merchant (chính là email: vthanhtrongng@gmail.com/password: Thanhtrong@0510 khi đăng ký tài khoản)
+https://sandbox.vnpayment.vn/merchantv2/ trang admin để kiểm tra các giao dịch 
+
+Chỉnh sửa code:
+Cấu hình trong .properties:
+hoidanit.vnpay.tmn-code=5NXCJC5H
+hoidanit.vnpay.hash-secret=920D093WUISO03CN9VH5GAC2R9TZTDE6
+hoidanit.vnpay.vnp-url=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+hoidanit.vnpay.vnp-return-url=http://localhost:8080/placed-order
+
+
+Trong domain/order.java thêm:
+private String paymentRef;//lưu id thanh toán của từng sản phẩm
+private String paymentStatus;//lưu các trạng thái thanh toán
+private String paymentMethod; //lưu kiểu thanh toán
+
+Trong client/checkout/show thêm
+					<div class="col-12 form-group mb-3">
+                                            <label>Hình thức thanh toán</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod"
+                                                    value="COD" id="COD" path="paymentMethod" checked>
+                                                <label class="form-check-label" for="COD">
+                                                    Thanh toán khi nhận hàng
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" path="paymentMethod" type="radio"
+                                                    name="paymentMethod" value="BANKING" id="BANKING">
+                                                <label class="form-check-label" for="BANKING">
+                                                    Thanh toán bằng ví VNPAY
+                                                </label>
+                                            </div>
+                                            <input style="display: none;" value="${total_price}" name="totalPrice">
+                                        </div>
+lấy thông tin xuống controller thông qua orderDTO trong này thêm trường paymentMethod
+
+Ở Controller:
+	final String uuid = UUID.randomUUID().toString().replace("-", "");
+        this.orderService.placeOrder(session, user, orderDTO, uuid);
+
+        if (!orderDTO.getPaymentMethod().equals("COD")) {
+            // redirect: VNPay
+            String ip = this.vnPayService.getIpAddress(request);//tính toán ipAddress ~ tự tìm hiểu
+            String vnUrl = this.vnPayService.generateVNPayURL(Double.parseDouble(totalPrice), uuid, ip);
+
+            return "redirect:" + vnUrl;//thêm phần sau các Paras để có thể update order status
+
+        }
+Dùng uuid để generate ra paymentref và gửi qua OrderService để xử lý
+	order.setPaymentMethod(orderDTO.getPaymentMethod());
+        order.setPaymentStatus("PAYMENT_UNPAID");//mặc định set chưa thanh toán sau khi thanh toán thành công sẽ update
+        order.setPaymentRef(orderDTO.getPaymentMethod().equals("COD") ? "UNKNOWN" : uuid); //nếu là COD thanh toán khi nhận hàng -> set UNKNOW
+
+Tiếp tục trong controller nếu là VNPAY xử lý if để điều hướng đến trang thanh toán VNPAY xử lý trong VNPayService.java
+- về code trong VNPayService.java thì được lấy ý tưởng từ https://sandbox.vnpayment.vn/apis/downloads/#code-demo-t%C3%ADch-h%E1%BB%A3p download của java file cần lưu ý trong này là ajaxServlet.java chú ý function doPost với vnp_command="pay" vì ở đây đang dùng API thanh toán = Pay trong này cần lưu ý: 
+	+ định nghĩa Version 
+	+ hình thức thanh toán, orderType
+	+ amount(số tiền) phải nhân với 100 để khử số thập phân 
+	+ bankcode 
+	+ ... lấy 1 số thông tin để thêm các Paras query vào sau url trả về khi thanh toán thành công 
+url ví dụ: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=1806000&vnp_Command=pay&vnp_CreateDate=20210801153333&vnp_CurrCode=VND&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%3A5&vnp_OrderType=other&vnp_ReturnUrl=https%3A%2F%2Fdomainmerchant.vn%2FReturnUrl&vnp_TmnCode=DEMOV210&vnp_TxnRef=5&vnp_Version=2.1.0&vnp_SecureHash=3e0d61a0c0534b2e36680b3f7277743e8784cc4e1d68fa7d276e79c23be7d6318d338b477910a27992f5057bb1582bd44bd82ae8009ffaf6d141219218625c42
+
+	trong url này có vnp_SecureHash được thêm vào để đảm bảo an toàn -> chỉ có thể hash ở phía backend (chữ ký điện tử) mà frontend ko làm được 
+trong function này có sử dụng 1 số tham số môi trường -> được sử dụng lại ở file config.java trong class này có khai báo một số tham số môi trường và nó định nghĩa một số function dự án cần sử dụng lại như hmacSHA512(để mã hóa) + getIpAddress(lấy địa chỉ ip) 
+	có 3 cái bắt buộc pải làm ở backend:
+		vnp_TmnCode: id của đối tác (người sử dụng VNPay là ai)
+		vnp_TxnRef: id của order
+		vnp_SecureHash: mã xác nhận + bảo mật
+
+với dụ án này thì khai báo địa chỉ môi trường trong file properties còn lại các function cần thiết đưa hết vào VNPayService.java
+
+Nhiệm vụ của VNPayService.generateVNPayURL để  tạo ra url bao gồm các Paras khi thanh toán thành công, tham số truyền vào ip + giá tiền + paymentref 
+
+cuối cùng là thực hiện callback url (url trả về khi thanh toán thành công) nằm trong tham số vnp_ReturnUrl trong VNPayService.generateVNPayURL trong url trả về nó sẽ bao kèm thêm các paras có mô tả trạng thái của giao dịch -> sử dụng para vnp_ResponseCode nếu = 00 tức là thanh toán thành công -> update payment status ở controller với url placed 
+
+ví dụ url callback:
+https://localhost:8080/placed?vnp_Amount=1000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14226112&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+thoi+gian%3A+2023-12-07+17%3A00%3A44&vnp_PayDate=20231207170112&vnp_ResponseCode=00&vnp_TmnCode=CTTVNP01&vnp_TransactionNo=14226112&vnp_TransactionStatus=00&vnp_TxnRef=166117&vnp_SecureHash=b6dababca5e07a2d8e32fdd3cf05c29cb426c721ae18e9589f7ad0e2db4b657c6e0e5cc8e271cf745162bcb100fdf2f64520554a6f5275bc4c5b5b3e57dc4b4b
+
+
+	
+
+
+
+
 
 
 

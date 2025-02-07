@@ -131,6 +131,24 @@
                                             <textarea name="text" class="form-control" spellcheck="false" cols="30"
                                                 rows="5"></textarea>
                                         </div>
+                                        <div class="col-12 form-group mb-3">
+                                            <label>Hình thức thanh toán</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod"
+                                                    value="COD" id="COD" path="paymentMethod" checked>
+                                                <label class="form-check-label" for="COD">
+                                                    Thanh toán khi nhận hàng
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" path="paymentMethod" type="radio"
+                                                    name="paymentMethod" value="BANKING" id="BANKING">
+                                                <label class="form-check-label" for="BANKING">
+                                                    Thanh toán bằng ví VNPAY
+                                                </label>
+                                            </div>
+                                            <input style="display: none;" value="${total_price}" name="totalPrice">
+                                        </div>
                                         <hr>
                                         <button type="submit"
                                             class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4"

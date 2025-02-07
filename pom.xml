@@ -103,6 +103,12 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- thư viện cho oauth2 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+
 
 		<!-- end added dependecy -->
 	</dependencies>

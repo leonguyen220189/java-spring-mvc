@@ -143,7 +143,19 @@ public class HomePageController {
     }
 
     @GetMapping("/placed-order")
-    public String getPlacedOrderPage() {
+    public String getThankYouPage(
+            Model model,
+            @RequestParam("vnp_ResponseCode") Optional<String> vnpayResponseCode,
+            @RequestParam("vnp_TxnRef") Optional<String> paymentRef) {
+
+        if (vnpayResponseCode.isPresent() && paymentRef.isPresent()) {
+            // thanh toán qua VNPAY, cập nhật trạng thái order
+            String paymentStatus = vnpayResponseCode.get().equals("00")
+                    ? "PAYMENT_SUCCEED"
+                    : "PAYMENT_FAILED";
+            this.orderService.updatePaymentStatus(paymentRef.get(), paymentStatus);
+        }
+
         return "client/checkout/placed";
     }
 

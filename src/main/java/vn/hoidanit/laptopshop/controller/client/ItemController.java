@@ -1,9 +1,12 @@
 package vn.hoidanit.laptopshop.controller.client;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.aspectj.lang.annotation.RequiredTypes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,8 @@ import vn.hoidanit.laptopshop.domain.DTO.ProductCriteriaDTO;
 import vn.hoidanit.laptopshop.service.CartDetailService;
 import vn.hoidanit.laptopshop.service.OrderService;
 import vn.hoidanit.laptopshop.service.ProductService;
+import vn.hoidanit.laptopshop.service.VNPayService;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -33,13 +38,15 @@ import jakarta.servlet.http.HttpSession;
 public class ItemController {
     final private ProductService productService;
     final private CartDetailService cartDetailService;
-    private final OrderService orderService;
+    final private OrderService orderService;
+    final private VNPayService vnPayService;
 
     public ItemController(ProductService productService, CartDetailService cartDetailService,
-            OrderService orderService) {
+            OrderService orderService, VNPayService vnPayService) {
         this.productService = productService;
         this.cartDetailService = cartDetailService;
         this.orderService = orderService;
+        this.vnPayService = vnPayService;
     }
 
     @GetMapping("/product/{id}")
@@ -74,12 +81,22 @@ public class ItemController {
     }
 
     @PostMapping("/place-order")
-    public String placeOrder(HttpServletRequest request, @ModelAttribute("orderDTO") OrderDTO orderDTO) {
+    public String placeOrder(HttpServletRequest request, @ModelAttribute("orderDTO") OrderDTO orderDTO,
+            @RequestParam("totalPrice") String totalPrice) throws UnsupportedEncodingException {
         HttpSession session = request.getSession(false);
         User user = new User();
         user.setId((long) session.getAttribute("id"));
+        final String uuid = UUID.randomUUID().toString().replace("-", "");
+        this.orderService.placeOrder(session, user, orderDTO, uuid);
 
-        this.orderService.placeOrder(session, user, orderDTO);
+        if (!orderDTO.getPaymentMethod().equals("COD")) {
+            // redirect: VNPay
+            String ip = this.vnPayService.getIpAddress(request);
+            String vnUrl = this.vnPayService.generateVNPayURL(Double.parseDouble(totalPrice), uuid, ip);
+
+            return "redirect:" + vnUrl;
+
+        }
 
         return "redirect:/placed-order";
     }

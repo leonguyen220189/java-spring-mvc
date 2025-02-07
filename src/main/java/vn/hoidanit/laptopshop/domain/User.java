@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +38,8 @@ public class User {
     private String address;
     private String phoneNumber;
     private String avatar;
+    private String provider;
+
     // roleID: user many to one role
     @ManyToOne
     @JoinColumn(name = "role_id") // nó sẽ giúp Join table vào Id của role
@@ -71,6 +74,21 @@ public class User {
 
     public void setOrders(List<Order> orders) {
         this.orders = orders;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.provider == null) {
+            this.provider = "LOCAL";
+        }
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public long getId() {

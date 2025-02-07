@@ -1,6 +1,8 @@
 package vn.hoidanit.laptopshop.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,7 +54,7 @@ public class OrderService {
         return this.orderRepository.count();
     }
 
-    public void placeOrder(HttpSession session, User user, OrderDTO orderDTO) {
+    public void placeOrder(HttpSession session, User user, OrderDTO orderDTO, String uuid) {
 
         // create order
         Order order = new Order();
@@ -61,6 +63,12 @@ public class OrderService {
         order.setRecieverMobile(orderDTO.getRecieverMobile());
         order.setRecieverName(orderDTO.getRecieverName());
         order.setStatus("PENDING");
+
+        // VNPay
+        order.setPaymentMethod(orderDTO.getPaymentMethod());
+        order.setPaymentStatus("PAYMENT_UNPAID");
+        order.setPaymentRef(orderDTO.getPaymentMethod().equals("COD") ? "UNKNOWN" : uuid);
+
         order = this.orderRepository.save(order);
         double total_price = 0;
 
@@ -95,6 +103,17 @@ public class OrderService {
 
     public Page<Order> fetchOrdersPagination(Pageable pageable) {
         return this.orderRepository.findAll(pageable);
+    }
+
+    // vnpay
+    public void updatePaymentStatus(String paymentRef, String paymentStatus) {
+        Optional<Order> orderOptional = this.orderRepository.findByPaymentRef(paymentRef);
+        if (orderOptional.isPresent()) {
+            // update
+            Order order = orderOptional.get();
+            order.setPaymentStatus(paymentStatus);
+            this.orderRepository.save(order);
+        }
     }
 
 }

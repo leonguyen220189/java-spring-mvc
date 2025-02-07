@@ -28,7 +28,7 @@
                         <jsp:include page="../layout/sidebar.jsp" />
                         <div id="layoutSidenav_content">
                             <main>
-                                <div class="container-fluid px-4">
+                                <div class="container-fluid px-2">
                                     <h1 class="mt-4">Manage Order</h1>
                                     <ol class="breadcrumb mb-4">
                                         <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
@@ -48,6 +48,7 @@
                                                             <th scope="col">Total Price</th>
                                                             <th scope="col">User</th>
                                                             <th scope="col">Status</th>
+                                                            <th scope="col">Payment</th>
                                                             <th scope="col">Action</th>
                                                         </tr>
                                                     </thead>
@@ -62,11 +63,16 @@
                                                                     </td>
                                                                     <td>${users[status.index].fullName}</td>
                                                                     <td>${order.status}</td>
+                                                                    <td class="text-start">
+                                                                        <div>Status: ${order.paymentStatus}</div>
+                                                                        <div>Ref: ${order.paymentRef}</div>
+                                                                        <div>Method: ${order.paymentMethod}</div>
+                                                                    </td>
                                                                     <td>
                                                                         <a href="/admin/order/${order.id}"
                                                                             class="btn btn-success">View</a>
                                                                         <a href="/admin/order/update/${order.id}"
-                                                                            class="btn btn-warning mx-2">Update</a>
+                                                                            class="btn btn-warning mx-2 my-1">Update</a>
                                                                         <button
                                                                             class="btn btn-danger warning-openModalButton"
                                                                             data-order-id="${order.id}">Delete</button>

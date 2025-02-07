@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpSession;
 import vn.hoidanit.laptopshop.domain.Cart;
 import vn.hoidanit.laptopshop.domain.CartDetail;
+import vn.hoidanit.laptopshop.domain.Order;
 import vn.hoidanit.laptopshop.domain.Product;
 import vn.hoidanit.laptopshop.repository.ProductRepository;
 import vn.hoidanit.laptopshop.service.specification.ProductSpecs;
@@ -148,4 +149,5 @@ public class ProductService {
             session.setAttribute("numberOfCartDetails", cart.getTotal_quantity());
         }
     }
+
 }

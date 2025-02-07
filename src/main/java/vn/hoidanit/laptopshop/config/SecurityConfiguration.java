@@ -10,12 +10,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
 
 import jakarta.servlet.DispatcherType;
 import vn.hoidanit.laptopshop.service.CustomUserDetailsService;
 import vn.hoidanit.laptopshop.service.UserService;
+import vn.hoidanit.laptopshop.service.userinfo.CustomOAuth2UserService;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -42,8 +44,13 @@ public class SecurityConfiguration {
     // }
 
     @Bean
-    public AuthenticationSuccessHandler CustomSuccessHandler() {
+    public AuthenticationSuccessHandler customSuccessHandler() {
         return new CustomSuccessHandler();
+    }
+
+    @Bean
+    AuthenticationFailureHandler customFailureHandler() {
+        return new CustomOAuth2FailureHandler();
     }
 
     @Bean
@@ -65,7 +72,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, UserService userService) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                 .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
                 .requestMatchers("/", "/login", "/register", "/products/**", "/client/**", "/css/**", "/js/**",
@@ -74,6 +81,13 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2.loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error")
+                        .successHandler(customSuccessHandler())
+                        .failureHandler(customFailureHandler())
+                        .userInfoEndpoint(user -> user
+                                .userService(new CustomOAuth2UserService(userService))))
                 .sessionManagement((sessionManagement) -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                         .invalidSessionUrl("/logout?expired")
@@ -84,7 +98,7 @@ public class SecurityConfiguration {
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         .failureUrl("/login?error")
-                        .successHandler(CustomSuccessHandler())
+                        .successHandler(customSuccessHandler())
                         .permitAll())
                 .exceptionHandling(ex -> ex.accessDeniedPage("/access-deny"));
         return http.build();
