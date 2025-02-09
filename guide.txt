@@ -2984,6 +2984,300 @@ cuối cùng là thực hiện callback url (url trả về khi thanh toán thà
 ví dụ url callback:
 https://localhost:8080/placed?vnp_Amount=1000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14226112&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+thoi+gian%3A+2023-12-07+17%3A00%3A44&vnp_PayDate=20231207170112&vnp_ResponseCode=00&vnp_TmnCode=CTTVNP01&vnp_TransactionNo=14226112&vnp_TransactionStatus=00&vnp_TxnRef=166117&vnp_SecureHash=b6dababca5e07a2d8e32fdd3cf05c29cb426c721ae18e9589f7ad0e2db4b657c6e0e5cc8e271cf745162bcb100fdf2f64520554a6f5275bc4c5b5b3e57dc4b4b
 
+==== Phần 20 Chapter 19 ====
+
+##1 - Tích hợp login OAuth2##
+
+- Tài liệu tích hợp
+https://docs.spring.io/spring-security/reference/servlet/oauth2/login/core.html
+https://spring.io/guides/tutorials/spring-boot-oauth2
+https://www.baeldung.com/spring-security-5-oauth2-login
+
+- Cài đặt thư viện
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-oauth2-client</artifactId>
+	</dependency>
+- Giải thích mô hình tích hợp
+Cấu hình Dự án:
+	Cài đặt thêm thư viện oauth2-client
+Cấu hình oauth2 Provider (Google/Github):
+	Mụctiêu: có được client-id và client-secret
+Setup client-id và client-secret trong ứng dụng Spring:
+	update user/login để tiến hành login 
+Xử lý kết quả login, lưu vào Session
+
+- Mô hình:
+Backend: (1)
+	cài đặt oauth2 client
+	setup clientID/client Secret
+	Login với Oauth2 
+	tích hợp với session
+OAuth2 Provider google/github: (2)
+	Cấu hình app: ClientID, Client Secret
+Frontend: (3)
+	sử dụng session
+Database
+
+Khi User click vào login với Third Party -> từ backend pải redirect tới OAuth2 Provider 
+Từ OAuth2 Provider khi đăng nhập thành công -> trả về 1 accessTokenResponse Spring lấy tokenValue của cái này để giải mã ra thông tin user về lại cho backend (đối với google sẽ có trả về lại email, nhưng github thì bảo mật và cần cấu hình thêm để nó gửi email)
+Từ backend nhận thông tin user gửi từ OAuth2 Provider + thêm các thông tin của 1 user cần thiết -> lưu xún database
+sau khi user đã đủ các thông tin + lưu vào session sử dụng user 1 cách bth ở frontend
+
+- các bước cấu hình, hoạt động ngoài luồng
+Cấu hình Google để lấy client ID, client Secret:
+	https://console.cloud.google.com/ 
+	tạo mới 1 project(chỉ cần đặt tên - bỏ qua location)
+	chọn vào project đó 
+	chọn phần navigation - API&Service
+		chọn OAuth consent screen để khai báo mục đích sử dụng cho ứng dụng(nếu làm chính thì cần cấu hình kĩ)
+			User Type: external - create
+			App information: đặt tên 
+			User support email: điền email nào cũng được
+			Developer contact information: điền email Save and continue
+
+			Scopes: phạm vi API muốn lấy 
+				cấu hình để lấy các thông tin cá nhân của tài khoản người dùng google 
+				mặc định nó sẽ trả về email, tên, avatar, ...
+				(ở đây avatar của người dùng khi gửi về sẽ là 1 cái link và có thời hạn -> tự làm avatar default 
+				Save and continue
+
+			Test users: ko cần làm gì chỉ cần dùng chính xác tài khoản email 
+		
+			Summary: coi lại cấu hình Back to dashboard 
+		
+			Nếu sau này muốn làm thật pải bấm thêm PUBLISH APP 
+		
+		Định danh: Credentials
+			Create credentials - OAuth client ID - Application Type(chọn web application + name: đặt tên)
+			Authorized JavaScript Origins - ADD URI: thêm vào tên miền chạy web như http://localhost:8080
+			Authorized Redirect URIs - ADD URI: thêm đường link sẽ redirect về khi login thành công lấy từ tại liệu java Spring: http://localhost:8080/login/oauth2/code/google 	
+			Create 
+		-> hiển thị Client ID, Client Secrect 
+
+lấy 2 thông tin này cấu hình vào file properties: (yml || properties)
+spring.security.oauth2.client.registration.google.client-id=50217281644-kl3dgv37g5vmbv99h1hcrici29553eoe.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=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
+
+Tiến hành Chỉnh sửa code:
+Frontend: client/auth/login.jsp trong form 
+<div>
+	<div style="text-align: center"><span>Hoặc sử dụng</span></div>
+	<div class="d-flex justify-content-center align-items-center my-3" style="gap: 20px">
+		<a href="/oauth2/authorization/google" title="Đăng nhập với Google">
+ 			<img height="40" width="40" src="/client/img/provider/default-google.png" />
+		</a>
+		<a href="/oauth2/authorization/github" title="Đăng nhập với Github"> 
+			<img height="40" width="40" src="/client/img/provider/default-github.png" />
+		</a>
+	</div>
+</div>
+		
+khi mới thiết lập endpoint /oauth2/authorization/google||github -> khi click vào thì web sẽ xoay (load) nhưng ko hoạt động vì Spring Security mặc định sẽ chặn các endpoint -> cần khai báo 2 endpoint này cho spring security 
+
+2 đường link này được generate lấy ở tài liệu spring security:https://docs.spring.io/spring-security/reference/servlet/oauth2/login/advanced.html#oauth2login-advanced-login-page 
+
+/oauth2/authorization/ + provider: là đường link được generate mặc định của OAuth2 
+
+-> Cấu hình thêm Spring Security trong config/SecurityConfiguration.java trong filterChain function 
+thêm 
+	Cấu hình mặc định: .oauth2Login(Customizer.withDefaults()) -> khi vào trang login nó sẽ hiển thị các option provider được cấu hình trong file properties để chọn và đăng nhập
+	Cấu hình theo dự án: oauth2Login(oauth2 -> oauth2.loginPage("/login")) khi đăng nhập nó sẽ vào trang login của mình và tự chọn những provider do mình cung cấp -> khi click vào provider ở trang login nó sẽ redirect tới trang login của Provider đó 
+
+Lúc này khi đăng nhập những thông tin lưu trong session được sử dụng ở frontend sẽ ko dùng được vì mình chưa lưu thông tin vào session cũng như thông tin người dùng vào database 
+
+- Xử lý lưu người dùng vào database và load thông tin lên session:
+
+Phân biệt người dùng đăng nhập = provider hay đăng kí tài khoản thông thường: thêm vào domain/user.java
+	private String provider; 
+	sử dụng 1 hook của API để trong trường hợp ko gán giá trị cho provider sẽ gán giá trị mặc định 
+    		@PrePersist
+    		public void prePersist() {
+        		if (this.provider == null) {
+            			this.provider = "LOCAL";
+        		}
+    		}
+
+
+làm sao để giữ được session cho người dùng đăng nhập = provider 
+
+
+- Debug Luồng Hoạt Động của OAuth và Spring Security (Extra)
+Tài liệu: https://docs.spring.io/spring-security/reference/servlet/oauth2/login/advanced.html
+Mụcđích: hiểu “sâu hơn” về những thứ đã làm “mặc định” của Spring Security.
+
++ Xử lý mặc định khi chạy app Đặt breakpoint và restart ứng dụng.
+	Cấu hình trong config ban đầu .oauth2Login(oauth2 -> oauth2.loginPage("/login") đối với oauth2Login nó nằm trong class HttpSecurity.class tham số truyền vào của function này là OAuth2LoginConfigurer() ~ ở đây ta sẽ truyền vào 1 config nào đó
+
+	Ctrl + T
+	HttpSecurity.class-> oauth2Login()
+
+	OAuth2ClientAutoConfiguration 	// đây là config mà ta cần truyền vào trong class này ta chú ý đến class OAuth2ClientRegistrationRepositoryConfiguration
+
+	OAuth2ClientRegistrationRepositoryConfiguration (đặt breakpoint) trong class này có function return ra InMemory... đây là nơi mặc định ứng dụng chạy vào dùng để lưu thông tin vào Memory/RAM của máy tính. Trong function này có OAuth2ClientPropertiesMapper
+
+	OAuth2ClientPropertiesMapper.class là nơi map các thuộc tính lại những thuộc tính này được nạp lên từ file properties + một data khác mà nó nạp lên nữa là từ CommonOAuth2Provider.class
+
+	CommonOAuth2Provider.class trong này sẽ set một số thông tin của các provider mặc định (hiện tại thì hỗ trợ github, facebook, google, okta, ... như scope(phạm vi lấy), một số url mặc định, ...
+
+	nhờ có việc cấu hình ở /config .oauth2Login(oauth2 -> oauth2.loginPage("/login") -> Spring đã tự động thêm các cấu hình mặc định khác rồi
+ => lưu cấu hình mặc định vào memory (restart là mất)
+
++ Xử lý quá trình login
+Lưu ý 1: trước khi test login, cần clear cookies, đồng thời restart server để clear session
+Lưu ý 2: khi học về Spring Security login với username và password. 
+Quy tắc: chạy Filter đầu tiên
+Luồng đã được làm sẵn:
+Sau khi Provider login thành công, sẽ trả về thông tin xác thực người dùng thông qua quá trình sau những filter pải chạy qa:
+
+OAuth2LoginAuthenticationFilter -> attemptAuthentication (đặt breakpoint tại function này) chạy vào khi click vào đăng nhập = provider 
+	dòng 75: OAuth2LoginAuthenticationToken authenticationResult = this.getAuthenticationManager() liên quan tới Manager để biết được Manager nào xử lý thì bấm vào Step into (giúp chạy vào hàm getAuthenticationManager, step over sẽ chạy line by line) mở ra 1 Abstract... ... -> để quản lý loại Provider nào được sử dụng -> check class ProviderManager nơi chạy vòng lặp để chọn ra Provider thích hợp cho việc Login của người dùng 
+
+	đặt BreakPoint trong vòng lặp dòng 182 result = provider.authenticate(authentication) bấm continue thì Provider đầu tiên chạy vào là OAuth2LoginAuthenticationProvider (tức là provider = OAuth2LoginAuthenticationProvider) bấm step into để vào function authenticate của provider đó làm gì
+	khi vào function authenticate thì có: 
+	if (loginAuthenticationToken.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid")) {
+         return null;
+	}
+	thì mặc định scope khi ta login = google thì có có openid được cấu hình mặc định ở CommonOAuth2Provider.class -> vào đây nó sẽ trả về null -> spring sẽ bỏ qua và ko sử dụng Provider này để tiến hành đăng nhập mà sử dụng ...
+	Để override ghi đè lại scope để cho spring sử dụng provider này đăng nhập (vì khi dùng với github mặc định ko có openid nên sẽ dùng provider này -> goole ta nên cấu hình dùng provider này luôn) thì cấu hình thêm trong file properties 
+	spring.security.oauth2.client.registration.google.scope=email,profile chỉ lấy email,profile thôi bỏ openid đi
+
+	Nếu ko cấu hình lại để mặc định nó sẽ chạy đến Provider tiếp theo (cái sẽ dùng mặc định nếu ko cấu hình) là OidcAuthorizationCodeAuthenticationProvider trong hàm authenticate có accessTokenResponse (cái được trả về khi đăng nhập thành công Spring sẽ lấy cái token này để giải mã ra được thông tin của người dùng dùng postman để check https://www.googleapis.com/oauth2/v3/userinfo endpoint mặc định trong class CommonOAuth2Provider cung cấp thêm accessTokenResponse.accessToken.tokenValue để lấy thông tin - lưu ý nhớ common lại phần override scope để mở openid lên nó chạy vào provider OidcAuthorizationCodeAuthenticationProvider mới test được) 
+	dòng 75 OidcUser oidcUser = (OidcUser)this.userService.loadUser(new OidcUserRequest(clientRegistration, accessTokenResponse.getAccessToken(), idToken, additionalParameters)); đây là nơi spring gọi API để từ Token chuyển sang thành thông tin của người dùng function loadUser() là từ OidcUservice.class 
+	đầu ra của function Authenticate của OidcAuthorizationCodeAuthenticationProvider Authentication chứa các thông tin của người dùng nằm trong Authentication.authorizationExchange.principal.attribute
+
+	cuối cùng khi đã có Authentication nó vẫn sẽ lưu vào SecurityContextHolderFilter như bth 
+
+SecurityContextHolderFilter
+	Watch variable: deferredContext.get()
+	thông tin lưu trong này sẽ có 1 số thông tin như email, name sẽ sử dụng như user bình thường nhưng phần quyền (Role: admin, user) sẽ ko dùng được -> sẽ hash code cứng thêm các thông tin này sau 
+
+đó những filter đầu, cuối sẽ chạy qa bỏ qa những Filter ở giữa qá trình 
+
+
+- cấu hình chuyển từ Oidc -> OAth
+
+Login OAuth2
+Tài liệu: https://docs.spring.io/spring-security/reference/servlet/oauth2/login/core.html#oauth2login-sample-initial-setup
+
+ Ctrl + T
+
+Đối với khi dùng OidcAuthorizationCodeAuthenticationProvider:
+	trong này có accessTokenResponse(chỉ có giá trị trong 1 giờ) thông thường khi có token sẽ gọi API để lấy info nhưng đối với dạng Provider này thì sẽ ko có gọi API mà lấy thông tin nay tại idToken dòng 73 (step into) vào trong hàm createOidcToken -> nó sẽ giải mã token ở đây để lấy info tại pía backend hàm này sẽ return về idToken (thông tin user nằm trong idToken.claims) nó sẽ giải mã token để lấy thông tin tại đây ko cần gọi API 
+	Tiếp tục dòng 75 oidcUser (nơi dùng loadUser) hàm loadUser này từ OidcUserService.java trong này có một đoạn dùng để kiểm tra load user if (this.shouldRetrieveUserInfo(userRequest)) ở đây khi mình ko quy định pần Scope thì nó mới load user lên (tức là nếu ko override lại scope để mặc định cho dùng provider này thì pần này sẽ được chạy) 
+
+-> OpenId và OAuth2 là 2 tiêu chuẩn 	
+
+Oauth2LoginAuthenticationProvider
+Sử dụng OAuth2 hay OpenID Connect (oidc) ?
+https://security.stackexchange.com/questions/44611/difference-between-oauth-openid-and-openid-connect-in-very-simple-term/44614#44614
+
+- Update code: 
+	Ép chuyển từ sử dụng OpenId -> OAuth2(overide lại scope = cấu hình lại file properties)
+		spring.security.oauth2.client.registration.google.scope=email,profile
+	-> khi chuyển qua Provider này tương tự như dùng Postman nó sẽ gọi API để lấy thông tin quy trình: đầu tiên chạy vào hàm authenticate của OAuth2LoginAuthenticationProvider.class 
+	khi chạy đến dòng 50 loadUser: OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters)); 
+	hàm loadUser của DefaultOAuth2UserService.class khi chạy đến dòng 54 bắt đầu gọi API: RequestEntity<?> request = (RequestEntity)this.requestEntityConverter.convert(userRequest);
+	hàm convert của OAuth2UserRequestEntityConverter.class gọi API ở đây giống như dùng Postman thiết lập URI + Token -> lấy được thông tin của user với URI để lấy info mặc định của Spring là https://www.googleapis.com/oauth2/v3/userinfo được cấu hình trong CommonOAuth2Provider và AccessToken 
+
+	- Vấn đề xảy ra là khi lấy được thông tin và lưu vào ContextHolder thì những thông tin này ko giống định dạng của 1 user bình thường -> cần customize lại cách lưu thông tin người dùng 
+	tài liệu: https://docs.spring.io/spring-security/reference/servlet/oauth2/login/advanced.html
+	-> cần ghi đè lại interface DefaultOAuth2UserService = service/userinfo/CustomOAuth2UserService.java rồi add nó vào Security để đè lên cái chạy mặc định 
+		Cần UserService để query xún database để kiểm tra có email này chưa (ko có thì tạo tài khoản mới, nếu có rồi thì lấy ra ROLE của user đó)
+		interface này có 1 hàm duy nhất là loadUser hàm này sẽ định nghĩa cách thức nạp thông tin vào Security ContextHolder 
+			đầu tiên gọi super để Security nạp thông tin user sau khi có user: oAuth2User -> lấy ra attributes  oAuth2User.getAttributes(); (chứa các thông tin cần thiết của user như tài khoản gg, còn oAuth2User.authoritis -> chứa các quyền mặc định của spring cấu hình phần này ko dùng đc)
+			registrationId giúp nhận biết được dùng provider nào để đăng nhập (google hay github) để biết lưu thông tin vào database cho đúng 
+
+			Phần xử lý lỗi nếu email == null: ở đây là th khi đn = github -> nó sẽ ko trả về thông tin của email -> hiển thị lỗi. hiện tại cũng ko đn = git hub đc cần cấu hình thêm throws ra excpt và cho hiển thị lên frontend qa jsp
+			tiếp theo nếu khi đăng nhập đã gửi về email -> thì kiểm tra email này đã có trong database chưa || đã đn = email này lần nào chưa. nếu chưa có thì tạo tk với một số tham số cố định và lưu vào database 
+			cuối cùng là return về 1 DefaultOAuth2User set Role cho nó ở đây giống như lúc cấu hình đn bình thường với Spring Security service/CustomUserDetailsService.java lúc return về User tham số: role, attributes, string là key giúp pân biệt các user với nhau 
+
+cuối cùng là nạp vào Security và customize lại .userInfoEndpoint
+	
+
+
+- Oauth2 là 1 tiêu chuẩn để kết nối giữa các hệ thống khác nhau 
+	Trong dự án này sẽ sử dụng OAuth2 Log in + OAuth2 Client 
+	OAuth2 Resource Server sẽ làm ở Restful API 
+	chỉ cho accessToken và pải gọi lại API của nó để lấy thêm thông tin 
+	(authentication: chỉ xác định quá trình đăng nhập)
+	dùng accessToken -> gọi API của nó để giải mã token -> lấy thông tin 
+
+- OpenId: thì sẽ xác định chính xác lun bạn là ai - thông qua việc cung cấp lại token -> giải mã được token này -> lấy ra thông tin(authorize: xác định rõ bạn là ai)
+	giải mã token -> lấy thông tin
+
+- Về độ an toàn thì tùy theo đánh giá của các ThirdParty: 
+	đối với google thì cung cấp cả 2 là: openID(*), Oauth2
+	đối với github chỉ cung cấp: Oauth2
+
+
+- Xử lý đăng nhập với github: 	
+Tạo Github OAuth App https://github.com/settings/developers
+	Authorized JavaScript origins: http://localhost:8080
+	Authorized redirect URIs: http://localhost:8080/login/oauth2/code/github
+Cấu hình Java Spring
+	//application.properties
+	spring.security.oauth2.client.registration.github.client-id=<your client id>
+	spring.security.oauth2.client.registration.github.client-secret=<your client secret>
+
+Lưu ý: có 2 vấn đề lớn (bugs) cần phải fix, mình nêu ra để các bạn biết và TỰ FIX (coi như là bài tập giao thêm)
+
+Bug 1: Nếu account github để tại chế độ private và không public email sẽ không lấy được thông tin trường email.
+Để fix thì có 2 cách:--
+	Cách 1 (dễ nhất): là check điều kiện email = null, ném ra exception luôn (tức là không cho sử dụng tài khoản đấy để login)
+	Cách 2: khi làm dự án của các bạn, cần thiết kế table users khác đi (như mình phân tích trong video). Như vậy, khi lưu user mà không truyền email/password sẽ không bị lỗi
+
+Bug 2: sử dụng 1email cho cả Google và Github
+Ví dụ: bạn đăng nhập thành công với Google, sau đấy lại đăng nhập với Github, và cả 2 tài khoản trên cùng sử dụng chung email, sẽ gặp tình trạng là tên hiển thị (fullName) và avatar là của tài khoản trước đó.
+Để fix thì có 2 cách--
+	Cách 1 (dễ nhất) : là khi login, cần check xem email với “provider” GITHUB/GOOGLE đãtồn tại chưa. Nếu tồn tại => ném ra exception và dừng quá trình đăng nhập
+	Cách 2: tương tự như bug 1, cần design lại table users
+ 
+Gợi ý cách fix 2 bug ở trên, bằng cách sử dụng exception:
+
+Ý tưởng: file CustomOAuth2UserService ném ra OAuth2AuthenticationException
+	=> cần tạo ra OAuth2AuthenticationException
+Bước 1: cần némra exception tại file CustomOAuth2UserService.java
+Ví dụ bug 1:
+// handle exception
+if (email == null) {
+	OAuth2Error error = new OAuth2Error("invalid_request", "Can't get email address. Maybe login with private email (Github)", null);
+throw new OAuth2AuthenticationException(error);
+}
+
+Ví dụ về bug 2:
+ if (!user.getProvider().equalsIgnoreCase(registrationId)) {
+	 OAuth2Error error = new OAuth2Error("invalid_request", "Can't use this email address. Account already exist : " + email, null);
+ throw new OAuth2AuthenticationException(error);
+ }
+
+Bước 2: Xử lý exception, tạo thêm 1 cái handler cho trường hợp failed Làm tương tự CustomSuccessHandler.java, tuy nhiên cần kế thừa AuthenticationFailureHandler, tức là giải quyết cho case failure.
+Tương tự việc xử lý successHandler, tạo thêm failureHandler, ví dụ như bên dưới:
+ @Override
+ public void onAuthenticationFailure(
+	HttpServletRequest request, HttpServletResponse response,
+	AuthenticationException exception) throws IOException, ServletException {
+	response.sendRedirect("/login?error=" + exception.getMessage());
+ }
+
+=> mụctiêu ở đây, là ném chi tiết lỗi của exception lên đường link url của /login
+
+Bước 3: khai báo handler vào security
+Sau khi đã có failureHandler, khai báo vào security: (làm tương tự cái success)
+.oauth2Login(oauth2-> oauth2.loginPage("/login")
+.successHandler(customSuccessHandler())
+.failureHandler(customFailureHandler())
+
+Bước 4: hiển thị exception ra view Sửa file login.jsp
+<c:if test="${param.error != null}">
+	<div class="my-2" style="color: red;">
+	${param.error == "" ? "Invalid email/password" : param.error}
+	</div>
+</c:if>
+ //Nếu có lỗi, hiển thị chi tiết lỗi, còn không , hiển thị invalid email/password
+
+DONE
+
 
 	
 
