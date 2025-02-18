@@ -1445,7 +1445,7 @@ Mô hình hoạt động của Spring Security trong việc đăng nhập = tran
 		LdapUserDetailsService
 		....
 		hoặc là CustomUserDetailsService(loại người dùng tự kế thừa lại UserDetailsService và custom nó)
-		Đặc biệt trong Interface này chỉ có 1 method là loadUserByUsername() chúng ta cần custom cái method này sao cho hợp với dự án của chúng ta với:
+		Đặc biệt trong Interface này chỉ có 1 method là loadUserByUsername(username) chúng ta cần custom cái method này sao cho hợp với dự án của chúng ta với:
 			input: username nhập vào ở view
 			output: UserDetails ở đây nó sẽ trả về cho Provider gọi nó (trong này lưu thông tin như password)
 	2.3 - cuối cùng là việc so sánh password Spring Security cung cấp 1 interface PasswordEncoder sẽ có 1 class kế thừa nó và được init khi đã lựa chọn ra được 1 Provider 
@@ -1469,7 +1469,7 @@ c) tiến hành thực hiện trên code = chế độ Debug để xem quá trì
 Mở nhanh file (đã compiled) với VSCode:
 nhấn Ctrl + T
 - đầu tiên khi nhập dữ liệu vào Form login và nhấn submit -> Spring Security sẽ bắt đầu đưa dữ liệu qua các Filter
-Thứ tự các file class cần debug:
+Thứ tự các file class cần debug: chạy qa các filter đến UsernamePasswordAuthenticationFilter
 1 - UsernamePasswordAuthenticationFilter(đặt breakpoint dòng 35)
 	trong class này để ý attemptAuthentication() hàm này sẽ trả về 1 biến authenticate 
 		return this.getAuthenticationManager().authenticate(authRequest);
@@ -1590,7 +1590,7 @@ d) Custom logic ở loadUserByUsername giúp login với Spring Security
     public UserDetailsService userDetailsService(UserService userService) {
         return new CustomUserDetailsService(userService);
     }
-   	Giải thích code: đoạn code này sẽ ghi đè lại UserDetailsService mặc định của Spring Security = CustomUserDetailsService thông qua việc return lại CustomUserDetailsService việc truyền userService vào là vì trong CustomUserDetailsService cần userService(service tự tạo) để truy vấn xuống csdl
+   	Giải thích code: đoạn code này sẽ ghi đè lại UserDetailsService mặc định của Spring Security = CustomUserDetailsService thông qua việc return lại CustomUserDetailsService (nhờ @Bean) việc truyền userService vào là vì trong CustomUserDetailsService cần userService(service tự tạo) để truy vấn xuống csdl
 
 	Ở đây chúng ta đã nói với nó hash password và userdetailsService -> h lắp ráp chúng lại là thông báo cho spring Security ứng với việc login chúng ta pải làm như thế nào -> ghi đè lại authenticationManager để xâu chuỗi các hoạt động lại 
 
@@ -3083,6 +3083,7 @@ khi mới thiết lập endpoint /oauth2/authorization/google||github -> khi cli
 thêm 
 	Cấu hình mặc định: .oauth2Login(Customizer.withDefaults()) -> khi vào trang login nó sẽ hiển thị các option provider được cấu hình trong file properties để chọn và đăng nhập
 	Cấu hình theo dự án: oauth2Login(oauth2 -> oauth2.loginPage("/login")) khi đăng nhập nó sẽ vào trang login của mình và tự chọn những provider do mình cung cấp -> khi click vào provider ở trang login nó sẽ redirect tới trang login của Provider đó 
+	-> khi cấu hình 1 trong 2 cái này thì khi đăng nhập dùng Third party khi chạy qa các Filter chains sẽ ko vào UsernamePasswordAuthenticationFilter mà vào OAuth2LoginAuthenticationFilter -> ProviderManager -> OpenID/OAuth2 -> loaduser 
 
 Lúc này khi đăng nhập những thông tin lưu trong session được sử dụng ở frontend sẽ ko dùng được vì mình chưa lưu thông tin vào session cũng như thông tin người dùng vào database 
 
